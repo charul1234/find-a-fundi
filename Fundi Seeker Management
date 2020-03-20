@@ -1,0 +1,173 @@
+Queries:-
+
+1. If Seeker added extra working hours to the Fundi and Fundi has been already booked for that time then how we will manage this condition.
+2. If Fundi do not set their hourly charges then can we show the default charge to seeker for the Fundi? 
+3. When Fundi complete his job, send confirmation to Seeker and Seeker will reject the confirmation then what will be the next process?
+4. If Seeker wants to book Fundi for more than one day:-
+	- then will Seeker book for alternate days as per selected timezone per day?
+	- Will Seeker book for continuous days without time selection?
+	- Will there be a dafault setting of start time and end time if Seeker book for as per day?
+
+5. Is there any condition for package as per service type for Fundi i.e. one can select the packages who have select Package service type.    
+
+
+Database:-
+
+users:
+id
+name
+email
+mobile_number
+dob
+start_time
+end_time
+additional_work
+radius
+is_rfq
+is_package
+is_hourly
+price
+profile_picture
+facebook_id
+facebook_data
+google_plus_id
+google_plus_data
+display_seeker_reviews
+is_active
+
+address_users
+user_id
+address
+latitude
+logitude
+
+document_users
+id
+user_id
+key_option
+text
+file
+
+package_users
+id
+user_id
+package_id
+price
+is_active
+
+charge_hourly_users
+user_id
+hours
+amount
+type
+
+categories:
+parent_id
+title
+is_active
+
+packages:
+title
+discription
+amount
+start_date
+time_date
+is_active
+
+requests:
+id
+user_id
+package_id
+title
+description
+requirements
+location
+servicedate_time
+budget (RFQ)
+estimated_hours (Hourly)
+min_badget (Hourly)
+max_badget (Hourly)
+fundi_price
+service_type
+status
+
+request_files
+request_id
+file
+
+bookings:
+id
+user_id
+package_id
+title
+description
+requirements
+location
+servicedate_time
+budget (RFQ)
+estimated_hours (Hourly)
+min_badget (Hourly)
+max_badget (Hourly)
+fundi_price
+service_type
+status
+
+booking_files
+booking_id
+file
+
+
+Work Flow throughout the video:-
+
+Login/Registration
+
+Fundi Registration:
+ -Name 
+ -Mobile (verify)
+ -Email (verify)
+ -Category
+ -Sub Category
+ -Username
+ -Password
+
+
+Fundi's Profile:
+	-Working Hours (Start/End Time, Checkbox for additional Or extra working)
+	-Age (date picker)
+	-Qualification Text & Browse (add more)
+	-Add Badges Text & Browse (add more)
+	-Documents Text & Browse (add more)
+	-radius
+	-service_type (checkboxes RFQ/Package/Hourly)
+
+	* Admin activate the account of Fundi after checking All the details
+	* Fundi will select a package and then wait for Admin's approval for a package with the price which will be added by admin.
+	* Fundi Will add the Hourly Schedule with price (Hourly/Day/Week).
+	* If Fundi Select package checkbox then he will go to the package selection screen.
+	* If Fundi Select Hourly checkbox then he will go to the Hours add screen.
+
+	Service Requests:
+		1.For RFQ:
+		 -Add description
+		 -Upload previous pics
+		 -His price
+		 -then Submit
+
+		2.For Hourly:
+	 	 -Fundi Will just accept or reject the job.
+
+
+	Rating & Reviews:-
+	 - Fundi will rate and review for seeker
+
+
+Seeker's Profile
+	-Add checkbox to share their details to other Fundi (with seeker's consent)
+	
+	Service Requests:
+		1.For RFQ:
+		 - fill the date, start and end time.
+		 - Then submit
+
+		2. For Hourly:
+	 	 - Seeker get notification for job approve/reject.
