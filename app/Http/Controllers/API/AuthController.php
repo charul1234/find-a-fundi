@@ -35,7 +35,7 @@ class AuthController extends Controller
         $input['password'] = bcrypt($input['password']);
         $user = User::create($input); 
         if($user){
-            $user->assignRole(config('constants.ROLE_TYPE_USER_ID'));
+            $user->assignRole(config('constants.ROLE_TYPE_SEEKER_ID'));
             $response['status'] = true; 
             $response['message'] = "You has been successfully registered, please login with your email and password.";
             return response()->json($response);

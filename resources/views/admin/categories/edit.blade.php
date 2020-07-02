@@ -25,7 +25,7 @@
             <div class="form-group {{$errors->has('title') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
                 <label class="col-md-3 control-label" for="title">Name <span style="color:red">*</span></label>
                  <div class="col-md-9">
-                    {!! Form::text('title', old('title',$user->title), ['class' => 'form-control', 'placeholder' => 'Name']) !!}
+                    {!! Form::text('title', old('title',$category->title), ['class' => 'form-control', 'placeholder' => 'Name']) !!}
                     @if($errors->has('title'))
                     <strong for="title" class="help-block">{{ $errors->first('title') }}</strong>
                     @endif
