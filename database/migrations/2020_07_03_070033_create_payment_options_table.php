@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateExperienceLevelsTable extends Migration
+class CreatePaymentOptionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,9 @@ class CreateExperienceLevelsTable extends Migration
      */
     public function up()
     {
-        Schema::create('experience_levels', function (Blueprint $table) {
+        Schema::create('payment_options', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('title');
+            $table->string('title')->nullable();
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ class CreateExperienceLevelsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('experience_levels');
+        Schema::dropIfExists('payment_options');
     }
 }

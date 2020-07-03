@@ -15,10 +15,10 @@ class CreateProfilesTable extends Migration
     {
         Schema::create('profiles', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('country_id')->default(0);
-            $table->unsignedBigInteger('city_id')->default(0);
-            $table->unsignedBigInteger('experience_level_id')->default(0);
-            $table->unsignedBigInteger('payment_option_id')->default(0);
+            $table->unsignedBigInteger('user_id')->default(0);
+            $table->unsignedBigInteger('city_id')->nullable()->default(0);
+            $table->unsignedBigInteger('experience_level_id')->nullable()->default(0);
+            $table->unsignedBigInteger('payment_option_id')->nullable()->default(0);
             $table->date('dob')->nullable();
             $table->text('facebook_url')->nullable();
             $table->text('twitter_url')->nullable();
@@ -30,10 +30,16 @@ class CreateProfilesTable extends Migration
             $table->string('latitude',45)->nullable();
             $table->string('longitude',45)->nullable();
             $table->string('passport_number')->nullable();
+            $table->tinyInteger('display_seeker_reviews')->default(0);
             $table->tinyInteger('fundi_is_middlemen')->default(0);
             $table->tinyInteger('fundi_have_tools')->default(0);
             $table->tinyInteger('fundi_have_smartphone')->default(0);
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade'); 
+            $table->foreign('city_id')->references('id')->on('cities')->onDelete('set null'); 
+            $table->foreign('experience_level_id')->references('id')->on('experience_levels')->onDelete('set null'); 
+            $table->foreign('payment_option_id')->references('id')->on('payment_options')->onDelete('set null'); 
         });
     }
 

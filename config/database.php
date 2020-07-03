@@ -2,17 +2,6 @@
 
 use Illuminate\Support\Str;
 
-// Determine timezone for mysql.
-$dateTimeZoneApp = new DateTimeZone(config('app.timezone'));
-$dateTimeZoneUtc = new DateTimeZone("UTC");
-$dateTimeApp = new DateTime("now", $dateTimeZoneApp);
-$dateTimeUtc = new DateTime("now", $dateTimeZoneUtc);
-
-$hourOffset = round($dateTimeZoneApp->getOffset($dateTimeUtc) / 3600);
-$offsetString = $hourOffset > 0
-    ? "+" . str_pad($hourOffset, 2, '0', STR_PAD_LEFT) . ":00"
-    : "-" . str_pad($hourOffset, 2, '0', STR_PAD_LEFT) . ":00";
-
 return [
 
     /*
@@ -70,8 +59,7 @@ return [
             'strict' => true,
             'engine' => 'InnoDB',
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-                PDO::MYSQL_ATTR_INIT_COMMAND => 'SET time_zone = \''.$offsetString.'\''
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA')
             ]) : [],
         ],
 

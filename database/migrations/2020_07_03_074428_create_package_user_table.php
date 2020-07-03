@@ -18,6 +18,9 @@ class CreatePackageUserTable extends Migration
             $table->unsignedBigInteger('package_id');
             $table->float('price', 8, 2)->nullable();
             $table->tinyInteger('is_active')->default(1);
+            
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('package_id')->references('id')->on('packages')->onDelete('cascade'); 
         });
     }
 

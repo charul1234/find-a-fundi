@@ -15,7 +15,7 @@ class CreateSettingsTable extends Migration
     {
         Schema::create('settings', function (Blueprint $table) {
             $table->increments('id');
-            $table->text('option_name');
+            $table->text('option_name')->nullable();
             $table->longtext('option_value')->nullable();
             $table->timestamps();
         });

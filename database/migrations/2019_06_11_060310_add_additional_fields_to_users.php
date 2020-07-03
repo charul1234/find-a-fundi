@@ -14,8 +14,7 @@ class AddAdditionalFieldsToUsers extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->tinyInteger('display_seeker_reviews')->default(0)->after('mobile_number');
-            $table->text('facebook_id')->nullable()->after('display_seeker_reviews');
+            $table->text('facebook_id')->nullable()->after('mobile_number');
             $table->text('facebook_data')->nullable()->after('facebook_id');
             $table->text('google_plus_id')->nullable()->after('facebook_data');
             $table->text('google_plus_data')->nullable()->after('google_plus_id');

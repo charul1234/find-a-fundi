@@ -32,14 +32,17 @@ class AuthController extends Controller
             'address' => 'required', 
             'latitude' => 'required', 
             'longitude' => 'required', 
-            'otp' => 'required', 
+            'otp' => 'required',  
             'password' => 'required|confirmed'
         ]);
 
         if ($validator->fails()) { 
             return response()->json(['message'=>$validator->errors()->first()]);            
         }
-        OtpUser::where(['otp'=>$request->otp])->first();
+        $otpuser = OtpUser::where(['otp'=>$request->otp,'mobile_number'=>$request->mobile_number])->first();
+        if (!$otpuser) {
+            return response()->json(['message'=>'OTP is incorrect.']);
+        }
         $input = array_map('trim', $request->all());
         $input['password'] = bcrypt($input['password']);
         $user = User::create($input); 
@@ -162,10 +165,11 @@ class AuthController extends Controller
 
         if($user){
             PasswordReset::where('email', $user->email)->delete();
+            $code = rand(100000,999999);
             $passwordReset = PasswordReset::create(
                 [
                     'email' => $user->email,
-                    'token' => str_random(6)
+                    'token' => $code
                 ]
             );
 
@@ -175,7 +179,7 @@ class AuthController extends Controller
                 );
             
             $response['status'] = true; 
-            $response['response'] = array();
+            $response['response'] = array('code'=>$code);
             $response['message'] = "We have sent a verification code on your email";
             return response()->json($response); 
         }else{

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCountriesTable extends Migration
+class CreateExperienceLevelsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,9 @@ class CreateCountriesTable extends Migration
      */
     public function up()
     {
-        Schema::create('countries', function (Blueprint $table) {
+        Schema::create('experience_levels', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('title');
-            $table->tinyInteger('is_active')->default(1);
-            $table->tinyInteger('is_default')->default(0);
+            $table->string('title')->nullable();
             $table->timestamps();
         });
     }
@@ -29,6 +27,6 @@ class CreateCountriesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('countries');
+        Schema::dropIfExists('experience_levels');
     }
 }

@@ -20,7 +20,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'profile_picture', 'is_active', 'mobile_number', 'address', 'latitude', 'longitude'
+        'name', 'email', 'password', 'is_active', 'mobile_number'
     ];
 
     /**
@@ -50,11 +50,11 @@ class User extends Authenticatable implements MustVerifyEmail
         $user = $this;
 
         // get user image
-        if($user->profile_picture!="" && file_exists(public_path(config('constants.USERS_UPLOADS_PATH').$user->profile_picture))){
-            $user->profile_picture = url(config('constants.USERS_UPLOADS_PATH').$user->profile_picture);
-        }else{
-            $user->profile_picture = url(config('constants.NO_IMAGE_URL'));
-        }
+        // if($user->profile_picture!="" && file_exists(public_path(config('constants.USERS_UPLOADS_PATH').$user->profile_picture))){
+        //     $user->profile_picture = url(config('constants.USERS_UPLOADS_PATH').$user->profile_picture);
+        // }else{
+        //     $user->profile_picture = url(config('constants.NO_IMAGE_URL'));
+        // }
 
         // remove extra fields
         unset($user->email_verified_at);
