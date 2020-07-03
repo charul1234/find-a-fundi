@@ -14,7 +14,6 @@ class AddAdditionalFieldsToUsers extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('mobile_number',45)->unique()->nullable()->after('email');
             $table->text('facebook_id')->nullable()->after('mobile_number');
             $table->text('facebook_data')->nullable()->after('facebook_id');
             $table->text('google_plus_id')->nullable()->after('facebook_data');
@@ -32,7 +31,6 @@ class AddAdditionalFieldsToUsers extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('mobile_number');
             $table->dropColumn('facebook_id');
             $table->dropColumn('facebook_data');
             $table->dropColumn('google_plus_id');
