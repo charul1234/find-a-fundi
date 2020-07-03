@@ -16,7 +16,7 @@ class CreatePackageUserTable extends Migration
         Schema::create('package_user', function (Blueprint $table) {
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('package_id');
-            $table->integer('price', 8, 2)->nullable();
+            $table->integer('price', 8, 2)->default(0);
             $table->tinyInteger('is_active')->default(1);
         });
     }
