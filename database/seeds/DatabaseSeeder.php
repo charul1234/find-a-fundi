@@ -26,6 +26,14 @@ class DatabaseSeeder extends Seeder
                                                                      'email_verified_at' => now(),
                                                 					 'password'=>Hash::make('password')]);
 
+        $seeker = User::updateOrCreate(['email'=>'seeker@example.com'],['name'=>'Test Seeker',
+                                                                     'email'=>'seeker@example.com',
+                                                                     'mobile_number'=>'9874563210',
+                                                                     'email_verified_at' => now(),
+                                                                     'is_active' => TRUE,
+                                                                     'password'=>Hash::make('password')]);
+
+        $seeker->assignRole($seekerRole);
         $user->assignRole($superAdminRole);
 
 

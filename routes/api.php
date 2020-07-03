@@ -19,6 +19,7 @@ Route::group(['namespace'=>'API'], function(){
 		Route::post('login', 'AuthController@login');
 		Route::post('forgotPassword', 'AuthController@forgotPassword');
 		Route::post('resetPassword', 'AuthController@resetPassword');
+		Route::post('sendOTP', 'AuthController@sendOTP');
 
 		Route::group([
 		  'middleware' => 'auth:api'
@@ -28,7 +29,7 @@ Route::group(['namespace'=>'API'], function(){
 		});
 	});
 
-	Route::post('getCountries', 'WebserviceController@getCountries');
+	Route::get('getCountries', 'WebserviceController@getCountries');
 
 
 	// APIs that can access after login

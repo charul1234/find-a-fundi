@@ -21,7 +21,7 @@ class WebserviceController extends Controller
      * @return [string] message
      */
     public function getCountries(Request $request){
-        $countries = Country::with(['cities:country_id,id,title'])->where('is_active',TRUE)->get();
+        $countries = Country::with(['cities:country_id,id,title'])->where('is_active',TRUE)->get(['id','title']);
         $response['status'] = true;  
         $response['countries'] = $countries;
         $response['message'] = "Success";

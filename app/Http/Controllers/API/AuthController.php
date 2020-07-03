@@ -12,6 +12,7 @@ use File;
 
 use App\Notifications\SendOTP;
 use App\User;
+use App\OtpUser;
 use App\PasswordReset;
 
 class AuthController extends Controller
@@ -25,25 +26,27 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [ 
             'name' => 'required', 
             'email' => 'required|email|unique:'.with(new User)->getTable().',email',
-            'mobile_number' => 'required|mobile_number|unique:'.with(new User)->getTable().',mobile_number',
+            'mobile_number' => 'required|numeric|unique:'.with(new User)->getTable().',mobile_number',
             'country_id' => 'required', 
             'city_id' => 'required', 
             'address' => 'required', 
             'latitude' => 'required', 
             'longitude' => 'required', 
+            'otp' => 'required', 
             'password' => 'required|confirmed'
         ]);
 
         if ($validator->fails()) { 
             return response()->json(['message'=>$validator->errors()->first()]);            
         }
+        OtpUser::where(['otp'=>$request->otp])->first();
         $input = array_map('trim', $request->all());
         $input['password'] = bcrypt($input['password']);
         $user = User::create($input); 
         if($user){
             $user->assignRole(config('constants.ROLE_TYPE_SEEKER_ID'));
             $response['status'] = true; 
-            $response['message'] = "You has been successfully registered, please login with your email and password.";
+            $response['message'] = "You has been successfully registered.";
             return response()->json($response);
         }else{
             return response()->json(['message'=>'Something wrong in registration.']);
@@ -57,17 +60,18 @@ class AuthController extends Controller
      */ 
     public function sendOTP(Request $request){ 
         $validator = Validator::make($request->all(), [
-            'mobile_number' => 'required|mobile_number|unique:'.with(new User)->getTable().',mobile_number'
+            'mobile_number' => 'required|numeric|unique:'.with(new User)->getTable().',mobile_number'
         ]);
 
         if ($validator->fails()) { 
             return response()->json(['message'=>$validator->errors()->first()]);            
         }
         $input = array_map('trim', $request->all());
-        $user = User::create($input); 
-        if($user){
-            $user->assignRole(config('constants.ROLE_TYPE_SEEKER_ID'));
+        $input['otp'] = rand(100000,999999);
+        $userotp = OtpUser::updateOrCreate(['mobile_number'=>$request->mobile_number],$input); 
+        if($userotp){
             $response['status'] = true; 
+            $response['otp'] = $input['otp']; 
             $response['message'] = "You OTP has been sent successfully.";
             return response()->json($response);
         }else{
@@ -83,22 +87,23 @@ class AuthController extends Controller
 
     public function login(Request $request){        
         $rules =   ['email' => 'required', 
-                    'password' => 'required'];
+                    'password' => 'required',
+                    'role_id' => 'required'];
                     
         $messages = [];
-        $validator = Validator::make($request->all(), $rules, $messages)->setAttributeNames(['email'=>'email or username']);        
+        $validator = Validator::make($request->all(), $rules, $messages)->setAttributeNames(['email'=>'email or mobile number']);        
         if ($validator->fails()) { 
             return response()->json(['message'=>$validator->errors()->first()]);    
         }       
 
         $email = $request->input('email');
-        $fieldType = filter_var($email, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+        $fieldType = filter_var($email, FILTER_VALIDATE_EMAIL) ? 'email' : 'mobile_number';
         $credentials= [$fieldType => $email, 'password'=>$request->get('password')];
 
         if(Auth::attempt($credentials)){
             $user = Auth::user();
 
-            if($user->hasRole(config('constants.ROLE_TYPE_SUPERADMIN_ID')))
+            if(!$user->hasRole((Integer)$request->role_id))
                 return response()->json(['message'=>trans('auth.failed')]);
 
             if($user->is_active==false){
