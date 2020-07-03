@@ -12,13 +12,8 @@ class Package extends Model
      * @var array
      */
     protected $fillable = [
-        'user_id', 'category_id', 'title', 'duration', 'description', 'image', 'is_active'
+        'category_id', 'title', 'duration', 'description', 'image', 'is_active'
     ];
-
-    // For get provider
-    public function provider(){
-        return $this->belongsTo(User::class,'user_id');
-    }
 
     // For get category
     public function category(){

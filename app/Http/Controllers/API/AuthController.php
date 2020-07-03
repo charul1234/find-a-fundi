@@ -51,6 +51,31 @@ class AuthController extends Controller
     }
 
     /** 
+     * Register api 
+     * 
+     * @return \Illuminate\Http\Response 
+     */ 
+    public function sendOTP(Request $request){ 
+        $validator = Validator::make($request->all(), [
+            'mobile_number' => 'required|mobile_number|unique:'.with(new User)->getTable().',mobile_number'
+        ]);
+
+        if ($validator->fails()) { 
+            return response()->json(['message'=>$validator->errors()->first()]);            
+        }
+        $input = array_map('trim', $request->all());
+        $user = User::create($input); 
+        if($user){
+            $user->assignRole(config('constants.ROLE_TYPE_SEEKER_ID'));
+            $response['status'] = true; 
+            $response['message'] = "You OTP has been sent successfully.";
+            return response()->json($response);
+        }else{
+            return response()->json(['message'=>'Something wrong in registration.']);
+        }
+    }
+
+    /** 
      * login api 
      * 
      * @return \Illuminate\Http\Response 

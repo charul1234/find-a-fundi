@@ -28,6 +28,9 @@ Route::group(['namespace'=>'API'], function(){
 		});
 	});
 
+	Route::post('getCountries', 'WebserviceController@getCountries');
+
+
 	// APIs that can access after login
 	Route::group([
 	  'middleware' => 'auth:api'
