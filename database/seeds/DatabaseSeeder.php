@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
         $user = User::updateOrCreate(['email'=>'admin@example.com'],['name'=>'Super Admin',
                                                 					 'email'=>'admin@example.com',
                                                                      'email_verified_at' => now(),
+                                                                     'is_active' => TRUE,
                                                 					 'password'=>Hash::make('password')]);
 
         $seeker = User::updateOrCreate(['email'=>'seeker@example.com'],['name'=>'Test Seeker',

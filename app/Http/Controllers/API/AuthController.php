@@ -14,6 +14,7 @@ use App\Notifications\SendOTP;
 use App\User;
 use App\OtpUser;
 use App\PasswordReset;
+use App\Profile;
 
 class AuthController extends Controller
 {
@@ -43,11 +44,12 @@ class AuthController extends Controller
         if (!$otpuser) {
             return response()->json(['message'=>'OTP is incorrect.']);
         }
-        $input = array_map('trim', $request->all());
-        $input['password'] = bcrypt($input['password']);
+        $input = ['name'=>$request->name, 'email'=>$request->email, 'mobile_number'=>$request->mobile_number, 'is_active'=>TRUE];
+        $input['password'] = bcrypt($request->password);
         $user = User::create($input); 
         if($user){
             $user->assignRole(config('constants.ROLE_TYPE_SEEKER_ID'));
+            $user->profiles()->create(['city_id'=>$request->city_id, 'work_address'=>$request->address, 'latitude'=>$request->latitude, 'longitude'=>$request->longitude, 'display_seeker_reviews'=>(isset($request->display_seeker_reviews) && $request->display_seeker_reviews == TRUE)?TRUE:FALSE]);
             $response['status'] = true; 
             $response['message'] = "You has been successfully registered.";
             return response()->json($response);

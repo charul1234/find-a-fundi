@@ -16,9 +16,9 @@ class CreateProfilesTable extends Migration
         Schema::create('profiles', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('user_id')->default(0);
-            $table->unsignedBigInteger('city_id')->nullable()->default(0);
-            $table->unsignedBigInteger('experience_level_id')->nullable()->default(0);
-            $table->unsignedBigInteger('payment_option_id')->nullable()->default(0);
+            $table->unsignedBigInteger('city_id')->nullable();
+            $table->unsignedBigInteger('experience_level_id')->nullable();
+            $table->unsignedBigInteger('payment_option_id')->nullable();
             $table->date('dob')->nullable();
             $table->text('facebook_url')->nullable();
             $table->text('twitter_url')->nullable();
@@ -26,7 +26,7 @@ class CreateProfilesTable extends Migration
             $table->text('googleplus_url')->nullable();
             $table->text('instagram_url')->nullable();
             $table->text('work_address')->nullable();
-            $table->integer('radius')->defaul(0);
+            $table->integer('radius')->defaul(0)->nullable();
             $table->string('latitude',45)->nullable();
             $table->string('longitude',45)->nullable();
             $table->string('passport_number')->nullable();

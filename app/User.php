@@ -48,6 +48,7 @@ class User extends Authenticatable implements MustVerifyEmail
     // For get user detail
     public function getUserDetail(){
         $user = $this;
+        $user->profiles;
 
         // get user image
         // if($user->profile_picture!="" && file_exists(public_path(config('constants.USERS_UPLOADS_PATH').$user->profile_picture))){
@@ -63,5 +64,13 @@ class User extends Authenticatable implements MustVerifyEmail
         unset($user->deleted_at);
         
         return $user;
+    }
+
+    /**
+     * Get the profiles for the blog post.
+     */
+    public function profiles()
+    {
+        return $this->hasMany(Profile::class);
     }
 }
