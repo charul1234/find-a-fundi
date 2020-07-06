@@ -34,6 +34,7 @@ class AuthController extends Controller
             'latitude' => 'required', 
             'longitude' => 'required', 
             'otp' => 'required',  
+            'profile_picture' => 'image|mimes:jpeg,jpg,png|max:'.config('medialibrary.max_file_size') / 1024,  
             'password' => 'required|confirmed'
         ]);
 
@@ -49,6 +50,14 @@ class AuthController extends Controller
         $user = User::create($input); 
         if($user){
             $user->assignRole(config('constants.ROLE_TYPE_SEEKER_ID'));
+
+            //upload profile picture
+            if ($request->hasFile('profile_picture')){
+                $file = $request->file('profile_picture');
+                $customimagename  = time() . '.' . $file->getClientOriginalExtension();
+                $user->addMedia($file)->toMediaCollection('profile_picture');
+            }
+
             $user->profiles()->create(['city_id'=>$request->city_id, 'work_address'=>$request->address, 'latitude'=>$request->latitude, 'longitude'=>$request->longitude, 'display_seeker_reviews'=>(isset($request->display_seeker_reviews) && $request->display_seeker_reviews == TRUE)?TRUE:FALSE]);
             $response['status'] = true; 
             $response['message'] = "You has been successfully registered.";

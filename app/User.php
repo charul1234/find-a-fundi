@@ -8,11 +8,13 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Spatie\Permission\Traits\HasRoles;
 use App\Notifications\ResetPassword;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laravel\Passport\HasApiTokens;
+use Laravel\Passport\HasApiTokens;;
+use Spatie\MediaLibrary\HasMedia\HasMedia;
+use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable implements MustVerifyEmail, HasMedia
 {
-    use HasApiTokens, Notifiable, SoftDeletes, HasRoles;
+    use HasApiTokens, Notifiable, SoftDeletes, HasRoles, HasMediaTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -48,14 +50,8 @@ class User extends Authenticatable implements MustVerifyEmail
     // For get user detail
     public function getUserDetail(){
         $user = $this;
+        $user->profile_picture = asset($user->getFirstMediaUrl('profile_picture'));
         $user->profiles;
-
-        // get user image
-        // if($user->profile_picture!="" && file_exists(public_path(config('constants.USERS_UPLOADS_PATH').$user->profile_picture))){
-        //     $user->profile_picture = url(config('constants.USERS_UPLOADS_PATH').$user->profile_picture);
-        // }else{
-        //     $user->profile_picture = url(config('constants.NO_IMAGE_URL'));
-        // }
 
         // remove extra fields
         unset($user->email_verified_at);
@@ -72,5 +68,16 @@ class User extends Authenticatable implements MustVerifyEmail
     public function profiles()
     {
         return $this->hasMany(Profile::class);
+    }
+
+    // in your model
+
+    public function registerMediaCollections()
+    {
+        $this
+        ->addMediaCollection('profile_picture')
+        ->useFallbackUrl(asset(config('constants.NO_IMAGE_URL')))
+        ->useFallbackPath(public_path(config('constants.NO_IMAGE_URL')))
+        ->singleFile();
     }
 }

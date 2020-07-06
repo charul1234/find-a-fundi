@@ -15,11 +15,7 @@
       <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
       @php $authUser = Auth::user(); @endphp
       <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{ $authUser->name }}</span>
-        @if(isset($authUser->profile_picture) && $authUser->profile_picture!="" && \Storage::exists(config('constants.USERS_UPLOADS_PATH').$authUser->profile_picture))
-          <img class="img-profile rounded-circle" src="{{ \Storage::url(config('constants.USERS_UPLOADS_PATH').$authUser->profile_picture) }}">
-        @else  
-          <img class="img-profile rounded-circle" src="{{ asset(config('constants.NO_IMAGE_URL')) }}">
-        @endif  
+      <img class="img-profile rounded-circle" src="{{ asset($authUser->getFirstMediaUrl('profile_picture')) }}">
       </a>
       <!-- Dropdown - User Information -->
       <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">

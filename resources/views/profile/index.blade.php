@@ -65,14 +65,7 @@
                             </div>
 
 
-                            @php $profile_picture = isset($user->profile_picture)?$user->profile_picture:''; @endphp
-                            @if(isset($profile_picture) && $profile_picture!=''  && \Storage::exists(config('constants.USERS_UPLOADS_PATH').$profile_picture)) 
-                            <div class="form-group">
-                                <div class="col-md-9">                            
-                                    <img width="100" src="{{ \Storage::url(config('constants.USERS_UPLOADS_PATH').$profile_picture) }}">
-                                </div>
-                            </div>
-                            @endif
+                            
                             <div class="form-group {{$errors->has('profile_picture') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
                                 <label class="col-md-3 control-label" for="title">{{__('Profile Picture') }} </label>
                                 <div class="col-md-9">
