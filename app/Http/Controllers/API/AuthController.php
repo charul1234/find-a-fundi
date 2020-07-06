@@ -39,11 +39,11 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) { 
-            return response()->json(['message'=>$validator->errors()->first()]);            
+            return response()->json(['status'=>FALSE, 'message'=>$validator->errors()->first()]);            
         }
         $otpuser = OtpUser::where(['otp'=>$request->otp,'mobile_number'=>$request->mobile_number])->first();
         if (!$otpuser) {
-            return response()->json(['message'=>'OTP is incorrect.']);
+            return response()->json(['status'=>FALSE, 'message'=>'OTP is incorrect.']);
         }
         $input = ['name'=>$request->name, 'email'=>$request->email, 'mobile_number'=>$request->mobile_number, 'is_active'=>TRUE];
         $input['password'] = bcrypt($request->password);
@@ -59,11 +59,11 @@ class AuthController extends Controller
             }
 
             $user->profiles()->create(['city_id'=>$request->city_id, 'work_address'=>$request->address, 'latitude'=>$request->latitude, 'longitude'=>$request->longitude, 'display_seeker_reviews'=>(isset($request->display_seeker_reviews) && $request->display_seeker_reviews == TRUE)?TRUE:FALSE]);
-            $response['status'] = true; 
+            $response['status'] = TRUE; 
             $response['message'] = "You has been successfully registered.";
             return response()->json($response);
         }else{
-            return response()->json(['message'=>'Something wrong in registration.']);
+            return response()->json(['status'=>FALSE, 'message'=>'Something wrong in registration.']);
         }
     }
 
@@ -78,18 +78,18 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) { 
-            return response()->json(['message'=>$validator->errors()->first()]);            
+            return response()->json(['status'=>FALSE, 'message'=>$validator->errors()->first()]);            
         }
         $input = array_map('trim', $request->all());
         $input['otp'] = rand(100000,999999);
         $userotp = OtpUser::updateOrCreate(['mobile_number'=>$request->mobile_number],$input); 
         if($userotp){
-            $response['status'] = true; 
+            $response['status'] = TRUE; 
             $response['otp'] = $input['otp']; 
             $response['message'] = "You OTP has been sent successfully.";
             return response()->json($response);
         }else{
-            return response()->json(['message'=>'Something wrong in registration.']);
+            return response()->json(['status'=>FALSE, 'message'=>'Something wrong in registration.']);
         }
     }
 
@@ -107,7 +107,7 @@ class AuthController extends Controller
         $messages = [];
         $validator = Validator::make($request->all(), $rules, $messages)->setAttributeNames(['email'=>'email or mobile number']);        
         if ($validator->fails()) { 
-            return response()->json(['message'=>$validator->errors()->first()]);    
+            return response()->json(['status'=>FALSE, 'message'=>$validator->errors()->first()]);    
         }       
 
         $email = $request->input('email');
@@ -118,16 +118,16 @@ class AuthController extends Controller
             $user = Auth::user();
 
             if(!$user->hasRole((Integer)$request->role_id))
-                return response()->json(['message'=>trans('auth.failed')]);
+                return response()->json(['status'=>FALSE, 'message'=>trans('auth.failed')]);
 
             if($user->is_active==false){
-                return response()->json(['message'=>trans('auth.noactive')]);
+                return response()->json(['status'=>FALSE, 'message'=>trans('auth.noactive')]);
             }
             // For store access token of user
             $tokenResult = $user->createToken('Login Token');
             $token = $tokenResult->token;
 
-            $response['status'] = true; 
+            $response['status'] = TRUE; 
             $response['message'] = "Logged in successfully.";
             $response['user'] = $user->getUserDetail();
             $response['access_token'] = $tokenResult->accessToken;
@@ -137,7 +137,7 @@ class AuthController extends Controller
             )->toDateTimeString();
             return response()->json($response); 
         }else{
-            return response()->json(['message'=>trans('auth.failed')]); 
+            return response()->json(['status'=>FALSE, 'message'=>trans('auth.failed')]); 
         }
     }
 
@@ -148,7 +148,7 @@ class AuthController extends Controller
      */
     public function logout(Request $request){
         $request->user()->token()->revoke();
-        $response['status'] = true;  
+        $response['status'] = TRUE;  
         $response['message'] = "Successfully logged out";
         return response()->json($response);
     }
@@ -169,7 +169,7 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), $rules,$messages);
         
         if ($validator->fails()) { 
-            return response()->json(['message'=>$validator->errors()->first()]);    
+            return response()->json(['status'=>FALSE, 'message'=>$validator->errors()->first()]);    
         }
 
         $user=User::where($credentials)->first();
@@ -189,12 +189,12 @@ class AuthController extends Controller
                     new SendOTP('forget_password', $passwordReset->token)
                 );
             
-            $response['status'] = true; 
+            $response['status'] = TRUE; 
             $response['response'] = array('code'=>$code);
             $response['message'] = "We have sent a verification code on your email";
             return response()->json($response); 
         }else{
-            return response()->json(['message'=>'Account details not found.']);
+            return response()->json(['status'=>FALSE, 'message'=>'Account details not found.']);
         }
     }
 
@@ -210,12 +210,13 @@ class AuthController extends Controller
             'password' => 'required|confirmed'
         ]);
         if ($validator->fails()) { 
-            return response()->json(['message'=>$validator->errors()->first()]);            
+            return response()->json(['status'=>FALSE, 'message'=>$validator->errors()->first()]);            
         }
 
         $user = User::where('email', $request->input('email'))->first();
         if (!$user)
             return response()->json([
+                'status'=>FALSE, 
                 'message' => 'We can\'t find a user with that e-mail address.'
             ]);
 
@@ -226,6 +227,7 @@ class AuthController extends Controller
 
         if (!$passwordReset)
             return response()->json([
+                'status'=>FALSE, 
                 'message' => 'This password reset token is invalid.'
             ]);
 
@@ -233,7 +235,7 @@ class AuthController extends Controller
         $user->save();
         $passwordReset->where('email', $passwordReset->email)->delete();
 
-        $response['status'] = true;
+        $response['status'] = TRUE;
         $response['message'] = "Update Password successfully.";
         return response()->json($response); 
     }
@@ -253,28 +255,13 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['message'=>$validator->errors()->first()]);
+            return response()->json(['status'=>FALSE, 'message'=>$validator->errors()->first()]);
         }
 
         $data = $request->all();
-
-        $userfile = $request->file('profile_picture');
-        if($userfile){
-            $path = public_path(config('constants.USERS_UPLOADS_PATH'));
-
-            $profile_pictureName = time().'.'.$userfile->getClientOriginalExtension();
-            File::isDirectory($path) or File::makeDirectory($path, 0777, true, true);
-
-            $uploadResponse = $userfile->move($path, $profile_pictureName);
-            if(isset($user->profile_picture) && $user->profile_picture!='' && file_exists($path.$user->profile_picture)){
-                File::delete($path.$user->profile_picture);
-            }
-
-            $data['profile_picture'] = $profile_pictureName;
-        }
         $user->update($data);
 
-        $response['status'] = true;  
+        $response['status'] = TRUE;  
         $response['user'] = $user->getUserDetail();
         $response['message'] = "Profile updated Successfully.";
         return response()->json($response);
