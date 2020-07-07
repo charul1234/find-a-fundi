@@ -165,7 +165,7 @@ class CountriesController extends Controller
      */
     public function updateDefault(Request $request, Country $country, $country_id=null){ 
         
-        $country = Country::where(['id'=>$country_id])->groupBy('id')->first();
+        $country = Country::where(['id'=>$country_id])->first();
                
         if (isset($country->is_default) && $country->is_default==FALSE) {   
             $country->update(['is_default'=>TRUE]);                
