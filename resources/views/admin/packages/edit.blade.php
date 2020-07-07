@@ -12,16 +12,7 @@
         <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold text-primary">Edit Package</h6>
         </div>
-        <div class="card-body">
-            <div class="form-group {{$errors->has('user_id') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-3 control-label" for="user_id">Provider <span style="color:red">*</span></label>
-                <div class="col-md-9">
-                    {!! Form::select('user_id', $providers, old('user_id',$package->user_id), ['id'=>'user_id', 'class' => 'form-control', 'placeholder' => 'Select Provider']) !!}
-                    @if($errors->has('user_id'))
-                    <strong for="user_id" class="help-block">{{ $errors->first('user_id') }}</strong>
-                    @endif
-                </div>
-            </div>
+        <div class="card-body">           
 
             <div class="form-group {{$errors->has('category_id') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
                 <label class="col-md-3 control-label" for="category_id">Category <span style="color:red">*</span></label>
@@ -78,7 +69,7 @@
             </div>
             @endif
 
-            <div class="form-group {{$errors->has('image') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+            <!-- <div class="form-group {{$errors->has('image') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
                 <label class="col-md-3 control-label" for="image">Image </label>
                 <div class="col-md-9">
                      {{ Form::file('image') }}
@@ -86,7 +77,7 @@
                     <strong for="image" class="help-block">{{ $errors->first('image') }}</strong>
                     @endif
                 </div>
-            </div>
+            </div> -->
         </div> 
         <div class="card-footer">
             <button type="submit" class="btn btn-responsive btn-primary btn-sm">{{ __('Submit') }}</button>
@@ -104,9 +95,6 @@
 jQuery(document).ready(function(){
     jQuery('#frmPackage').validate({
         rules: {
-            user_id:{
-                required: true
-            },
             category_id:{
                 required: true
             },

@@ -41,6 +41,23 @@
       <span>Packages</span></a>
     </li>
   @endcan
+
+  <li class="nav-item">
+      <a class="nav-link collapsed" href="javascript:;" data-toggle="collapse" data-target="#collapseMaster" aria-expanded="true" aria-controls="collapsePages">
+        <i class="fas fa-fw fa-list"></i>
+        <span>Master</span>
+      </a>
+      <div id="collapseMaster" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar" style="">
+        <div class="bg-white py-2 collapse-inner rounded">
+          @can('admin.countries.index')
+          <a class="collapse-item" href="{{ route('admin.countries.index') }}">Countries</a>
+          @endcan
+          @can('admin.cities.index')
+          <a class="collapse-item" href="{{ route('admin.cities.index') }}">Cities</a>
+          @endcan
+        </div>
+      </div>
+    </li>
   
     <!-- Divider -->
     <hr class="sidebar-divider">

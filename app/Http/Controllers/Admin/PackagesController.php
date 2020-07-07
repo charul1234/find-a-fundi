@@ -30,26 +30,17 @@ class PackagesController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function getPackages(Request $request){
-        $packages = Package::with(['provider','category']);
+        $packages = Package::with(['category']);
         $packages = $packages->select(DB::raw('packages.*'));
 
         return DataTables::of($packages)
-            ->orderColumn('image', '-title $1')
+            //->orderColumn('image', '-title $1')
             ->editColumn('created_at', function($package){
                 return date(config('constants.DATETIME_FORMAT'), strtotime($package->created_at));
             })
             ->filterColumn('created_at', function ($query, $keyword) {
                 $keyword = strtolower($keyword);
                 $query->whereRaw("LOWER(DATE_FORMAT(created_at,'".config('constants.MYSQL_DATETIME_FORMAT')."')) like ?", ["%$keyword%"]);
-            })
-            ->editColumn('provider.name', function ($package) {
-                return isset($package->provider->name)?$package->provider->name:'';
-            })
-            ->filterColumn('provider.name', function ($query, $keyword) {
-                $keyword = strtolower($keyword);
-                $query->whereHas('provider', function($query) use ($keyword){
-                    $query->whereRaw("LOWER(name) like ?", ["%$keyword%"]);
-                });
             })
             ->editColumn('category.title', function ($package) {
                 return isset($package->category->title)?$package->category->title:'';
@@ -60,14 +51,14 @@ class PackagesController extends Controller
                     $query->whereRaw("LOWER(title) like ?", ["%$keyword%"]);
                 });
             })
-            ->editColumn('image', function ($package) {
+            /*->editColumn('image', function ($package) {
                 if (isset($package->image) && $package->image!='' && \Storage::exists(config('constants.PACKAGES_UPLOADS_PATH').$package->image)) { 
                     $image = \Storage::url(config('constants.PACKAGES_UPLOADS_PATH').$package->image);
                 }else{
                     $image = asset(config('constants.NO_IMAGE_URL'));
                 }
                 return '<img src="'.$image.'" width="100">';
-            })
+            })*/
             ->editColumn('is_active', function ($package) {
                 if($package->is_active == TRUE )
                 {
@@ -89,7 +80,7 @@ class PackagesController extends Controller
                           ' <button type="submit" class="btn btn-danger btn-circle btn-sm"><i class="fas fa-trash"></i></button>'.
                           Form::close();
             })
-            ->rawColumns(['image','is_active','action'])
+            ->rawColumns(['is_active','action'])
             ->make(true);
     }
 
@@ -99,11 +90,8 @@ class PackagesController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create(){
-        $providers = User::where('is_active',TRUE)->whereHas('roles', function($query){
-            $query->where('id', config('constants.ROLE_TYPE_PROVIDER_ID'));
-        })->pluck('name','id');
         $categories = Category::where('is_active',TRUE)->get()->pluck('title','id');
-        return view('admin.packages.create', compact('providers','categories'));
+        return view('admin.packages.create', compact('categories'));
     }
 
     /**
@@ -113,24 +101,23 @@ class PackagesController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request){
-        $rules = [
-            'user_id'           => 'required', 
+        $rules = [ 
             'category_id'       => 'required', 
             'title'             => 'required', 
             'duration'          => 'required',
-            'image'             => 'image'
+            //'image'             => 'image'
         ];
 
         $validator = Validator::make($request->all(), $rules);
         if ($validator->passes()) {
             $data = $request->all();
-            if ($request->hasFile('image')){
+            /*if ($request->hasFile('image')){
                 $file = $request->file('image');
                 $customimagename  = time() . '.' . $file->getClientOriginalExtension();
                 $destinationPath = config('constants.PACKAGES_UPLOADS_PATH');
                 $file->storeAs($destinationPath, $customimagename);
                 $data['image'] = $customimagename;
-            }
+            }*/
             $package = Package::create($data);
             $request->session()->flash('success',__('global.messages.add'));
             return redirect()->route('admin.packages.index');
@@ -156,11 +143,8 @@ class PackagesController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit(Package $package){
-        $providers = User::whereHas('roles', function($query){
-            $query->where('id', config('constants.ROLE_TYPE_PROVIDER_ID'));
-        })->pluck('name','id');
         $categories = Category::get()->pluck('title','id');
-        return view('admin.packages.edit',compact('package','providers','categories'));
+        return view('admin.packages.edit',compact('package','categories'));
     }
 
     /**
@@ -172,16 +156,15 @@ class PackagesController extends Controller
      */
     public function update(Request $request, Package $package){
         $rules = [
-            'user_id'           => 'required', 
             'category_id'       => 'required', 
             'title'             => 'required', 
             'duration'          => 'required',
-            'image'             => 'image'
+            //'image'             => 'image'
         ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->passes()) {
             $data = $request->all();
-            if ($request->hasFile('image')){
+            /*if ($request->hasFile('image')){
                 $file = $request->file('image');
                 $customimagename  = time() . '.' . $file->getClientOriginalExtension();
                 $destinationPath = config('constants.PACKAGES_UPLOADS_PATH');
@@ -191,7 +174,7 @@ class PackagesController extends Controller
                     \Storage::delete(config('constants.PACKAGES_UPLOADS_PATH').$package->image);
                 }
                 $data['image'] = $customimagename;
-            } 
+            } */
             $package->update($data);
             $request->session()->flash('success',__('global.messages.update'));
             return redirect()->route('admin.packages.index');

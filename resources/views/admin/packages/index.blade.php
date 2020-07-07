@@ -21,25 +21,23 @@
             <div class="table-responsive">
                 <table class="table table-bordered" width="100%" cellspacing="0" id="packages">
                     <thead>
-                        <tr>
-                          <th>Created Date/Time</th>
-                          <th>Image</th>
-                          <th>Name</th>
-                          <th>Provider Name</th>
+                        <tr>                          
+                          <th>Name</th>                          
                           <th>Category Name</th>
+                          <!-- <th>Image</th> -->
                           <th>Duration</th>
+                          <th>Created Date/Time</th>
                           <th>Status</th>
                           <th>Action</th>
                         </tr>
                     </thead>
                     <tfoot>
-                        <tr>
-                          <th>Created Date/Time</th>
-                          <th>Image
-                          <th>Name</th>
-                          <th>Provider Name</th>
+                        <tr>                          
+                          <th>Name</th>                          
                           <th>Category Name</th>
+                          <!-- <th>Image</th> -->
                           <th>Duration</th>
+                          <th>Created Date/Time</th>
                           <th>Status</th>
                           <th>Action</th>
                         </tr>
@@ -81,12 +79,11 @@ function getPackages(){
             [10, 25, 50,100,"All"]
         ],
         columns: [
-            {data: 'created_at', name: 'created_at'},
-            {data: 'image', name: 'image'},
-            {data: 'title', name: 'title'},
-            {data: 'provider.name', name: 'provider.name'},
+            {data: 'title', name: 'title'},            
             {data: 'category.title', name: 'category.title'},
+           // {data: 'image', name: 'image'},            
             {data: 'duration', name: 'duration'},
+            {data: 'created_at', name: 'created_at'},
             {data: 'is_active', name: 'is_active', class: 'text-center', "width": "5%"},
             {data: 'action', name: 'action', orderable: false, searchable: false, "width": "10%"},
         ],

@@ -47,6 +47,20 @@ Route::group(['middleware' => ['auth']], function(){
 			]);
 			Route::post('packages/getPackages', 'PackagesController@getPackages')->name('packages.getPackages');
 			Route::get('packages/status/{package_id}', 'PackagesController@status')->name('packages.status');
+			/*countries*/
+			Route::resources([
+				'countries' => 'CountriesController',
+			]);
+			Route::post('countries/getCountries', 'CountriesController@getCountries')->name('countries.getCountries');
+			Route::get('countries/status/{country_id}', 'CountriesController@status')->name('countries.status');
+			Route::get('countries/updateDefault/{id}', 'CountriesController@updateDefault')->name('countries.updateDefault');	
+
+			/*cities*/
+			Route::resources([
+				'cities' => 'CitiesController',
+			]);
+			Route::post('cities/getCities', 'CitiesController@getCities')->name('cities.getCities');
+			Route::get('cities/status/{country_id}', 'CitiesController@status')->name('cities.status');
 		});
 	});
 });

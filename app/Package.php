@@ -12,8 +12,10 @@ class Package extends Model
      * @var array
      */
     protected $fillable = [
-        'category_id', 'title', 'duration', 'description', 'image', 'is_active'
-    ];
+
+         'category_id', 'title', 'duration', 'description', /*'image',*/ 'is_active'
+    ];    
+
 
     // For get category
     public function category(){
