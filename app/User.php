@@ -52,7 +52,6 @@ class User extends Authenticatable implements MustVerifyEmail, HasMedia
         $user = $this;
         $user->profile_picture = asset($user->getFirstMediaUrl('profile_picture'));
         $user->profiles;
-
         // remove extra fields
         unset($user->email_verified_at);
         unset($user->verification_token);
@@ -67,7 +66,7 @@ class User extends Authenticatable implements MustVerifyEmail, HasMedia
      */
     public function profiles()
     {
-        return $this->hasMany(Profile::class);
+        return $this->hasOne(Profile::class);
     }
 
     // in your model
