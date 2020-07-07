@@ -59,8 +59,19 @@ class AuthController extends Controller
             }
 
             $user->profiles()->create(['city_id'=>$request->city_id, 'work_address'=>$request->address, 'latitude'=>$request->latitude, 'longitude'=>$request->longitude, 'display_seeker_reviews'=>(isset($request->display_seeker_reviews) && $request->display_seeker_reviews == TRUE)?TRUE:FALSE]);
+            
+            // For store access token of user
+            $tokenResult = $user->createToken('Login Token');
+            $token = $tokenResult->token;
+
             $response['status'] = TRUE; 
             $response['message'] = "You has been successfully registered.";
+            $response['user'] = $user->getUserDetail();
+            $response['access_token'] = $tokenResult->accessToken;
+            $response['token_type'] = 'Bearer';
+            $response['expires_at'] = Carbon::parse(
+                $tokenResult->token->expires_at
+            )->toDateTimeString();
             return response()->json($response);
         }else{
             return response()->json(['status'=>FALSE, 'message'=>'Something wrong in registration.']);
