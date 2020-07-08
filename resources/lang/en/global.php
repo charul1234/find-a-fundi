@@ -33,5 +33,6 @@ return [
         'logo'=>'Logo',
         'footer_logo'=>'Footer Logo',
         'favicon'=>'Favicon',
+        'commision_rate'=>'Commision Rate',
     ],
 ];

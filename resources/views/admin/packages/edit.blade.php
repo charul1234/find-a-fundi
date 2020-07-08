@@ -60,24 +60,41 @@
                 </div>
             </div>
 
-            @php $image = $package->image; @endphp
-            @if(isset($image) && $image!=''  && \Storage::exists(config('constants.PACKAGES_UPLOADS_PATH').$image)) 
-            <div class="form-group">
-                <div class="col-md-9">
-                    <img width="100" src="{{ \Storage::url(config('constants.PACKAGES_UPLOADS_PATH').$image) }}">
-                </div>
-            </div>
-            @endif
 
-            <!-- <div class="form-group {{$errors->has('image') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-3 control-label" for="image">Image </label>
-                <div class="col-md-9">
-                     {{ Form::file('image') }}
-                    @if($errors->has('image'))
-                    <strong for="image" class="help-block">{{ $errors->first('image') }}</strong>
-                    @endif
+             @php $image_required = true; @endphp
+                @if(isset($package) && $package->getMedia('image')->count() > 0 && file_exists($package->getFirstMedia('image')->getPath()))
+                 @php $image_required = false; @endphp
+                
+                <div class="col-md-12 row form-group">
+                    <?php $images=$package->getMedia('image');
+                 if (count($images) > 0) 
+                    {
+                        foreach ($images as $media) { ?>
+                        <input type="hidden" name="all_media_id[]" id="all_media_id" value="<?php echo isset($media->id)?$media->id:'';?>" >
+                         <div class="col-md-1 mb-3">
+                        <a href="javascript:void(0);" class="remove_button" title="Remove"> <i class="fa text-danger fa-minus-circle" aria-hidden="true"></i></a>
+                        <input type="hidden" name="media_id[]" id="media_id" value="<?php echo isset($media->id)?$media->id:'';?>" >
+                         <img width="60" height="60" src="{{ $media->getFullUrl() }}" />
+                     </div>
+                        <?php                                           
+                         }
+                    }
+                ?>
                 </div>
-            </div> -->
+            @endif          
+
+            <div class="form-group {{$errors->has('image') ? ' has-error' : ''}}">
+                    <label class="col-md-12 control-label" for="image">Images 
+                    </label>
+                    <div class="col-md-12">
+                         {{ Form::file('image[]', array('multiple'=>true,'accept'=>'image/*'))   }}
+                        @if($errors->has('image'))
+                        <p class="help-block">
+                            <strong>{{ $errors->first('image') }}</strong>
+                        </p>
+                        @endif
+                    </div>
+            </div>
         </div> 
         <div class="card-footer">
             <button type="submit" class="btn btn-responsive btn-primary btn-sm">{{ __('Submit') }}</button>
@@ -114,6 +131,14 @@ jQuery(document).ready(function(){
             }
         }
     });
+$(wrapper).on('click', '.remove_button', function(e){ //Once remove button is clicked
+            if (!confirm("Do you want to delete")){
+              return false;
+            }
+            e.preventDefault();
+            $(this).parent('div').remove(); //Remove field html
+            x--; //Decremen t field counter
+        });
 });
 </script>
 @endsection

@@ -61,6 +61,13 @@ Route::group(['middleware' => ['auth']], function(){
 			]);
 			Route::post('cities/getCities', 'CitiesController@getCities')->name('cities.getCities');
 			Route::get('cities/status/{country_id}', 'CitiesController@status')->name('cities.status');
+
+			/*advertisements*/
+			Route::resources([
+				'advertisements' => 'AdvertisementsController',
+			]);
+			Route::post('advertisements/getAdvertisements', 'AdvertisementsController@getAdvertisements')->name('advertisements.getAdvertisements');
+			Route::get('advertisements/status/{advertisement_id}', 'AdvertisementsController@status')->name('advertisements.status');
 		});
 	});
 });
