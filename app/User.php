@@ -8,7 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Spatie\Permission\Traits\HasRoles;
 use App\Notifications\ResetPassword;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laravel\Passport\HasApiTokens;;
+use Laravel\Passport\HasApiTokens;
 use Spatie\MediaLibrary\HasMedia\HasMedia;
 use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
 

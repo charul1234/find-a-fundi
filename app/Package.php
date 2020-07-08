@@ -3,9 +3,12 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\MediaLibrary\HasMedia\HasMedia;
+use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
 
-class Package extends Model
+class Package extends Model implements HasMedia
 {
+    use HasMediaTrait;
     /**
      * The attributes that are mass assignable.
      *
@@ -13,9 +16,13 @@ class Package extends Model
      */
     protected $fillable = [
 
-         'category_id', 'title', 'duration', 'description', /*'image',*/ 'is_active'
-    ];    
+         'category_id', 'title', 'duration', 'description', 'is_active'
+    ];   
 
+    public function registerMediaCollections(){
+        $this->addMediaCollection('image');
+             //->singleFile();     
+    } 
 
     // For get category
     public function category(){
