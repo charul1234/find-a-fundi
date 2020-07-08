@@ -42,6 +42,14 @@
     </li>
   @endcan
 
+  @can('admin.advertisements.index')
+  <li class="nav-item">
+    <a class="nav-link" href="{{ route('admin.advertisements.index') }}">
+      <i class="fas fa-fw fa-ad"></i>
+      <span>Advertisements</span></a>
+    </li>
+  @endcan
+
   <li class="nav-item">
       <a class="nav-link collapsed" href="javascript:;" data-toggle="collapse" data-target="#collapseMaster" aria-expanded="true" aria-controls="collapsePages">
         <i class="fas fa-fw fa-list"></i>
