@@ -55,7 +55,13 @@ class WebserviceController extends Controller
      * @return [string] message
      */
     public function getAdvertisements(Request $request){
-        $advertisements = Advertisement::where(['is_active'=>TRUE])->get(['id', 'title', 'description' ,'start_date', 'end_date']);
+        $advertisements = Advertisement::with('media')->where(['is_active'=>TRUE])->where('start_date', '<=', date("Y-m-d"))->where('end_date', '>=', date("Y-m-d"))->get(['id', 'title', 'discription' ,'start_date', 'end_date']);
+        if (!empty($advertisements)) {
+            foreach ($advertisements as $advertisement) {
+                $advertisement->image = asset($advertisement->getFirstMediaUrl('image'));
+                unset($advertisement->media);
+            }
+        }
         $response['status'] = true;  
         $response['advertisements'] = $advertisements;
         $response['message'] = "Success";

@@ -20,11 +20,7 @@ class Advertisement extends Model implements HasMedia
 
          'page_name', 'section', 'title', 'discription', 'start_date','end_date','is_active','created_by','updated_by'
     ];   
-
-    public function registerMediaCollections(){
-        $this->addMediaCollection('image')
-             ->singleFile();     
-    } 
+    
     // For default settings
     protected static function boot(){
 	    parent::boot();
@@ -34,6 +30,13 @@ class Advertisement extends Model implements HasMedia
 	        $query->orderBy('title', 'ASC');
 	    });
 	}
+
+    public function registerMediaCollections(){
+        $this->addMediaCollection('image')
+        ->useFallbackUrl(asset(config('constants.NO_IMAGE_URL')))
+        ->useFallbackPath(public_path(config('constants.NO_IMAGE_URL')))
+        ->singleFile();     
+    } 
 	/**
      * For get position of advertisement
      *
