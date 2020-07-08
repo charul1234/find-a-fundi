@@ -38,9 +38,10 @@ class SettingsController extends Controller
             'footer_logo'         => 'image',
             'favicon'             => 'file|mimes:jpeg,png,jpg,ico',
             'facebook_url'        => 'nullable|url|active_url',
-            'instagram_url'      => 'nullable|url|active_url',
+            'instagram_url'       => 'nullable|url|active_url',
             'twitter_url'         => 'nullable|url|active_url',
             'linkedin_url'        => 'nullable|url|active_url',
+            'commision_rate'      => 'required|numeric',
         ];
 
         $request->validate($rules, [], []);
@@ -55,7 +56,8 @@ class SettingsController extends Controller
                         array('option_name'=>'linkedin_url','option_value'=>$request->linkedin_url),
                         array('option_name'=>'logo','option_value'=>$request->logo),
                         array('option_name'=>'footer_logo','option_value'=>$request->footer_logo),
-                        array('option_name'=>'favicon','option_value'=>$request->favicon)
+                        array('option_name'=>'favicon','option_value'=>$request->favicon),
+                        array('option_name'=>'commision_rate','option_value'=>$request->commision_rate)
                     );
         if (!empty($data)) {
             foreach ($data as $row) {
