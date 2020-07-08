@@ -105,20 +105,26 @@ class PackagesController extends Controller
             'category_id'       => 'required', 
             'title'             => 'required', 
             'duration'          => 'required',
-            //'image'             => 'image'
+            'image.*'=>[
+                'file',
+                'image'
+            ],
         ];
 
         $validator = Validator::make($request->all(), $rules);
         if ($validator->passes()) {
             $data = $request->all();
-            /*if ($request->hasFile('image')){
-                $file = $request->file('image');
-                $customimagename  = time() . '.' . $file->getClientOriginalExtension();
-                $destinationPath = config('constants.PACKAGES_UPLOADS_PATH');
-                $file->storeAs($destinationPath, $customimagename);
-                $data['image'] = $customimagename;
-            }*/
             $package = Package::create($data);
+            if ($request->hasFile('image')){
+                 $files = $request->file('image');
+                  foreach ($files as $file) {
+                     $customname = time() . '.' . $file->getClientOriginalExtension();
+                     $package->addMedia($file)
+                       ->usingFileName($customname)
+                       ->toMediaCollection('image');
+               }
+            }
+            
             $request->session()->flash('success',__('global.messages.add'));
             return redirect()->route('admin.packages.index');
         }else {
@@ -159,23 +165,45 @@ class PackagesController extends Controller
             'category_id'       => 'required', 
             'title'             => 'required', 
             'duration'          => 'required',
-            //'image'             => 'image'
+            'image.*'=>[
+                'file',
+                'image'
+            ], 
         ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->passes()) {
             $data = $request->all();
-            /*if ($request->hasFile('image')){
-                $file = $request->file('image');
-                $customimagename  = time() . '.' . $file->getClientOriginalExtension();
-                $destinationPath = config('constants.PACKAGES_UPLOADS_PATH');
-                $file->storeAs($destinationPath, $customimagename);
-
-                if ($package->image!='' && \Storage::exists(config('constants.PACKAGES_UPLOADS_PATH').$package->image)) {
-                    \Storage::delete(config('constants.PACKAGES_UPLOADS_PATH').$package->image);
-                }
-                $data['image'] = $customimagename;
-            } */
             $package->update($data);
+
+            if ($request->hasFile('image')){
+                 $files = $request->file('image');
+                  foreach ($files as $file) {
+                     $customname = time() . '.' . $file->getClientOriginalExtension();
+                     $package->addMedia($file)
+                       ->usingFileName($customname)
+                       ->toMediaCollection('image');
+               }
+            } 
+              $all_media_id=isset($request->all_media_id)?$request->all_media_id:array(); 
+              $media_id=isset($request->media_id)?$request->media_id:array();              
+              if(!empty($all_media_id))
+              {
+                    foreach ($all_media_id as $key => $value) { 
+                      if (!in_array($value,$media_id)) {  
+                        if(isset($value))
+                        {                          
+                             foreach ($package->media as $media) 
+                             {                                 
+                                if($media->id==$value)
+                                {
+                                    $media->delete();
+                                }
+                             }                                                  
+                        }                   
+                      }
+                    }
+              }
+            
             $request->session()->flash('success',__('global.messages.update'));
             return redirect()->route('admin.packages.index');
         }else {

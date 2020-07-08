@@ -154,6 +154,23 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-6">
+                    <div class="form-group {{$errors->has('commision_rate') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                        <label class="col-md-12" for="commision_rate">{{ __('global.setting.commision_rate') }} <span style="color:red">*</span></label>
+                       <div class="col-md-12">
+                    <div class="input-group mb-3">
+                        {!! Form::text('commision_rate', old('commision_rate',getSetting('commision_rate')), ['class' => 'form-control', 'placeholder' =>  __('global.setting.commision_rate') ,'data-error-container'=>"#commision_rate-errors"]) !!}
+                        <div class="input-group-append">
+                          <span class="input-group-text">%</span>
+                        </div>
+                    </div>
+                    <span id="commision_rate-errors"></span>
+                    @if($errors->has('commision_rate'))
+                    <strong for="commision_rate" class="help-block">{{ $errors->first('commision_rate') }}</strong>
+                    @endif
+                </div>
+                    </div>
+                </div>
             </div>
         </div> 
         <div class="card-footer">
@@ -182,6 +199,10 @@ jQuery(document).ready(function(){
             },
             address: {
                 required: true
+            },
+            commision_rate: {
+                number: true,
+                required: true                
             }
         }
     });

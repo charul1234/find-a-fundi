@@ -59,15 +59,17 @@
                 </div>
             </div>
 
-            <!-- <div class="form-group {{$errors->has('image') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-3 control-label" for="image">Image </label>
+             <div class="form-group {{$errors->has('image') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-3 control-label" for="image">Images </label>
                 <div class="col-md-9">
-                     {{ Form::file('image') }}
+                  {{ Form::file('image[]', array('multiple'=>true,'accept'=>'image/*'))   }}
                     @if($errors->has('image'))
-                    <strong for="image" class="help-block">{{ $errors->first('image') }}</strong>
+                    <p class="help-block">
+                        <strong>{{ $errors->first('image') }}</strong>
+                    </p>
                     @endif
                 </div>
-            </div> -->
+            </div> 
 
         </div> 
         <div class="card-footer">
