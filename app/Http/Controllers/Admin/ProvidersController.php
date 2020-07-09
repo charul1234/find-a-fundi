@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use App\User;
+use App\Profile;
 use Validator;
 use Auth;
 use DataTables;
@@ -14,7 +15,7 @@ use Config;
 use Form;
 use DB;
 
-class UsersController extends Controller
+class ProvidersController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -22,7 +23,7 @@ class UsersController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request){        
-        return view('admin/users/index');
+        return view('admin/providers/index');
     }
 
     /**
@@ -33,7 +34,7 @@ class UsersController extends Controller
     public function getUsers(Request $request){
         $role_id = $request->input('role_id');
 
-        $users = User::with('roles')->whereHas('roles', function($query){
+        $users = User::with(['roles','media','profile'])->whereHas('roles', function($query){
             $query->where('id','!=' ,config('constants.ROLE_TYPE_SUPERADMIN_ID'));
         });
 
@@ -45,7 +46,7 @@ class UsersController extends Controller
         $users = $users->select(DB::raw('users.*, users.name as user_name'));
 
         return DataTables::of($users)
-            ->orderColumn('profile_picture', '-name $1')
+            ->orderColumn('media.name', '-name $1')
             ->editColumn('created_at', function($user){
                 return date(config('constants.DATETIME_FORMAT'), strtotime($user->created_at));
             })
@@ -53,18 +54,10 @@ class UsersController extends Controller
                 $keyword = strtolower($keyword);
                 $query->whereRaw("LOWER(DATE_FORMAT(users.created_at,'".config('constants.MYSQL_DATETIME_FORMAT')."')) like ?", ["%$keyword%"]);
             })
-            ->editColumn('role', function($user){
-                return ucwords($user->roles->pluck('name')->implode(', '));
-            })
-            ->filterColumn('roles.name', function ($query, $keyword) {
-                $keyword = strtolower($keyword);
-                $query->whereHas('roles', function($query) use ($keyword){
-                    $query->whereRaw("name like ?", ["%$keyword%"]);
-                });
-            })
-            ->editColumn('profile_picture', function ($user) {
-                if (isset($user->profile_picture) && $user->profile_picture!='' && \Storage::exists(config('constants.USERS_UPLOADS_PATH').$user->profile_picture)) { 
-                    $image = \Storage::url(config('constants.USERS_UPLOADS_PATH').$user->profile_picture);
+            ->editColumn('media.name', function ($user) {
+                if(isset($user) && $user->getMedia('profile_picture')->count() > 0 && file_exists($user->getFirstMedia('profile_picture')->getPath()))
+                {
+                    $image = $user->getFirstMedia('profile_picture')->getFullUrl();
                 }else{
                     $image = asset(config('constants.NO_IMAGE_URL'));
                 }
@@ -73,25 +66,28 @@ class UsersController extends Controller
             ->editColumn('is_active', function ($user) {
                 if($user->is_active == TRUE )
                 {
-                    return "<a href='".route('admin.users.status',$user->id)."'><span class='badge badge-success'>Active</span></a>";
+                    return "<a href='".route('admin.providers.status',$user->id)."'><span class='badge badge-success'>Active</span></a>";
                 }else{
-                    return "<a href='".route('admin.users.status',$user->id)."'><span class='badge badge-danger'>Inactive</span></a>";
+                    return "<a href='".route('admin.providers.status',$user->id)."'><span class='badge badge-danger'>Inactive</span></a>";
                 }
             })
             ->addColumn('action', function ($user) {
                 return
+                        //view
+                       '<a href="'.route('admin.providers.view',[$user->id]).'" class="btn btn-info btn-circle btn-sm"><i class="fas fa-eye"></i></a> '.
+
                         // edit
-                        '<a href="'.route('admin.users.edit',[$user->id]).'" class="btn btn-success btn-circle btn-sm"><i class="fas fa-edit"></i></a> '.
+                        '<a href="'.route('admin.providers.edit',[$user->id]).'" class="btn btn-success btn-circle btn-sm"><i class="fas fa-edit"></i></a> '.
                         // Delete
                           Form::open(array(
                                       'style' => 'display: inline-block;',
                                       'method' => 'DELETE',
                                        'onsubmit'=>"return confirm('Do you really want to delete?')",
-                                      'route' => ['admin.users.destroy', $user->id])).
+                                      'route' => ['admin.providers.destroy', $user->id])).
                           ' <button type="submit" class="btn btn-danger btn-circle btn-sm"><i class="fas fa-trash"></i></button>'.
                           Form::close();
             })
-            ->rawColumns(['profile_picture','is_active','action'])
+            ->rawColumns(['media.name','is_active','action'])
             ->make(true);
     }
 
@@ -104,7 +100,7 @@ class UsersController extends Controller
         $roles = Role::where('id', config('constants.ROLE_TYPE_PROVIDER_ID'))->get()->pluck('name', 'id')->map(function($value, $key){
             return ucwords($value);
         });
-        return view('admin.users.create', compact('roles'));
+        return view('admin.providers.create', compact('roles'));
     }
 
     /**
@@ -115,7 +111,7 @@ class UsersController extends Controller
      */
     public function store(Request $request){
         $rules = [
-            'role_id'           => 'required', 
+           /* 'role_id'           => 'required', */
             'name'              => 'required', 
             'email'             => 'required|email|unique:'.with(new User)->getTable().',email',
             'profile_picture'   => 'image',
@@ -130,22 +126,30 @@ class UsersController extends Controller
         if ($validator->passes()) {
             $data = $request->all();
             $data['password'] = Hash::make($request->password);
-            if ($request->hasFile('profile_picture')){
-                $file = $request->file('profile_picture');
-                $customimagename  = time() . '.' . $file->getClientOriginalExtension();
-                $destinationPath = config('constants.USERS_UPLOADS_PATH');
-                $file->storeAs($destinationPath, $customimagename);
-                $data['profile_picture'] = $customimagename;
-            }
+                        
             $user = User::create($data);
+            if ($request->hasFile('profile_picture')){
+            $file = $request->file('profile_picture');
+            $customname = time() . '.' . $file->getClientOriginalExtension();
+            $user
+               ->addMedia($request->file('profile_picture'))
+               ->usingFileName($customname)               
+               ->toMediaCollection('profile_picture');
+            }
+            $user_id=$user->id;
+            if(intval($user_id) > 0)
+            {
+                $profile_data=array('user_id'=>$user_id,'work_address'=>$request->address ,'latitude'=>$request->latitude,'longitude'=>$request->longitude);
+                Profile::create($profile_data);
+            }
 
-            $role = Role::where('id', $request->role_id)->first();
+            $role = Role::where('id',config('constants.ROLE_TYPE_PROVIDER_ID'))->first();
             if (isset($role->id)) {
                 $user->assignRole($role);
             }
 
             $request->session()->flash('success',__('global.messages.add'));
-            return redirect()->route('admin.users.index');
+            return redirect()->route('admin.providers.index');
         }else {
             return redirect()->back()->withErrors($validator)->withInput();
         }
@@ -158,7 +162,7 @@ class UsersController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show(User $user){
-        return redirect()->route('admin.users.index');
+        return redirect()->route('admin.providers.index');
     }
 
     /**
@@ -167,8 +171,9 @@ class UsersController extends Controller
      * @param  \App\User $user
      * @return \Illuminate\Http\Response
      */
-    public function edit(User $user){
-        return view('admin.users.edit',compact('user'));
+    public function edit($id){        
+        $user = User::with('profile')->findOrFail($id);        
+        return view('admin.providers.edit',compact('user'));
     }
 
     /**
@@ -178,7 +183,8 @@ class UsersController extends Controller
      * @param  \App\User $user
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, User $user){
+    public function update(Request $request, $id){
+        $user = User::findOrFail($id);
         $rules = [
             'name'              => 'required', 
             'email'             => 'required|email|unique:'.with(new User)->getTable().',email,'.$user->getKey(),
@@ -203,20 +209,23 @@ class UsersController extends Controller
                 unset($data['password']);
             }
 
-            if ($request->hasFile('profile_picture')){
-                $file = $request->file('profile_picture');
-                $customimagename  = time() . '.' . $file->getClientOriginalExtension();
-                $destinationPath = config('constants.USERS_UPLOADS_PATH');
-                $file->storeAs($destinationPath, $customimagename);
-
-                if ($user->profile_picture!='' && \Storage::exists(config('constants.USERS_UPLOADS_PATH').$user->profile_picture)) {
-                    \Storage::delete(config('constants.USERS_UPLOADS_PATH').$user->profile_picture);
-                }
-                $data['profile_picture'] = $customimagename;
-            } 
             $user->update($data);
+            if ($request->hasFile('profile_picture')){
+             $file = $request->file('profile_picture');
+             $customname = time() . '.' . $file->getClientOriginalExtension();
+             $user->addMedia($request->file('profile_picture'))
+               ->usingFileName($customname)               
+               ->toMediaCollection('profile_picture');
+            } 
+            $user_id=$user->id;
+            $profile = Profile::where(array('user_id'=>$user_id));
+            if(intval($user_id) > 0)
+            {
+                $profile_data=array('work_address'=>$request->address ,'latitude'=>$request->latitude,'longitude'=>$request->longitude);
+                $profile->update($profile_data);
+            }
             $request->session()->flash('success',__('global.messages.update'));
-            return redirect()->route('admin.users.index');
+            return redirect()->route('admin.providers.index');
         }else {
             return redirect()->back()->withErrors($validator)->withInput();
         }
@@ -236,7 +245,7 @@ class UsersController extends Controller
           $user->update(['is_active'=>FALSE]);
           session()->flash('danger',__('global.messages.deactivate'));
       }
-      return redirect()->route('admin.users.index');
+      return redirect()->route('admin.providers.index');
     }
 
     /**
@@ -245,9 +254,20 @@ class UsersController extends Controller
      * @param  \App\User $user
      * @return \Illuminate\Http\Response
      */
-    public function destroy(User $user){
+    public function destroy($id){ 
+      $user = User::findOrFail($id);        
       $user->delete();
       session()->flash('danger',__('global.messages.delete'));
-      return redirect()->route('admin.users.index');
+      return redirect()->route('admin.providers.index');
+    }
+    /**
+     * Show the form for view the specified resource.
+     *
+     * @param  \App\User $user
+     * @return \Illuminate\Http\Response
+     */
+    public function view($id){        
+        $user = User::with('profile')->findOrFail($id);        
+        return view('admin.providers.view',compact('user'));
     }
 }
