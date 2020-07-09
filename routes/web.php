@@ -29,12 +29,13 @@ Route::group(['middleware' => ['auth']], function(){
 			Route::resource('profile', 'ProfileController')->only(['index', 'store']);
 
 			Route::resource('settings', 'SettingsController')->only(['index', 'store']);
-
+			
 			Route::resources([
-				'users' => 'UsersController',
+				'providers' => 'ProvidersController',
 			]);
-			Route::post('users/getUsers', 'UsersController@getUsers')->name('users.getUsers');
-			Route::get('users/status/{user_id}', 'UsersController@status')->name('users.status');
+			Route::post('providers/getUsers', 'ProvidersController@getUsers')->name('providers.getUsers');
+			Route::get('providers/status/{user_id}', 'ProvidersController@status')->name('providers.status');
+			Route::get('providers/view/{user_id}', 'ProvidersController@view')->name('providers.view');			
 			
 			Route::resources([
 				'categories' => 'CategoriesController',

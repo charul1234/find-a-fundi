@@ -69,14 +69,15 @@ class User extends Authenticatable implements MustVerifyEmail, HasMedia
         return $this->hasOne(Profile::class);
     }
 
-    // in your model
-
-    public function registerMediaCollections()
+    public function registerMediaCollections(){
+        $this->addMediaCollection('profile_picture')
+             ->singleFile();     
+    } 
+    /**
+     * Get the profile information that belong to this user.
+    */
+    public function profile()
     {
-        $this
-        ->addMediaCollection('profile_picture')
-        ->useFallbackUrl(asset(config('constants.NO_IMAGE_URL')))
-        ->useFallbackPath(public_path(config('constants.NO_IMAGE_URL')))
-        ->singleFile();
+        return $this->belongsTo(Profile::class,'id','user_id');
     }
 }

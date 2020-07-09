@@ -18,11 +18,11 @@
       <span>Dashboard</span></a>
     </li>
 
-  @can('admin.users.index')
+  @can('admin.providers.index')
   <li class="nav-item">
-    <a class="nav-link" href="{{ route('admin.users.index') }}">
+    <a class="nav-link" href="{{ route('admin.providers.index') }}">
       <i class="fas fa-fw fa-users"></i>
-      <span>Users</span></a>
+      <span>Providers</span></a>
     </li>
   @endcan
 
