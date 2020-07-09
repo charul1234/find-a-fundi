@@ -17,8 +17,10 @@
 		'DATETIME_FORMAT' => 'd M Y, h:i A',
 		'MYSQL_DATETIME_FORMAT' => '%d %b %Y, %h:%i %p',
 		'MYSQL_DATE_FORMAT' => '%d %b %Y',
+		'DATE_FORMAT' => 'd M Y',
 
 		// Form error class		
 		'ERROR_FORM_GROUP_CLASS' => 'has-error border-left-danger',
+		'DEFAULT_CURRENCY_SYMBOL' => '$',
 	];
 ?>

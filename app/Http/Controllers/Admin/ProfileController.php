@@ -8,6 +8,9 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
 use Auth;
 use Validator;
+use App\ExperienceLevel;
+use App\PaymentOption;
+use App\PackageUser;
 
 class ProfileController extends Controller
 {

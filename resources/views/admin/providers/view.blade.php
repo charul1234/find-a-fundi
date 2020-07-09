@@ -4,189 +4,348 @@
 <!-- Begin Page Content -->
 <div class="container-fluid">
     <!-- Page Heading -->
-    <h1 class="h3 mb-2 text-gray-800">Providers</h1>
+    <h1 class="h3 mb-2 text-gray-800">Provider Information ( {{ isset($user->name)?ucwords($user->name):'' }} )</h1>
     <!-- Content Row -->
     <div class="card shadow mb-4">
-{!! Form::open(['method' => 'POST','files'=>true,'route' => ['admin.providers.update',$user->id],'class' => 'form-horizontal','id' => 'frmUser']) !!}
-            @method('PUT')
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Edit Provider</h6>
-        </div>
-        <div class="card-body">
-            <div class="form-group {{$errors->has('name') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-3 control-label" for="name">Name <span style="color:red">*</span></label>
-                 <div class="col-md-9">
-                    {!! Form::text('name', old('name',$user->name), ['class' => 'form-control', 'placeholder' => 'Name']) !!}
-                    @if($errors->has('name'))
-                    <strong for="name" class="help-block">{{ $errors->first('name') }}</strong>
-                    @endif
+<div class="card-header py-3">
+                    <a href="{{route('admin.providers.index')}}" class="btn btn-danger btn-sm btn-icon-split float-right">
+                        <span class="icon text-white-50">
+                          <i class="fas fa-arrow-left"></i>
+                        </span>
+                        <span class="text">Back</span>
+                    </a>
+                    <h6 class="m-0 font-weight-bold text-primary">Provider Details</h6>
                 </div>
-            </div>
-            <div class="form-group {{$errors->has('email') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-3 control-label" for="email">Email <span style="color:red">*</span></label>
-                <div class="col-md-9">
-                    {!! Form::text('email',old('email',$user->email), ['class' => 'form-control autoFillOff', 'placeholder' => 'Email']) !!}
-                    @if($errors->has('email'))
-                    <strong for="email" class="help-block">{{ $errors->first('email') }}</strong>
-                    @endif
-                </div>
-            </div>
+                <div class="card-body">
 
+                <div class="row">
+                      <div class="col-md-6">
+                         <div class="form-group">
+                        <label class="col-form-label"><strong>Full Name : </strong>{{ isset($user->name)?$user->name:'' }}</label>
+                    </div>
+                     <div class="form-group">
+                        <label class="col-form-label"><strong>Mobile Number :</strong> {{ isset($user->mobile_number)?$user->mobile_number:'' }}</label>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-form-label"><strong>Email :</strong> {{ isset($user->email)?$user->email:'' }}</label>
+                    </div>          
+                      <div class="row">
+                    <div class="col-md-12">
+                       <div class="">
+        <h6 class="ml-0 font-weight-bold text-primary">Declarations</h6>
+        </div>
+        </div>
+          <div class="col-md-12">
+         <div class="form-group">
+                        <label class="col-form-label"><strong>They are not middlemen :  </strong>
+                       <?php 
+                       if($user->profile->fundi_is_middlemen == TRUE ){
+                        ?><i class="fa badge-success fa-check" aria-hidden="true"></i>
+                        <?php 
+                       }
+                        ?> </label>
+                    </div> 
+                     <div class="form-group">
+                        <label class="col-form-label"><strong>They have all the required tools to do their job : </strong>
+                       <?php 
+                       if($user->profile->fundi_have_tools == TRUE ){
+                        ?><i class="fa badge-success fa-check" aria-hidden="true"></i>
+                        <?php 
+                       }
+                        ?> </label>
+                    </div>
+                       <div class="form-group">
+                        <label class="col-form-label"><strong>They have a smartphone : </strong>
+                       <?php 
+                       if($user->profile->fundi_have_smartphone == TRUE ){
+                      ?><i class="fa badge-success fa-check" aria-hidden="true"></i>
+                      <?php
+                       }
+                        ?> </label>
+                    </div>
+</div>
+                   
+                 </div>                          
+                    
+                      </div>
+                      <div class="col-md-6">
+                         <div class="form-group">
+                        <label class="col-form-label"><strong>Address :</strong> <?php echo isset($user->profile->work_address)?ucwords($user->profile->work_address):'';?>   </label>
+                    </div>   
+                    <div class="form-group">
+                        <label class="col-form-label"><strong>DOB : </strong>{{ isset($user->profile->dob)?date(config('constants.DATE_FORMAT'),strtotime($user->profile->dob)):'' }} </label>
+                    </div>
+                       <div class="form-group">
+                        <label class="col-form-label"><strong>Experience Level :  </strong>{{ isset($user->profile->experience_level->title)?ucwords($user->profile->experience_level->title):'' }} </label>
+                    </div> 
+                     <div class="form-group">
+                        <label class="col-form-label"><strong>Payment Option : </strong> {{ isset($user->profile->payment_option->title)?ucwords($user->profile->payment_option->title):'' }} </label>
+                    </div> 
+                   <!--  <div class="form-group">
+                        <label class="col-form-label">Additional Work : 
+                       <?php 
+                     /*  if($user->profile->additional_work == TRUE ){
+                        echo 'Yes';
+                       }else
+                       {
+                        echo 'No';
+                       }*/
+                        ?> </label>
+                    </div> --> 
+
+                    <!-- <div class="form-group">
+                        <label class="col-form-label">Price : {{isset($user->profile->price)?config('constants.DEFAULT_CURRENCY_SYMBOL').ucwords($user->profile->price):''}} </label>
+                    </div>  -->
+                    <div class="form-group">
+                        <label class="col-form-label"><strong>Radius : </strong> <?php echo isset($user->profile->radius)?ucwords($user->profile->radius):'';?>   </label>
+                    </div> 
+                    <div class="form-group">
+                        <label class="col-form-label"><strong>Passport Number :  </strong><?php echo isset($user->profile->passport_number)?ucwords($user->profile->passport_number):'';?>   </label>
+                    </div> 
+                     <div class="form-group">
+                        <label class="col-form-label"><strong>Created DateTime :  </strong>{{ date(config('constants.DATETIME_FORMAT'),strtotime($user->created_at)) }} </label>
+                    </div>
+                      </div>
+                 </div>      
+                
+
+                  <div class="row">
+                      <div class="col-md-6">
+
+                  <?php if($user->profile->is_package == TRUE && $user->profile->is_rfq == FALSE ){ ?>      
+                   <div class="table-responsive">
+               <!-- <table class="table table-bordered" width="100%" cellspacing="0" id="users">
+                    <thead>
+                        <tr>                  
+                          <th>price</th>
+                           <th>email</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr> 
+                          <th>price</th>
+                          <th>email</th>
+                        </tr>
+                    </tfoot>
+                </table>  -->
+                <?php } ?>
+                   <?php  if($user->profile->is_package == TRUE && $user->profile->is_rfq == FALSE ){ 
+               
+   ?>
             <div class="form-group">
-                 <div class="col-md-9">
-                    <label>
-                        {{Form::checkbox('reset_password', TRUE, null,['id'=>'reset_password'])}}
-                        {{ __('Reset Password') }}
-                    </label>
-                </div>
-            </div>
-
-            <div  id="password_container">
-                <div class="form-group {{$errors->has('password') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                    <label class="col-md-3 control-label" for="password">New Password <span style="color:red">*</span></label>
-                    <div class="col-md-9">
-                        {!! Form::password('password',['class' => 'form-control autoFillOff', 'placeholder' => 'New Password', 'id'=>'password']) !!}
-                        @if($errors->has('password'))
-                        <strong for="password" class="help-block">{{ $errors->first('password') }}</strong>
-                        @endif
-                    </div>
-                </div>
-                <div class="form-group {{$errors->has('password_confirmation') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                    <label class="col-md-3 control-label" for="password_confirmation">Confirm Password <span style="color:red">*</span></label>
-                    <div class="col-md-9">
-                        {!! Form::password('password_confirmation', ['class' => 'form-control autoFillOff', 'placeholder' => 'Confirm Password']) !!}
-                        @if($errors->has('password_confirmation'))
-                        <strong for="password_confirmation" class="help-block">{{ $errors->first('password_confirmation') }}</strong>
-                        @endif
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group {{$errors->has('mobile_number') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-3 control-label" for="mobile_number">Mobile Number <span style="color:red">*</span></label>
-                <div class="col-md-9">
-                    {!! Form::text('mobile_number',old('mobile_number',$user->mobile_number), ['class' => 'form-control', 'placeholder' => 'Mobile Number']) !!}
-                    @if($errors->has('mobile_number'))
-                    <strong for="mobile_number" class="help-block">{{ $errors->first('mobile_number') }}</strong>
-                    @endif
-                </div>
-            </div>
-
-            <div class="form-group {{$errors->has('address') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-3 control-label" for="address">Address <span style="color:red">*</span></label>
-                <div class="col-md-9">
-                    {!! Form::textarea('address',old('address',isset($user->profile->work_address)?$user->profile->work_address:''), ['class' => 'form-control', 'placeholder' => 'Address','rows'=>'1']) !!}
-                    @if($errors->has('address'))
-                    <strong for="address" class="help-block">{{ $errors->first('address') }}</strong>
-                    @endif
-                </div>
-            </div>
-
-            <div class="form-group {{$errors->has('latitude') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-3 control-label" for="latitude">Latitude <span style="color:red">*</span></label>
-                <div class="col-md-9">
-                    {!! Form::text('latitude',old('latitude',isset($user->profile->latitude)?$user->profile->latitude:''), ['class' => 'form-control', 'placeholder' => 'Latitude']) !!}
-                    @if($errors->has('latitude'))
-                    <strong for="latitude" class="help-block">{{ $errors->first('latitude') }}</strong>
-                    @endif
-                </div>
-            </div>
-
-            <div class="form-group {{$errors->has('longitude') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-3 control-label" for="longitude">Longitude <span style="color:red">*</span></label>
-                <div class="col-md-9">
-                    {!! Form::text('longitude',old('longitude',isset($user->profile->longitude)?$user->profile->longitude:''), ['class' => 'form-control', 'placeholder' => 'Longitude']) !!}
-                    @if($errors->has('longitude'))
-                    <strong for="longitude" class="help-block">{{ $errors->first('longitude') }}</strong>
-                    @endif
-                </div>
-            </div>
-
-            @php $image_required = true; @endphp
-                @if(isset($user) && $user->getMedia('profile_picture')->count() > 0 && file_exists($user->getFirstMedia('profile_picture')->getPath()))
-                    @php $image_required = false; @endphp
-                <div class="col-md-1 form-group">
-                    <img width="100%" src="{{ $user->getFirstMedia('profile_picture')->getFullUrl() }}" />
-                </div>
-                @endif
-            
-            <div class="form-group {{$errors->has('profile_picture') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-3 control-label" for="title">Profile Picture </label>
-                <div class="col-md-9">
-                     {{ Form::file('profile_picture') }}
-                    @if($errors->has('profile_picture'))
-                    <strong for="profile_picture" class="help-block">{{ $errors->first('profile_picture') }}</strong>
-                    @endif
-                </div>
-            </div>
-        </div> 
-        <div class="card-footer">
-            <button type="submit" class="btn btn-responsive btn-primary btn-sm">{{ __('Submit') }}</button>
-            <a href="{{route('admin.providers.index')}}"  class="btn btn-responsive btn-danger btn-sm">{{ __('Cancel') }}</a>
+                <div class="ml-0">
+        <h6 class="ml-0 font-weight-bold text-primary">Packages</h6>
         </div>
-        {!! Form::close() !!}
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th scope="col">#</th>
+                          <th scope="col">Package Name</th>
+                          <th scope="col">Price</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+              <?php  
+              if(isset($user->package_user))
+                {
+                  $package_counter=1;
+                 foreach ($user->package_user as $key => $value) {
+                    ?>
+                        <tr>
+                          <th scope="row"><?php echo $package_counter;?></th>
+                          <td><?php  $package_name = App\Package::where(['id'=>$value->package_id])->first();
+                          echo isset($package_name->title)?$package_name->title:'';
+                         ?></td>
+                          <td>{{isset($value->price)?config('constants.DEFAULT_CURRENCY_SYMBOL').$value->price:''}}</td>
+                        </tr>     
+                    <?php
+                 $package_counter++;
+                 }   ?>
+                 
+                 <?php 
+                }   ?>             
+           </table>
+              </div>
+            </div>    
+                <?php } ?>
+                                          
+                   
+                    
+                      </div> 
+         
+
+                      <div class="col-md-6"> 
+                     
+
+  
+                  <!--   <div class="form-group">
+                        <label class="col-form-label">Package : 
+                       <?php 
+                      /* if($user->profile->is_package == TRUE ){
+                        echo 'Yes';
+                       }else
+                       {
+                        echo 'No';
+                       }*/
+                        ?> </label>
+                    </div> -->
+                    
+                   <!--  <div class="form-group">
+                        <label class="col-form-label">Hourly : 
+                       <?php 
+                      /* if($user->profile->is_hourly == TRUE ){
+                        echo 'Yes';
+                       }else
+                       {
+                        echo 'No';
+                       }*/
+                        ?> </label>
+                    </div> --> 
+                  <?php  if($user->profile->is_hourly == TRUE  && $user->profile->is_rfq == FALSE ){ 
+                ?>
+            <div class="form-group">
+                <div class="ml-0">
+        <h6 class="ml-0 font-weight-bold text-primary">Hourly Charges</h6>
+        </div>
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th scope="col">#</th>
+                          <th scope="col">Hours</th>
+                          <th scope="col">Price</th>
+                          <th scope="col">Type</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+              <?php 
+              if(isset($user->hourly_charge))
+                { $hourly_counter=1;
+                 foreach ($user->hourly_charge as $key => $value) {
+                    ?>
+                        <tr>
+                          <th scope="row"><?php echo $hourly_counter;?></th>
+                          <td>{{isset($value->hours)?$value->hours:''}}</td>
+                          <td>{{isset($value->price)?config('constants.DEFAULT_CURRENCY_SYMBOL').$value->price:''}}</td>
+                          <td>{{isset($value->type)?$value->type:''}}</td>
+                        </tr>     
+                    <?php
+                 $hourly_counter++;
+                 }   ?>
+                  
+                 <?php 
+                }   ?></table>
+              </div> 
+                 
+        <?php } ?>  
+
+
+                      </div>
+
+                       <input type="hidden" name="provider_id" id="provider_id" value="<?php echo isset($id)?$id:'' ?>"> 
+                  </div>
+
+                  <div class="row">
+                      <div class="col-md-6">
+                     
+            <div class="form-group">
+                <div class="ml-0">
+        <h6 class="ml-0 font-weight-bold text-primary">Company</h6>
+        </div>
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th scope="col">#</th>
+                          <th scope="col">Name</th>
+                          <th scope="col">Remarks</th>
+                          <th scope="col">Document Number</th>
+                          <th scope="col">Payment Received</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+          <?php
+     if(isset($user->company) && count($user->company)>0)
+                {?>
+              <?php  $company_counter=1;
+                 foreach ($user->company as $key => $value) {
+                    ?>
+                        <tr>
+                          <th scope="row"><?php echo $company_counter;?></th>
+                          <td>{{isset($value->name)?$value->name:''}}</td>
+                          <td>{{isset($value->remarks)?$value->remarks:''}}</td>
+                          <td>{{isset($value->document_number)?$value->document_number:''}}</td>
+                          <td>
+                           <?php 
+                       if($value->is_payment_received == TRUE ){                        
+                         /*echo "<a href='".route('admin.providers.payment_received',$value->is_payment_received)."'><span class='badge badge-success'>Received</span></a>";*/
+                         echo "Yes";
+                       }else
+                       {
+                        /*echo "<a href='".route('admin.providers.payment_received',$value->is_payment_received)."'><span class='badge badge-danger'>Not Received</span></a>";*/
+                        echo "No";
+                       }
+                        ?></td>
+                        </tr>     
+                    <?php
+                 $company_counter++;
+                 }   ?><?php 
+                }   ?>
+                  </table>
+              </div> </div>
+                      <div class="col-md-6">
+                          <div class="ml-0">
+        <h6 class="ml-0 font-weight-bold text-primary">Request For Quotation <?php 
+                      if($user->profile->is_rfq == TRUE ){
+                         ?><i class="fa badge-success fa-check" aria-hidden="true"></i>
+                        <?php
+                       }
+                        ?></h6>
+              </div>    
+                      </div>
+                    </div>
+                  </div>        
     </div>
 </div>
 <!-- /.container-fluid -->
 @endsection
+
+@section('styles')
+<!-- Custom styles for this page -->
+<link href="{{ asset('admin-theme/vendor/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
+@endsection
+
 @section('scripts')
-<script type="text/javascript" src="{{ asset('js/jquery-validation/dist/jquery.validate.min.js') }}"></script>
-<script type="text/javascript" src="{{ asset('js/jquery-validation/dist/additional-methods.min.js') }}"></script>
+<!-- Page level plugins -->
+<script src="{{ asset('admin-theme/vendor/datatables/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('admin-theme/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
 <script type="text/javascript">
 jQuery(document).ready(function(){
-    jQuery('#reset_password').change(function(){
-        resetPassword();
-    }).trigger('change');
-
-    jQuery('#frmUser').validate({
-        rules: {
-            name: {
-                required: true
-            },
-            email: {
-                required: true,
-                email:true
-            },
-            mobile_number: {
-                required: true,
-                number:true
-            },
-            address: {
-                required: true
-            },
-            latitude: {
-                required: true
-            },
-            longitude: {
-                required: true
-            },
-            password: {
-                required: function(){
-                    if(jQuery('#frmUser #reset_password').prop('checked')==false){
-                        return false;
-                    }else{
-                        return true;
-                    }
-                }
-            },
-            password_confirmation: {
-                required: function(){  
-                    if(jQuery('#frmUser #reset_password').prop('checked')==false){
-                        return false;
-                    }else{
-                        return true;
-                    }
-                },
-                equalTo: "#password"
-            }
-        }
-    });
+    getUsers();
 });
-function resetPassword(){
-    jQuery('#password_container').hide();
-    if(jQuery('#reset_password').prop('checked')==true){
-        jQuery('#password_container').show();
-    }
-}
+ 
+/*function getUsers(){
+    jQuery('#users').dataTable().fnDestroy();
+    var provider_id=jQuery('#provider_id').val();
+    
+    jQuery('#users tbody').empty();
+    jQuery('#users').DataTable({
+        processing: false,
+        serverSide: true,
+        ajax: {
+            url: '{{ route('admin.providers.getUsersPackage') }}',
+            method: 'POST',
+            data: {    
+                   provider_id:provider_id            
+                }
+        },
+        lengthMenu: [
+            [10, 25, 50, 100, -1],
+            [10, 25, 50,100,"All"]
+        ],
+        columns: [             
+            {data: 'package_user.price', name: 'package_user.price'},
+            {data: 'package_user.package_id', name: 'package_user.package_id'}
+        ]
+    });
+}*/
 </script>
 @endsection

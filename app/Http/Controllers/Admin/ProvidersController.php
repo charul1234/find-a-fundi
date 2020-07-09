@@ -14,7 +14,9 @@ use DataTables;
 use Config;
 use Form;
 use DB;
-
+use App\ExperienceLevel;
+use App\HourlyCharge;
+use App\Package;
 class ProvidersController extends Controller
 {
     /**
@@ -247,6 +249,22 @@ class ProvidersController extends Controller
       }
       return redirect()->route('admin.providers.index');
     }
+    /**
+     * Change payment received the specified resource from storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function payment_received($id=null){
+      $user = User::findOrFail($id);
+      if (isset($user->is_active) && $user->is_active==FALSE) {
+          $user->update(['is_active'=>TRUE]);
+          session()->flash('success',__('global.messages.activate'));
+      }else{
+          $user->update(['is_active'=>FALSE]);
+          session()->flash('danger',__('global.messages.deactivate'));
+      }
+      return redirect()->route('admin.providers.index');
+    }
 
     /**
      * Remove the specified resource from storage.
@@ -267,7 +285,26 @@ class ProvidersController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function view($id){        
-        $user = User::with('profile')->findOrFail($id);        
-        return view('admin.providers.view',compact('user'));
+        $user = User::with('profile','profile.experience_level','profile.payment_option','package_user','hourly_charge','company')->findOrFail($id); 
+        return view('admin.providers.view',compact('user','id'));
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getUsersPackage(Request $request){
+        $users = User::with(['package_user']);      
+
+        return DataTables::of($users)
+            ->editColumn('package_user.price', function ($user) {
+                return ($user->package_user->price);
+            })
+            ->editColumn('package_user.package_id', function ($user) {
+                return ($user->package_user->package_id);
+            })
+            ->rawColumns(['package_user.price','package_user.package_id'])
+            ->make(true);
     }
 }

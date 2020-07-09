@@ -35,7 +35,9 @@ Route::group(['middleware' => ['auth']], function(){
 			]);
 			Route::post('providers/getUsers', 'ProvidersController@getUsers')->name('providers.getUsers');
 			Route::get('providers/status/{user_id}', 'ProvidersController@status')->name('providers.status');
-			Route::get('providers/view/{user_id}', 'ProvidersController@view')->name('providers.view');			
+			Route::get('providers/view/{user_id}', 'ProvidersController@view')->name('providers.view');	
+			Route::post('providers/getUsersPackage', 'ProvidersController@getUsersPackage')->name('providers.getUsersPackage');		
+			Route::get('providers/payment_received/{user_id}', 'ProvidersController@payment_received')->name('providers.payment_received');
 			
 			Route::resources([
 				'categories' => 'CategoriesController',

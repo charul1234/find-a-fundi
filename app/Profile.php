@@ -18,4 +18,19 @@ class Profile extends Model
     public function user(){
         return $this->belongsTo(User::class,'user_id');
     }
+    /**
+     * Get the experience level information that belong to this user.
+    */
+    public function experience_level()
+    {
+        return $this->belongsTo(ExperienceLevel::class,'experience_level_id');
+    }
+    /**
+     * Get the Payment information that belong to this user.
+    */
+    public function payment_option()
+    {
+        return $this->belongsTo(PaymentOption::class,'payment_option_id');
+    }
+    
 }
