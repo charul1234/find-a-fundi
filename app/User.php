@@ -102,4 +102,14 @@ class User extends Authenticatable implements MustVerifyEmail, HasMedia
         return $this->hasMany(Company::class,'user_id');
     }
 
+    /**
+     * Get the certification information that belong to this user.
+    */
+    public function certification()
+    {
+        return $this->hasMany(Certification::class,'user_id');
+    }
+
+    
+
 }

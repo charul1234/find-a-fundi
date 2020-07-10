@@ -18,6 +18,8 @@ use App\ExperienceLevel;
 use App\HourlyCharge;
 use App\Package;
 use App\Company;
+use App\Certification;
+
 class ProvidersController extends Controller
 {
     /**
@@ -288,8 +290,9 @@ class ProvidersController extends Controller
      */
     public function view($id){        
         $user = User::with('profile','profile.experience_level','profile.payment_option','package_user','hourly_charge','company')->findOrFail($id);  
-        $companies=Company::query()->with('media')->where(['user_id'=>$id])->get();
-        return view('admin.providers.view',compact('user','id','companies'));
+        $providerCompanies=Company::query()->with('media')->where(['user_id'=>$id])->get();
+        $providerCertifications=Certification::query()->with('media')->where(['user_id'=>$id])->get();       
+        return view('admin.providers.view',compact('user','id','providerCompanies','providerCertifications'));
     }
 
     

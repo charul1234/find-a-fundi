@@ -132,7 +132,7 @@
 
                     <div class="form-group">
                 <div class="ml-0">
-        <h6 class="ml-0 font-weight-bold text-primary">Company</h6>
+        <h6 class="ml-0 font-weight-bold text-primary">Companies</h6>
         </div>
                   <div class="table-responsive">
                      <table class="table table-striped table-bordered table-hover" id="company_table">
@@ -147,10 +147,10 @@
                       </thead>
                       <tbody>
           <?php 
-     if(isset($companies) && count($companies)>0)
+     if(isset($providerCompanies) && count($providerCompanies)>0)
                 {?>
               <?php  
-                 foreach ($companies as $key => $value) {
+                 foreach ($providerCompanies as $key => $value) {
                     ?>
                         <tr>
                           <td> {{isset($value->name)?$value->name:''}}</td>
@@ -194,8 +194,7 @@
                     <tbody>
                       <?php  
               if(isset($user->package_user))
-                {
-                  $package_counter=1;
+                {                  
                  foreach ($user->package_user as $key => $value) {
                     ?>
                         <tr>
@@ -204,8 +203,7 @@
                          ?></td>
                           <td>{{isset($value->price)?config('constants.DEFAULT_CURRENCY_SYMBOL').$value->price:''}}</td>
                         </tr>     
-                    <?php
-                 $package_counter++;
+                    <?php                
                  }   ?>
                  
                  <?php 
@@ -215,40 +213,14 @@
  </div>   
               </div>
             
-                <?php } ?>
-                                          
+                <?php } ?>              
                    
                     
                       </div> 
          
 
-                      <div class="col-md-6"> 
-                     
+                      <div class="col-md-6">                      
 
-  
-                  <!--   <div class="form-group">
-                        <label class="col-form-label">Package : 
-                       <?php 
-                      /* if($user->profile->is_package == TRUE ){
-                        echo 'Yes';
-                       }else
-                       {
-                        echo 'No';
-                       }*/
-                        ?> </label>
-                    </div> -->
-                    
-                   <!--  <div class="form-group">
-                        <label class="col-form-label">Hourly : 
-                       <?php 
-                      /* if($user->profile->is_hourly == TRUE ){
-                        echo 'Yes';
-                       }else
-                       {
-                        echo 'No';
-                       }*/
-                        ?> </label>
-                    </div> --> 
                   <?php  if($user->profile->is_hourly == TRUE){ 
                 ?>
             <div class="form-group">
@@ -267,38 +239,61 @@
                       <tbody>
               <?php 
               if(isset($user->hourly_charge))
-                { $hourly_counter=1;
-                 foreach ($user->hourly_charge as $key => $value) {
+                { 
+                 foreach ($user->hourly_charge as $key => $value) 
+                 {
                     ?>
                         <tr>
                           <td>{{isset($value->hours)?$value->hours:''}}</td>
                           <td>{{isset($value->price)?config('constants.DEFAULT_CURRENCY_SYMBOL').$value->price:''}}</td>
                           <td>{{isset($value->type)?$value->type:''}}</td>
                         </tr>     
-                    <?php
-                 $hourly_counter++;
-                 }   ?>
-                  
+                    <?php                
+                 }   ?>                  
                  <?php 
                 }   ?></tbody></table>
               </div> </div> 
                  
         <?php } ?>  
 
-
-                      </div>
-
-                       <input type="hidden" name="provider_id" id="provider_id" value="<?php echo isset($id)?$id:'' ?>"> 
-                  </div>
-
-                  <div class="row">
-                      <div class="col-md-6">
+             <div class="form-group">
+                <div class="ml-0">
+        <h6 class="ml-0 font-weight-bold text-primary">Certifications</h6>
+        </div>
+                  <div class="table-responsive">
+                     <table class="table table-striped table-bordered table-hover" id="certification_table">
+                      <thead>
+                        <tr>
+                          <th scope="col">Title</th>
+                          <th scope="col">Type</th>
+                          <th scope="col">Document</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+          <?php 
+     if(isset($providerCertifications) && count($providerCertifications)>0)
+                {?>
+              <?php  
+                 foreach ($providerCertifications as $key => $value) {
+                    ?>
+                        <tr>
+                          <td> {{isset($value->title)?ucwords($value->title):''}}</td>
+                          <td>{{isset($value->type)?ucwords($value->type):''}}</td>
+                          <td>@if(isset($value) && $value->getMedia('document')->count() > 0 && file_exists($value->getFirstMedia('document')->getPath()))  
+                     <!--   <img width="50" src="{{ $value->getFirstMedia('document')->getFullUrl() }}" /> -->
+                       <a download href="{{ $value->getFirstMedia('document')->getFullUrl() }}" target="_blank"><i class="fa fa-download" aria-hidden="true"></i></a>
+                    
+                    @endif</td>
+                        </tr>     
+                    <?php
+               
+                 }   ?><?php 
+                }   ?></tbody>
+                  </table>                 
+              </div>  
+              </div></div>
                      
-         </div>
-                      <div class="col-md-6">
-                        
-                      </div>
-                    </div>
+                  </div>
                   </div>        
     </div>
 </div>
@@ -331,33 +326,11 @@ jQuery(document).ready(function(){
          pageLength: 5,
          lengthChange: false
      });
-      
+     jQuery('#certification_table').DataTable({
+         responsive: true,
+         pageLength: 5,
+         lengthChange: false
+     });      
 });
- 
-/*function getUsers(){
-    jQuery('#users').dataTable().fnDestroy();
-    var provider_id=jQuery('#provider_id').val();
-    
-    jQuery('#users tbody').empty();
-    jQuery('#users').DataTable({
-        processing: false,
-        serverSide: true,
-        ajax: {
-            url: '{{ route('admin.providers.getUsersPackage') }}',
-            method: 'POST',
-            data: {    
-                   provider_id:provider_id            
-                }
-        },
-        lengthMenu: [
-            [10, 25, 50, 100, -1],
-            [10, 25, 50,100,"All"]
-        ],
-        columns: [             
-            {data: 'package_user.price', name: 'package_user.price'},
-            {data: 'package_user.package_id', name: 'package_user.package_id'}
-        ]
-    });
-}*/
 </script>
 @endsection
