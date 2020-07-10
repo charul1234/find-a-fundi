@@ -14,11 +14,8 @@ use DataTables;
 use Config;
 use Form;
 use DB;
-use App\ExperienceLevel;
-use App\HourlyCharge;
-use App\Package;
-use App\Company;
-class ProvidersController extends Controller
+
+class SeekersController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -26,7 +23,7 @@ class ProvidersController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request){        
-        return view('admin/providers/index');
+        return view('admin/seekers/index');
     }
 
     /**
@@ -35,7 +32,7 @@ class ProvidersController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function getUsers(Request $request){
-        $role_id =config('constants.ROLE_TYPE_PROVIDER_ID'); 
+        $role_id =  config('constants.ROLE_TYPE_SEEKER_ID');
 
         $users = User::with(['roles','media','profile'])->whereHas('roles', function($query){
             $query->where('id','!=' ,config('constants.ROLE_TYPE_SUPERADMIN_ID'));
@@ -43,10 +40,11 @@ class ProvidersController extends Controller
 
         if(intval($role_id) > 0)
             $users->whereHas('roles', function($query) use ($role_id) {
-                $query->where('id', config('constants.ROLE_TYPE_PROVIDER_ID'));
+                $query->where('id', config('constants.ROLE_TYPE_SEEKER_ID'));
             });
 
         $users = $users->select(DB::raw('users.*, users.name as user_name'));
+
 
         return DataTables::of($users)
             ->orderColumn('media.name', '-name $1')
@@ -69,24 +67,21 @@ class ProvidersController extends Controller
             ->editColumn('is_active', function ($user) {
                 if($user->is_active == TRUE )
                 {
-                    return "<a href='".route('admin.providers.status',$user->id)."'><span class='badge badge-success'>Active</span></a>";
+                    return "<a href='".route('admin.seekers.status',$user->id)."'><span class='badge badge-success'>Active</span></a>";
                 }else{
-                    return "<a href='".route('admin.providers.status',$user->id)."'><span class='badge badge-danger'>Inactive</span></a>";
+                    return "<a href='".route('admin.seekers.status',$user->id)."'><span class='badge badge-danger'>Inactive</span></a>";
                 }
             })
             ->addColumn('action', function ($user) {
-                return
-                        //view
-                       '<a href="'.route('admin.providers.view',[$user->id]).'" class="btn btn-info btn-circle btn-sm"><i class="fas fa-eye"></i></a> '.
-
+                return                       
                         // edit
-                        '<a href="'.route('admin.providers.edit',[$user->id]).'" class="btn btn-success btn-circle btn-sm"><i class="fas fa-edit"></i></a> '.
+                        '<a href="'.route('admin.seekers.edit',[$user->id]).'" class="btn btn-success btn-circle btn-sm"><i class="fas fa-edit"></i></a> '.
                         // Delete
                           Form::open(array(
                                       'style' => 'display: inline-block;',
                                       'method' => 'DELETE',
                                        'onsubmit'=>"return confirm('Do you really want to delete?')",
-                                      'route' => ['admin.providers.destroy', $user->id])).
+                                      'route' => ['admin.seekers.destroy', $user->id])).
                           ' <button type="submit" class="btn btn-danger btn-circle btn-sm"><i class="fas fa-trash"></i></button>'.
                           Form::close();
             })
@@ -100,10 +95,10 @@ class ProvidersController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create(){
-        $roles = Role::where('id', config('constants.ROLE_TYPE_PROVIDER_ID'))->get()->pluck('name', 'id')->map(function($value, $key){
+        $roles = Role::where('id', config('constants.ROLE_TYPE_SEEKER_ID'))->get()->pluck('name', 'id')->map(function($value, $key){
             return ucwords($value);
         });
-        return view('admin.providers.create', compact('roles'));
+        return view('admin.seekers.create', compact('roles'));
     }
 
     /**
@@ -114,7 +109,6 @@ class ProvidersController extends Controller
      */
     public function store(Request $request){
         $rules = [
-           /* 'role_id'           => 'required', */
             'name'              => 'required', 
             'email'             => 'required|email|unique:'.with(new User)->getTable().',email',
             'profile_picture'   => 'image',
@@ -146,13 +140,13 @@ class ProvidersController extends Controller
                 Profile::create($profile_data);
             }
 
-            $role = Role::where('id',config('constants.ROLE_TYPE_PROVIDER_ID'))->first();
+            $role = Role::where('id',config('constants.ROLE_TYPE_SEEKER_ID'))->first();
             if (isset($role->id)) {
                 $user->assignRole($role);
             }
 
             $request->session()->flash('success',__('global.messages.add'));
-            return redirect()->route('admin.providers.index');
+            return redirect()->route('admin.seekers.index');
         }else {
             return redirect()->back()->withErrors($validator)->withInput();
         }
@@ -165,7 +159,7 @@ class ProvidersController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show(User $user){
-        return redirect()->route('admin.providers.index');
+        return redirect()->route('admin.seekers.index');
     }
 
     /**
@@ -176,7 +170,7 @@ class ProvidersController extends Controller
      */
     public function edit($id){        
         $user = User::with('profile')->findOrFail($id);        
-        return view('admin.providers.edit',compact('user'));
+        return view('admin.seekers.edit',compact('user'));
     }
 
     /**
@@ -228,7 +222,7 @@ class ProvidersController extends Controller
                 $profile->update($profile_data);
             }
             $request->session()->flash('success',__('global.messages.update'));
-            return redirect()->route('admin.providers.index');
+            return redirect()->route('admin.seekers.index');
         }else {
             return redirect()->back()->withErrors($validator)->withInput();
         }
@@ -248,7 +242,7 @@ class ProvidersController extends Controller
           $user->update(['is_active'=>FALSE]);
           session()->flash('danger',__('global.messages.deactivate'));
       }
-      return redirect()->route('admin.providers.index');
+      return redirect()->route('admin.seekers.index');
     }
     /**
      * Change payment received the specified resource from storage.
@@ -265,7 +259,7 @@ class ProvidersController extends Controller
           session()->flash('danger',__('global.messages.deactivate'));
       }
       $user = User::with('profile','profile.experience_level','profile.payment_option','package_user','hourly_charge','company')->findOrFail($user_id);  
-      return redirect()->route('admin.providers.view',$user_id);
+      return redirect()->route('admin.seekers.view',$user_id);
     }
 
     /**
@@ -278,19 +272,7 @@ class ProvidersController extends Controller
       $user = User::findOrFail($id);        
       $user->delete();
       session()->flash('danger',__('global.messages.delete'));
-      return redirect()->route('admin.providers.index');
+      return redirect()->route('admin.seekers.index');
     }
-    /**
-     * Show the form for view the specified resource.
-     *
-     * @param  \App\User $user
-     * @return \Illuminate\Http\Response
-     */
-    public function view($id){        
-        $user = User::with('profile','profile.experience_level','profile.payment_option','package_user','hourly_charge','company')->findOrFail($id);  
-        $companies=Company::query()->with('media')->where(['user_id'=>$id])->get();
-        return view('admin.providers.view',compact('user','id','companies'));
-    }
-
-    
+      
 }

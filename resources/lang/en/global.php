@@ -15,6 +15,8 @@ return [
         'activate' => 'Record successfully activated.',
         'deactivate' => 'Record successfully deactivated.',
         'not_found' => 'Record not found.',
+        'received' => 'Payment successfully received.',
+        'not_received' => 'Payment not received.',
         'delete_confirm' => 'Are you sure you want to delete this record?',
         'password_mismatch'=>'Old password does not match the current password.',
         'something_wrong' => 'Something went wrong.',

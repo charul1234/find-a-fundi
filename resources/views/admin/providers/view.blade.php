@@ -63,6 +63,24 @@
                        }
                         ?> </label>
                     </div>
+
+                     <div class="form-group">
+                 <label class="col-form-label"><strong>Service Type : </strong></label>
+        <?php 
+                       if($user->profile->is_rfq == TRUE ){
+                         ?>
+                        <label class="col-form-label">Request for Quote 
+                       <i class="fa badge-success fa-check" aria-hidden="true"></i>
+                        </label> <?php
+                       }
+                       if($user->profile->is_package == TRUE ){
+                         ?>
+                        <label class="col-form-label">Package 
+                       <i class="fa badge-success fa-check" aria-hidden="true"></i>
+                        </label> <?php
+                       }
+                        ?>
+                    </div>
 </div>
                    
                  </div>                          
@@ -103,7 +121,7 @@
                         <label class="col-form-label"><strong>Passport Number :  </strong><?php echo isset($user->profile->passport_number)?ucwords($user->profile->passport_number):'';?>   </label>
                     </div> 
                      <div class="form-group">
-                        <label class="col-form-label"><strong>Created DateTime :  </strong>{{ date(config('constants.DATETIME_FORMAT'),strtotime($user->created_at)) }} </label>
+                        <label class="col-form-label"><strong>Registered Date Time :  </strong>{{ date(config('constants.DATETIME_FORMAT'),strtotime($user->created_at)) }} </label>
                     </div>
                       </div>
                  </div>      
@@ -112,47 +130,75 @@
                   <div class="row">
                       <div class="col-md-6">
 
-                  <?php if($user->profile->is_package == TRUE && $user->profile->is_rfq == FALSE ){ ?>      
-                   <div class="table-responsive">
-               <!-- <table class="table table-bordered" width="100%" cellspacing="0" id="users">
-                    <thead>
-                        <tr>                  
-                          <th>price</th>
-                           <th>email</th>
+                    <div class="form-group">
+                <div class="ml-0">
+        <h6 class="ml-0 font-weight-bold text-primary">Company</h6>
+        </div>
+                  <div class="table-responsive">
+                     <table class="table table-striped table-bordered table-hover" id="company_table">
+                      <thead>
+                        <tr>
+                          <th scope="col">Name</th>
+                          <th scope="col">Batch</th>
+                          <th scope="col">Remarks</th>
+                          <th scope="col">Document Number</th>
+                          <th scope="col">Status</th>
                         </tr>
-                    </thead>
-                    <tfoot>
-                        <tr> 
-                          <th>price</th>
-                          <th>email</th>
-                        </tr>
-                    </tfoot>
-                </table>  -->
-                <?php } ?>
-                   <?php  if($user->profile->is_package == TRUE && $user->profile->is_rfq == FALSE ){ 
+                      </thead>
+                      <tbody>
+          <?php 
+     if(isset($companies) && count($companies)>0)
+                {?>
+              <?php  
+                 foreach ($companies as $key => $value) {
+                    ?>
+                        <tr>
+                          <td> {{isset($value->name)?$value->name:''}}</td>
+                          <td>@if(isset($value) && $value->getMedia('batch')->count() > 0 && file_exists($value->getFirstMedia('batch')->getPath()))  
+                       <img width="50" src="{{ $value->getFirstMedia('batch')->getFullUrl() }}" />
+                    </div>
+                    @endif</td>
+                          <td>{{isset($value->remarks)?$value->remarks:''}}</td>
+                          <td>{{isset($value->document_number)?$value->document_number:''}}</td>
+                          <td>
+                           <?php 
+                       if($value->is_active == TRUE ){                        
+                         echo "<a href='".route('admin.providers.company_status',[$value->is_active,$value->id,$value->user_id])."'><span class='badge badge-success'>Active</span></a>";
+                       }else
+                       {
+                        echo "<a href='".route('admin.providers.company_status',[$value->is_active,$value->id,$value->user_id])."'><span class='badge badge-danger'>Inactive</span></a>";
+                       }
+                        ?></td>
+                        </tr>     
+                    <?php
                
+                 }   ?><?php 
+                }   ?></tbody>
+                  </table>                 
+              </div>  
+              </div>
+              <?php  if($user->profile->is_package == TRUE){       
    ?>
             <div class="form-group">
                 <div class="ml-0">
         <h6 class="ml-0 font-weight-bold text-primary">Packages</h6>
         </div>
-                    <table class="table">
-                      <thead>
-                        <tr>
-                          <th scope="col">#</th>
-                          <th scope="col">Package Name</th>
-                          <th scope="col">Price</th>
+         <div class="table-responsive">
+                  <table class="table table-striped table-bordered table-hover" id="packages_table">
+                    <thead>
+                        <tr>                
+                           <th>Package name</th>
+                           <th>Price</th>
                         </tr>
-                      </thead>
-                      <tbody>
-              <?php  
+                    </thead>
+                    <tbody>
+                      <?php  
               if(isset($user->package_user))
                 {
                   $package_counter=1;
                  foreach ($user->package_user as $key => $value) {
                     ?>
                         <tr>
-                          <th scope="row"><?php echo $package_counter;?></th>
                           <td><?php  $package_name = App\Package::where(['id'=>$value->package_id])->first();
                           echo isset($package_name->title)?$package_name->title:'';
                          ?></td>
@@ -163,10 +209,12 @@
                  }   ?>
                  
                  <?php 
-                }   ?>             
-           </table>
+                }   ?>  
+                    </tbody>
+                </table>
+ </div>   
               </div>
-            </div>    
+            
                 <?php } ?>
                                           
                    
@@ -201,16 +249,16 @@
                        }*/
                         ?> </label>
                     </div> --> 
-                  <?php  if($user->profile->is_hourly == TRUE  && $user->profile->is_rfq == FALSE ){ 
+                  <?php  if($user->profile->is_hourly == TRUE){ 
                 ?>
             <div class="form-group">
                 <div class="ml-0">
         <h6 class="ml-0 font-weight-bold text-primary">Hourly Charges</h6>
         </div>
-                    <table class="table">
+                  <div class="table-responsive">
+                  <table class="table table-striped table-bordered table-hover" id="hourly_table">
                       <thead>
                         <tr>
-                          <th scope="col">#</th>
                           <th scope="col">Hours</th>
                           <th scope="col">Price</th>
                           <th scope="col">Type</th>
@@ -223,7 +271,6 @@
                  foreach ($user->hourly_charge as $key => $value) {
                     ?>
                         <tr>
-                          <th scope="row"><?php echo $hourly_counter;?></th>
                           <td>{{isset($value->hours)?$value->hours:''}}</td>
                           <td>{{isset($value->price)?config('constants.DEFAULT_CURRENCY_SYMBOL').$value->price:''}}</td>
                           <td>{{isset($value->type)?$value->type:''}}</td>
@@ -233,8 +280,8 @@
                  }   ?>
                   
                  <?php 
-                }   ?></table>
-              </div> 
+                }   ?></tbody></table>
+              </div> </div> 
                  
         <?php } ?>  
 
@@ -247,59 +294,9 @@
                   <div class="row">
                       <div class="col-md-6">
                      
-            <div class="form-group">
-                <div class="ml-0">
-        <h6 class="ml-0 font-weight-bold text-primary">Company</h6>
-        </div>
-                    <table class="table">
-                      <thead>
-                        <tr>
-                          <th scope="col">#</th>
-                          <th scope="col">Name</th>
-                          <th scope="col">Remarks</th>
-                          <th scope="col">Document Number</th>
-                          <th scope="col">Payment Received</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-          <?php
-     if(isset($user->company) && count($user->company)>0)
-                {?>
-              <?php  $company_counter=1;
-                 foreach ($user->company as $key => $value) {
-                    ?>
-                        <tr>
-                          <th scope="row"><?php echo $company_counter;?></th>
-                          <td>{{isset($value->name)?$value->name:''}}</td>
-                          <td>{{isset($value->remarks)?$value->remarks:''}}</td>
-                          <td>{{isset($value->document_number)?$value->document_number:''}}</td>
-                          <td>
-                           <?php 
-                       if($value->is_payment_received == TRUE ){                        
-                         /*echo "<a href='".route('admin.providers.payment_received',$value->is_payment_received)."'><span class='badge badge-success'>Received</span></a>";*/
-                         echo "Yes";
-                       }else
-                       {
-                        /*echo "<a href='".route('admin.providers.payment_received',$value->is_payment_received)."'><span class='badge badge-danger'>Not Received</span></a>";*/
-                        echo "No";
-                       }
-                        ?></td>
-                        </tr>     
-                    <?php
-                 $company_counter++;
-                 }   ?><?php 
-                }   ?>
-                  </table>
-              </div> </div>
+         </div>
                       <div class="col-md-6">
-                          <div class="ml-0">
-        <h6 class="ml-0 font-weight-bold text-primary">Request For Quotation <?php 
-                      if($user->profile->is_rfq == TRUE ){
-                         ?><i class="fa badge-success fa-check" aria-hidden="true"></i>
-                        <?php
-                       }
-                        ?></h6>
-              </div>    
+                        
                       </div>
                     </div>
                   </div>        
@@ -318,8 +315,23 @@
 <script src="{{ asset('admin-theme/vendor/datatables/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('admin-theme/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
 <script type="text/javascript">
-jQuery(document).ready(function(){
-    getUsers();
+jQuery(document).ready(function(){   
+      jQuery('#packages_table').DataTable({
+         responsive: true,
+         pageLength: 5,
+         lengthChange: false
+     });
+     jQuery('#hourly_table').DataTable({
+         responsive: true,
+         pageLength: 5,
+         lengthChange: false
+     });
+     jQuery('#company_table').DataTable({
+         responsive: true,
+         pageLength: 5,
+         lengthChange: false
+     });
+      
 });
  
 /*function getUsers(){

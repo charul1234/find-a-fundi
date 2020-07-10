@@ -37,7 +37,7 @@ Route::group(['middleware' => ['auth']], function(){
 			Route::get('providers/status/{user_id}', 'ProvidersController@status')->name('providers.status');
 			Route::get('providers/view/{user_id}', 'ProvidersController@view')->name('providers.view');	
 			Route::post('providers/getUsersPackage', 'ProvidersController@getUsersPackage')->name('providers.getUsersPackage');		
-			Route::get('providers/payment_received/{user_id}', 'ProvidersController@payment_received')->name('providers.payment_received');
+			Route::get('providers/company_status/{status}/{id}/{user_id}', 'ProvidersController@company_status')->name('providers.company_status');
 			
 			Route::resources([
 				'categories' => 'CategoriesController',
@@ -71,6 +71,13 @@ Route::group(['middleware' => ['auth']], function(){
 			]);
 			Route::post('advertisements/getAdvertisements', 'AdvertisementsController@getAdvertisements')->name('advertisements.getAdvertisements');
 			Route::get('advertisements/status/{advertisement_id}', 'AdvertisementsController@status')->name('advertisements.status');
+            /*seekers*/
+            Route::resources([
+				'seekers' => 'SeekersController',
+			]);
+			Route::post('seekers/getUsers', 'SeekersController@getUsers')->name('seekers.getUsers');
+			Route::get('seekers/status/{user_id}', 'SeekersController@status')->name('seekers.status');
+			Route::get('seekers/view/{user_id}', 'SeekersController@view')->name('seekers.view');	
 		});
 	});
 });

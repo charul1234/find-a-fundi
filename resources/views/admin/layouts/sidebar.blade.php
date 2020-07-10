@@ -26,6 +26,14 @@
     </li>
   @endcan
 
+  @can('admin.seekers.index')
+  <li class="nav-item">
+    <a class="nav-link" href="{{ route('admin.seekers.index') }}">
+      <i class="fas fa-fw fa-users"></i>
+      <span>Seekers</span></a>
+  </li>
+  @endcan
+
   @can('admin.categories.index')
   <li class="nav-item">
     <a class="nav-link" href="{{ route('admin.categories.index') }}">

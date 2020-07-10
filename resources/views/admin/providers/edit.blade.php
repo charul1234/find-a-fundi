@@ -83,7 +83,7 @@
             </div>
 
             <div class="form-group {{$errors->has('latitude') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-3 control-label" for="latitude">Latitude <span style="color:red">*</span></label>
+                <label class="col-md-3 control-label" for="latitude">Latitude </label>
                 <div class="col-md-9">
                     {!! Form::text('latitude',old('latitude',isset($user->profile->latitude)?$user->profile->latitude:''), ['class' => 'form-control', 'placeholder' => 'Latitude']) !!}
                     @if($errors->has('latitude'))
@@ -93,7 +93,7 @@
             </div>
 
             <div class="form-group {{$errors->has('longitude') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-3 control-label" for="longitude">Longitude <span style="color:red">*</span></label>
+                <label class="col-md-3 control-label" for="longitude">Longitude </label>
                 <div class="col-md-9">
                     {!! Form::text('longitude',old('longitude',isset($user->profile->longitude)?$user->profile->longitude:''), ['class' => 'form-control', 'placeholder' => 'Longitude']) !!}
                     @if($errors->has('longitude'))
@@ -153,13 +153,13 @@ jQuery(document).ready(function(){
             },
             address: {
                 required: true
-            },
+            },/*
             latitude: {
                 required: true
             },
             longitude: {
                 required: true
-            },
+            },*/
             password: {
                 required: function(){
                     if(jQuery('#frmUser #reset_password').prop('checked')==false){
