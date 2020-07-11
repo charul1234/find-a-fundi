@@ -31,6 +31,24 @@
                     @endif
                 </div>
             </div>
+            @php $image_required = true; @endphp
+            @if(isset($category) && $category->getMedia('image')->count() > 0 && file_exists($category->getFirstMedia('image')->getPath()))
+                @php $image_required = false; @endphp
+            <div class="col-md-2 form-group">
+                <img width="100%" src="{{ $category->getFirstMedia('image')->getFullUrl() }}" />
+            </div>
+            @endif
+            <div class="col-md-9 form-group {{$errors->has('image') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label for="image">Image File </label>
+                <div class="clearfix"></div>
+                {!! Form::file('image', ['id'=>'image']) !!}
+
+                @if($errors->has('image'))
+                <p class="help-block">
+                    <strong>{{ $errors->first('image') }}</strong>
+                </p>
+                @endif                       
+            </div>
         </div> 
         <div class="card-footer">
             <button type="submit" class="btn btn-responsive btn-primary btn-sm">{{ __('Submit') }}</button>

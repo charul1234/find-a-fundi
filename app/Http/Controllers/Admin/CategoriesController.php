@@ -59,7 +59,7 @@ class CategoriesController extends Controller
                     ' <button type="submit" class="btn btn-danger btn-circle btn-sm"><i class="fas fa-trash"></i></button>'.
                     Form::close();
             })
-            ->rawColumns(['is_active','action'])
+            ->rawColumns(['parent.title','is_active','action'])
             ->make(true);
     }
 
@@ -80,14 +80,27 @@ class CategoriesController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request){
+        $media_max_size = config('medialibrary.max_file_size') / 1024;  
         $rules = [
             'title'=>['required', Rule::unique(with(new Category)->getTable(), 'title')],
+            'image'=>[
+                        'image',
+                        'mimes:jpeg,jpg,png',
+                        'max:'.$media_max_size,
+                     ] 
         ];
         $request->validate($rules);
 
         $data = $request->all();
         $data['parent_id'] = isset($request->parent_id)?$request->parent_id:0;
-        Category::create($data);
+        $category =Category::create($data);
+        if ($request->hasFile('image')){
+             $file = $request->file('image');
+             $customname = time() . '.' . $file->getClientOriginalExtension();
+             $category->addMedia($request->file('image'))
+               ->usingFileName($customname)               
+               ->toMediaCollection('image');
+        } 
 
         $request->session()->flash('success',__('global.messages.add'));
         return redirect()->route('admin.categories.index');
@@ -122,16 +135,36 @@ class CategoriesController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Category $category){
+        $media_max_size = config('medialibrary.max_file_size') / 1024; 
         $rules = [
             'title'=>['required',Rule::unique(with(new Category)->getTable(), 'title')->ignore($category->getKey())],
+            'image'=>[                       
+                        'image',
+                        'mimes:jpeg,jpg,png',
+                        'max:'.$media_max_size,
+                     ]
         ];
 
         $request->validate($rules);
 
         $data = $request->all();
         $data['parent_id'] = isset($request->parent_id)?$request->parent_id:0;
+        if (isset($category) && ($category->getMedia('image')->count()==0 || ($category->getMedia('image')->count() >0 && !file_exists($category->getFirstMedia('image')->getPath())))) {
+            $rules['image'] = [                
+                'file',
+                'max:'.$media_max_size,
+                'image'
+            ];
+        }
         $category->update($data);
-
+        if ($request->hasFile('image')){
+            $file = $request->file('image');
+            $customname = time() . '.' . $file->getClientOriginalExtension();
+            $category
+               ->addMedia($request->file('image'))
+               ->usingFileName($customname)               
+               ->toMediaCollection('image');
+        }
         $request->session()->flash('success',__('global.messages.update'));
         return redirect()->route('admin.categories.index');
     }

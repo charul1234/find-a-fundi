@@ -31,6 +31,17 @@
                     @endif
                 </div>
             </div>
+            <div class="col-md-12 form-group {{$errors->has('image') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label for="image">Image File </label>
+                    <div class="clearfix"></div>
+                    {!! Form::file('image', ['id'=>'image']) !!}
+
+                    @if($errors->has('image'))
+                    <p class="help-block">
+                        <strong>{{ $errors->first('image') }}</strong>
+                    </p>
+                    @endif
+            </div> 
         </div> 
         <div class="card-footer">
             <button type="submit" class="btn btn-responsive btn-primary btn-sm">{{ __('Submit') }}</button>
