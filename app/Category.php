@@ -3,9 +3,14 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\MediaLibrary\HasMedia\HasMedia;
+use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
 
-class Category extends Model
+class Category extends Model implements HasMedia
 {
+
+    use HasMediaTrait;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -33,5 +38,16 @@ class Category extends Model
     // For get parent category of a category
     public function parent(){
         return $this->belongsTo(Category::class, 'parent_id', 'id');
+    }
+
+    // in your model
+
+    public function registerMediaCollections()
+    {
+        $this
+        ->addMediaCollection('image')
+        ->useFallbackUrl(asset(config('constants.NO_IMAGE_URL')))
+        ->useFallbackPath(public_path(config('constants.NO_IMAGE_URL')))
+        ->singleFile();
     }
 }
