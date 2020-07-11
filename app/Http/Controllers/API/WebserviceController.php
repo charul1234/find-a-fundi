@@ -39,10 +39,24 @@ class WebserviceController extends Controller
      * @return [string] message
      */
     public function getCategories(Request $request){
-        $categories = Category::with(['children' => function($q) {
+        $categories = Category::with(['media','children' => function($q) {
                         $q->select('id','title','parent_id');
                         $q->where('is_active',TRUE);
                     }])->where(['is_active'=>TRUE, 'parent_id'=>0])->get(['id','title']);
+
+        if (!empty($categories)) {
+            foreach ($categories as $category) {
+                $category->image = asset($category->getFirstMediaUrl('image'));
+                if (!empty($category->children)) {
+                    foreach ($category->children as $media) {
+                        $media->image = asset($media->getFirstMediaUrl('image'));
+                        unset($media->media);
+                    }
+                }
+                unset($category->media);
+            }
+        }
+
         $response['status'] = true;  
         $response['categories'] = $categories;
         $response['message'] = "Success";
