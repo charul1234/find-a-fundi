@@ -35,7 +35,7 @@ class AuthController extends Controller
             'longitude' => 'required', 
             'otp' => 'required',  
             'profile_picture' => 'image|mimes:jpeg,jpg,png|max:'.config('medialibrary.max_file_size') / 1024,  
-            'password' => 'required|confirmed'
+            'password' => 'required'
         ]);
 
         if ($validator->fails()) { 
