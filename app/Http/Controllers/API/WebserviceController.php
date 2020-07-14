@@ -13,6 +13,7 @@ use App\User;
 use App\Country;
 use App\Category;
 use App\Advertisement;
+use App\Package;
 
 class WebserviceController extends Controller
 {
@@ -81,9 +82,8 @@ class WebserviceController extends Controller
         $response['message'] = "Success";
         return response()->json($response);
     }
-
     /**
-     * API to get get Sub Categories by Category Id
+     * API to get get sub category by Category Id
      *
      * @return [string] message
      */
@@ -106,4 +106,28 @@ class WebserviceController extends Controller
         
         return response()->json($response);
     }
+    /**
+     * API to get get Packages by Category Id
+     *
+     * @return [string] message
+     */
+    public function getPackagesByCategoryId(Request $request){
+        $category_id = intval($request->input('category_id')); 
+        $packages= Package::where(array('is_active'=>true,'category_id'=>$category_id))->get(['id','title']);
+        if(count($packages))
+        {             
+            if (!empty($packages)) {
+                foreach ($packages as $package) {
+                    $package->image = asset($package->getFirstMediaUrl('image'));
+                    unset($package->media);
+                }
+            }
+            $response=array('status'=>true,'packages'=>$packages,'message'=>'Record found!');
+        }else
+        {
+            $response=array('status'=>false,'packages'=>'','message'=>'Record not found');
+        }
+        
+        return response()->json($response);
+    }     
 }

@@ -33,6 +33,7 @@ Route::group(['namespace'=>'API'], function(){
 	Route::get('getCategories', 'WebserviceController@getCategories');
 	Route::get('getAdvertisements', 'WebserviceController@getAdvertisements');
 	Route::post('getSubCategoriesByCategoryId', 'WebserviceController@getSubCategoriesByCategoryId');
+	Route::post('getPackagesByCategoryId', 'WebserviceController@getPackagesByCategoryId');
 
 
 	// APIs that can access after login
