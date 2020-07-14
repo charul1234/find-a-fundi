@@ -20,7 +20,9 @@ class Package extends Model implements HasMedia
     ];   
 
     public function registerMediaCollections(){
-        $this->addMediaCollection('image');
+        $this->addMediaCollection('image')
+        ->useFallbackUrl(asset(config('constants.NO_IMAGE_URL')))
+        ->useFallbackPath(public_path(config('constants.NO_IMAGE_URL')));
              //->singleFile();     
     } 
 
