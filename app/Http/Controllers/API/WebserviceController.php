@@ -81,4 +81,29 @@ class WebserviceController extends Controller
         $response['message'] = "Success";
         return response()->json($response);
     }
+
+    /**
+     * API to get get Sub Categories by Category Id
+     *
+     * @return [string] message
+     */
+    public function getSubCategoriesByCategoryId(Request $request){
+        $category_id = intval($request->input('category_id')); 
+        $categories= Category::where(array('is_active'=>true,'parent_id'=>$category_id))->get(['id','title']);
+        if(count($categories))
+        {             
+            if (!empty($categories)) {
+                foreach ($categories as $category) {
+                    $category->image = asset($category->getFirstMediaUrl('image'));
+                    unset($category->media);
+                }
+            }
+            $response=array('status'=>true,'subcategories'=>$categories,'message'=>'Record found!');
+        }else
+        {
+            $response=array('status'=>false,'subcategories'=>'','message'=>'Record not found');
+        }
+        
+        return response()->json($response);
+    }
 }
