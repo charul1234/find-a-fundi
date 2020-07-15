@@ -14,6 +14,7 @@ use App\Country;
 use App\Category;
 use App\Advertisement;
 use App\Package;
+use App\PackageUser;
 
 class WebserviceController extends Controller
 {
@@ -112,22 +113,77 @@ class WebserviceController extends Controller
      * @return [string] message
      */
     public function getPackagesByCategoryId(Request $request){
-        $category_id = intval($request->input('category_id')); 
-        $packages= Package::where(array('is_active'=>true,'category_id'=>$category_id))->get(['id','title']);
-        if(count($packages))
-        {             
-            if (!empty($packages)) {
-                foreach ($packages as $package) {
-                    $package->image = asset($package->getFirstMediaUrl('image'));
-                    unset($package->media);
-                }
+        
+        $user = Auth::user(); 
+        $validator = Validator::make($request->all(), [
+            'category_id'=>'required',
+        ]);
+            
+        if ($validator->fails()) {
+            return response()->json(['status'=>false,'packages'=>'','message'=>$validator->errors()->first()]);
+        }
+        if($user)
+        {   $end_limit = config('constants.DEFAULT_WEBSERVICE_PAGINATION_ENDLIMIT');        
+            $category_id = intval($request->input('category_id'));             
+            $packages= PackageUser::with('package')
+            ->whereHas('package', function($query) use ($category_id) {
+              $query->where('category_id', $category_id);
+            })
+            ->where('user_id',$user->id);
+            $title = $request->input('title');
+            $title=isset($title)?$title:'';
+            if($title!= ''){
+                $packages->whereHas('package', function($query) use ($title) {
+                $query->where('title', 'LIKE', '%' . $title . '%');
+            });
             }
-            $response=array('status'=>true,'packages'=>$packages,'message'=>'Record found!');
+            $price = $request->input('price');
+            $price=isset($price)?$price:'';
+            if($price!= ''){
+              $packages->orderBy('price', $price);
+            }   
+            $start_limit=(isset($request->start_limit)?$request->start_limit:0)*$end_limit;
+            $packages=$packages->offset($start_limit)->limit($end_limit)->get();        
+                  
+            if(count($packages))
+            {   
+                $packagesdata=array();                   
+                if (!empty($packages)) {
+                    foreach ($packages as $package) { 
+                        $package->package->image = $package->package->getMedia('image');
+                        unset($package->package->media);
+                        $packageImages=array();                                  
+                        if (count($package->package->image) > 0) 
+                        {
+                            foreach ($package->package->image as $media)
+                            {                        
+                               $packageImages[]=array('id'=>$media->id,
+                                                      'name'=>$media->name,
+                                                      'file_name'=>$media->file_name,
+                                                      'image_path'=>$media->getFullUrl());
+                             }
+                        }
+                        $packagesdata[]=array('id'=>$package->package->id,
+                                              'title'=>$package->package->title,
+                                              'category_id'=>$package->package->category_id,
+                                              'duration'=>$package->package->duration,
+                                              'description'=>$package->package->description,
+                                              'images'=>$packageImages,
+                                              'user_id'=>$package->user_id,
+                                              'price'=>$package->price,
+                                              );
+                    }    
+                } 
+
+                $response=array('status'=>true,'packages'=>$packagesdata,'message'=>'Record found!');
+            }else
+            {
+                $response=array('status'=>false,'packages'=>'','message'=>'Record not found');
+            }
         }else
         {
-            $response=array('status'=>false,'packages'=>'','message'=>'Record not found');
-        }
-        
+                $response=array('status'=>false,'packages'=>'','message'=>'Oops! Invalid credential.');
+        }        
         return response()->json($response);
     }     
 }

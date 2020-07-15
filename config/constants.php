@@ -22,5 +22,6 @@
 		// Form error class		
 		'ERROR_FORM_GROUP_CLASS' => 'has-error border-left-danger',
 		'DEFAULT_CURRENCY_SYMBOL' => '$',
+		'DEFAULT_WEBSERVICE_PAGINATION_ENDLIMIT' => '10',
 	];
 ?>

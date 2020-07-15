@@ -71,6 +71,8 @@ class Seeker extends Authenticatable implements MustVerifyEmail, HasMedia
 
     public function registerMediaCollections(){
         $this->addMediaCollection('profile_picture')
+        ->useFallbackUrl(asset(config('constants.NO_IMAGE_URL')))
+        ->useFallbackPath(public_path(config('constants.NO_IMAGE_URL')))
              ->singleFile();     
     } 
     /**

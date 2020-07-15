@@ -14,6 +14,8 @@ class Company  extends Model implements HasMedia
     ];
     public function registerMediaCollections(){
         $this->addMediaCollection('batch')
+        ->useFallbackUrl(asset(config('constants.NO_IMAGE_URL')))
+        ->useFallbackPath(public_path(config('constants.NO_IMAGE_URL')))
         ->singleFile();     
     } 
 }
