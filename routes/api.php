@@ -41,6 +41,7 @@ Route::group(['namespace'=>'API'], function(){
 	  'middleware' => 'auth:api'
 	], function() {
 		 Route::post('getPackagesByCategoryId', 'WebserviceController@getPackagesByCategoryId');
+		 Route::post('addCustomRequirement', 'WebserviceController@addCustomRequirement');
 	});
 
 	// APIs that can access without login

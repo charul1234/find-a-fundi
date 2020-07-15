@@ -15,6 +15,8 @@ use App\Category;
 use App\Advertisement;
 use App\Package;
 use App\PackageUser;
+use App\Booking;
+use App\BookingSubcategory;
 
 class WebserviceController extends Controller
 {
@@ -185,5 +187,54 @@ class WebserviceController extends Controller
                 $response=array('status'=>false,'packages'=>'','message'=>'Oops! Invalid credential.');
         }        
         return response()->json($response);
-    }     
+    }   
+     /**
+     * API to add custom requirement
+     *
+     * @return [string] message
+     */
+    public function addCustomRequirement(Request $request){
+
+        $user = Auth::user(); 
+        $data = $request->all(); 
+        if($user)
+        {
+            $validator = Validator::make($data, [
+                'title'=>'required', 
+                'description'=>'required',
+                'date'=>'required',
+                'time'=>'required',
+                'location'=>'required',
+                'latitude'=>'required',
+                'longitude'=>'required',
+                'category_id'=>'required',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
+            }
+            $data['user_id']=$user->id;
+            $data['datetime']=$data['date'].' '.$data['time']; 
+            $booking = Booking::create($data);
+            $subcategories=$data['subcategory_id'];
+            if($subcategories)
+            {
+                $subcategories=explode(',',$subcategories);
+                if(count($subcategories)>0)
+                {
+                    foreach ($subcategories as $key => $subcategory) 
+                    {
+                        BookingSubcategory::create(array('booking_id'=>$booking->id,
+                                                         'category_id'=>$subcategory));
+                    }
+                }
+            }                
+
+            $response=array('status'=>true,'message'=>'Custom requirement saved successfully.');
+        }else
+        {
+                $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
+    }  
 }
