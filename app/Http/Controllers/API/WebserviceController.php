@@ -130,17 +130,17 @@ class WebserviceController extends Controller
               $query->where('category_id', $category_id);
             })
             ->where('user_id',$user->id);
-            $title = $request->input('title');
-            $title=isset($title)?$title:'';
-            if($title!= ''){
-                $packages->whereHas('package', function($query) use ($title) {
-                $query->where('title', 'LIKE', '%' . $title . '%');
+            $keywords = $request->input('keywords');
+            $keywords=isset($keywords)?$keywords:'';
+            if($keywords!= ''){
+                $packages->whereHas('package', function($query) use ($keywords) {
+                $query->where('title', 'LIKE', '%' . $keywords . '%');
             });
             }
-            $price = $request->input('price');
-            $price=isset($price)?$price:'';
-            if($price!= ''){
-              $packages->orderBy('price', $price);
+            $sortby = $request->input('sortby');
+            $sortby=isset($sortby)?$sortby:'';
+            if($sortby!= ''){
+              $packages->orderBy('price', $sortby);
             }   
             $start_limit=(isset($request->start_limit)?$request->start_limit:0)*$end_limit;
             $packages=$packages->offset($start_limit)->limit($end_limit)->get();        
