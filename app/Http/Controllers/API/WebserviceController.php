@@ -133,11 +133,11 @@ class WebserviceController extends Controller
         return response()->json($response);
     }
     /**
-     * API to get get Packages by Category Id
+     * API to get get Packages by sub Category Id
      *
      * @return [string] message
      */
-    public function getPackagesByCategoryId(Request $request){
+    public function getPackagesBySubCategoryId(Request $request){
         
         $user = Auth::user(); 
         $validator = Validator::make($request->all(), [

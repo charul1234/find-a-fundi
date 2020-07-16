@@ -39,7 +39,7 @@ Route::group(['namespace'=>'API'], function(){
 		Route::get('getCategories', 'WebserviceController@getCategories');
 		Route::get('getAdvertisements', 'WebserviceController@getAdvertisements');
 		Route::post('getSubCategoriesByCategoryId', 'WebserviceController@getSubCategoriesByCategoryId');
-		 Route::post('getPackagesByCategoryId', 'WebserviceController@getPackagesByCategoryId');
+		 Route::post('getPackagesBySubCategoryId', 'WebserviceController@getPackagesBySubCategoryId');
 		 Route::post('addCustomRequirement', 'WebserviceController@addCustomRequirement');
 	});
 
