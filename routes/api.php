@@ -36,11 +36,12 @@ Route::group(['namespace'=>'API'], function(){
 	Route::group([
 	  'middleware' => 'auth:api'
 	], function() {		
-		Route::get('getCategories', 'WebserviceController@getCategories');
-		Route::get('getAdvertisements', 'WebserviceController@getAdvertisements');
-		Route::post('getSubCategoriesByCategoryId', 'WebserviceController@getSubCategoriesByCategoryId');
+		 Route::get('getCategories', 'WebserviceController@getCategories');
+		 Route::get('getAdvertisements', 'WebserviceController@getAdvertisements');
+		 Route::post('getSubCategoriesByCategoryId', 'WebserviceController@getSubCategoriesByCategoryId');
 		 Route::post('getPackagesBySubCategoryId', 'WebserviceController@getPackagesBySubCategoryId');
 		 Route::post('addCustomRequirement', 'WebserviceController@addCustomRequirement');
+		 Route::post('addSendRequest', 'WebserviceController@addSendRequest');
 	});
 
 	// APIs that can access without login

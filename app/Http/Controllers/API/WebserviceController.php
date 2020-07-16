@@ -46,6 +46,7 @@ class WebserviceController extends Controller
      */
     public function getCategories(Request $request){
       $user = Auth::user(); 
+      $categories=array();
       if($user)
       {
         $categories = Category::with(['media','children' => function($q) {
@@ -71,7 +72,7 @@ class WebserviceController extends Controller
         $response['message'] = "Success";
       }else
       {
-        $response=array('status'=>false,'categories'=>'','message'=>'Oops! Invalid credential.');
+        $response=array('status'=>false,'categories'=>$categories,'message'=>'Oops! Invalid credential.');
       } 
         return response()->json($response);
     }
@@ -83,6 +84,7 @@ class WebserviceController extends Controller
      */
     public function getAdvertisements(Request $request){
       $user = Auth::user(); 
+      $advertisements=array();
       if($user)
       {
         $advertisements = Advertisement::with('media')->where(['is_active'=>TRUE])->where('start_date', '<=', date("Y-m-d"))->where('end_date', '>=', date("Y-m-d"))->get(['id', 'title', 'discription' ,'start_date', 'end_date']);
@@ -97,7 +99,7 @@ class WebserviceController extends Controller
         $response['message'] = "Success";
       }else
       {
-        $response=array('status'=>false,'advertisements'=>'','message'=>'Oops! Invalid credential.');
+        $response=array('status'=>false,'advertisements'=>$advertisements,'message'=>'Oops! Invalid credential.');
       } 
         return response()->json($response);
     }
@@ -108,6 +110,7 @@ class WebserviceController extends Controller
      */
     public function getSubCategoriesByCategoryId(Request $request){
       $user = Auth::user(); 
+      $categories=array();
       if($user)
       {
         $category_id = intval($request->input('category_id')); 
@@ -123,11 +126,11 @@ class WebserviceController extends Controller
             $response=array('status'=>true,'subcategories'=>$categories,'message'=>'Record found!');
         }else
         {
-            $response=array('status'=>false,'subcategories'=>'','message'=>'Record not found');
+            $response=array('status'=>false,'subcategories'=>$categories,'message'=>'Record not found');
         }
       }else
       {
-        $response=array('status'=>false,'subcategories'=>'','message'=>'Oops! Invalid credential.');
+        $response=array('status'=>false,'subcategories'=>$categories,'message'=>'Oops! Invalid credential.');
       }
         
         return response()->json($response);
@@ -140,12 +143,13 @@ class WebserviceController extends Controller
     public function getPackagesBySubCategoryId(Request $request){
         
         $user = Auth::user(); 
+        $packagesdata=array(); 
         $validator = Validator::make($request->all(), [
             'subcategory_id'=>'required',
         ]);
             
         if ($validator->fails()) {
-            return response()->json(['status'=>false,'packages'=>'','message'=>$validator->errors()->first()]);
+            return response()->json(['status'=>false,'packages'=>$packagesdata,'message'=>$validator->errors()->first()]);
         }
         if($user)
         {   $end_limit = config('constants.DEFAULT_WEBSERVICE_PAGINATION_ENDLIMIT');        
@@ -154,7 +158,8 @@ class WebserviceController extends Controller
                   
             $packages= PackageUser::with('package')
             ->whereHas('package', function($query) use ($category_id) {              
-              $query->whereIn('category_id', $category_id);              
+              $query->whereIn('category_id', $category_id);  
+              $query->where('is_active',true);            
             });    
             //->where('user_id',$user->id);
             $keywords = $request->input('keywords');
@@ -174,7 +179,7 @@ class WebserviceController extends Controller
                
             if(count($packages))
             {  
-                $packagesdata=array();  
+                 
                 if (!empty($packages)) {
                     foreach ($packages as $package) { 
                         $package->package->image = $package->package->getMedia('image');
@@ -205,11 +210,11 @@ class WebserviceController extends Controller
                 $response=array('status'=>true,'packages'=>$packagesdata,'message'=>'Record found!');
             }else
             {
-                $response=array('status'=>false,'packages'=>'','message'=>'Record not found');
+                $response=array('status'=>false,'packages'=>$packagesdata,'message'=>'Record not found');
             }
         }else
         {
-                $response=array('status'=>false,'packages'=>'','message'=>'Oops! Invalid credential.');
+                $response=array('status'=>false,'packages'=>$packagesdata,'message'=>'Oops! Invalid credential.');
         }        
         return response()->json($response);
     }    
@@ -236,7 +241,7 @@ class WebserviceController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
+                return response()->json(['status'=>false,'booking'=>'','message'=>$validator->errors()->first()]);
             }
             $data['user_id']=$user->id;
             $data['datetime']=$data['date'].' '.$data['time']; 
@@ -256,6 +261,55 @@ class WebserviceController extends Controller
             }                
 
             $response=array('status'=>true,'booking'=>$booking->id,'message'=>'Custom requirement saved successfully.');
+        }else
+        {
+                $response=array('status'=>false,'booking'=>'','message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
+    }  
+    /**
+     * API to add Send Request
+     *
+     * @return [string] message
+     */
+    public function addSendRequest(Request $request){
+
+        $user = Auth::user(); 
+        $data = $request->all(); 
+        if($user)
+        {
+            $validator = Validator::make($data, [
+                'title'=>'required', 
+                'description'=>'required',
+                'date'=>'required',
+                'time'=>'required',
+                'location'=>'required',
+                'latitude'=>'required',
+                'longitude'=>'required',
+                'category_id'=>'required',
+                'user_id'=>'required',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['status'=>false,'booking'=>'','message'=>$validator->errors()->first()]);
+            }
+            $data['datetime']=$data['date'].' '.$data['time']; 
+            $booking = Booking::create($data);
+            $subcategories=isset($data['subcategory_id'])?$data['subcategory_id']:'';
+            if($subcategories!='')
+            {
+                $subcategories=explode(',',$subcategories);
+                if(count($subcategories)>0)
+                {
+                    foreach ($subcategories as $key => $subcategory) 
+                    {
+                        BookingSubcategory::create(array('booking_id'=>$booking->id,
+                                                         'category_id'=>$subcategory));
+                    }
+                }
+            }                
+
+            $response=array('status'=>true,'booking'=>$booking->id,'message'=>'Send request saved successfully.');
         }else
         {
                 $response=array('status'=>false,'booking'=>'','message'=>'Oops! Invalid credential.');
