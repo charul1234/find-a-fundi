@@ -137,7 +137,7 @@ class SeekersController extends Controller
             if(intval($user_id) > 0)
             {
                 $profile_data=array('user_id'=>$user_id,'work_address'=>$request->address ,'latitude'=>$request->latitude,'longitude'=>$request->longitude);
-                Profile::create($profile_data);
+                $user->profiles()->create($profile_data);
             }
 
             $role = Role::where('id',config('constants.ROLE_TYPE_SEEKER_ID'))->first();

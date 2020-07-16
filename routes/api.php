@@ -28,18 +28,17 @@ Route::group(['namespace'=>'API'], function(){
 		    Route::post('updateProfile', 'AuthController@updateProfile');
 		});
 	});
-
-	Route::get('getCountries', 'WebserviceController@getCountries');
-	Route::get('getCategories', 'WebserviceController@getCategories');
-	Route::get('getAdvertisements', 'WebserviceController@getAdvertisements');
-	Route::post('getSubCategoriesByCategoryId', 'WebserviceController@getSubCategoriesByCategoryId');
+    Route::get('getCountries', 'WebserviceController@getCountries');
 	
 
 
 	// APIs that can access after login
 	Route::group([
 	  'middleware' => 'auth:api'
-	], function() {
+	], function() {		
+		Route::get('getCategories', 'WebserviceController@getCategories');
+		Route::get('getAdvertisements', 'WebserviceController@getAdvertisements');
+		Route::post('getSubCategoriesByCategoryId', 'WebserviceController@getSubCategoriesByCategoryId');
 		 Route::post('getPackagesByCategoryId', 'WebserviceController@getPackagesByCategoryId');
 		 Route::post('addCustomRequirement', 'WebserviceController@addCustomRequirement');
 	});

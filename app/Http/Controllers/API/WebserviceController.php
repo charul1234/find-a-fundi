@@ -27,14 +27,16 @@ class WebserviceController extends Controller
      * @return [string] message
      */
     public function getCountries(Request $request){
-        $countries = Country::with(['cities' => function($q) {
-                        $q->select('id','title','country_id');
-                        $q->where('is_active',TRUE);
-                    }])->where('is_active',TRUE)->get(['id','title']);
+        
+       $countries = Country::with(['cities' => function($q) {
+                      $q->select('id','title','country_id');
+                      $q->where('is_active',TRUE);
+                  }])->where('is_active',TRUE)->get(['id','title']);
         $response['status'] = true;  
         $response['countries'] = $countries;
-        $response['message'] = "Success";
-        return response()->json($response);
+        $response['message'] = "Success";       
+      
+       return response()->json($response);
     }
 
     /**
@@ -43,6 +45,9 @@ class WebserviceController extends Controller
      * @return [string] message
      */
     public function getCategories(Request $request){
+      $user = Auth::user(); 
+      if($user)
+      {
         $categories = Category::with(['media','children' => function($q) {
                         $q->select('id','title','parent_id');
                         $q->where('is_active',TRUE);
@@ -64,6 +69,10 @@ class WebserviceController extends Controller
         $response['status'] = true;  
         $response['categories'] = $categories;
         $response['message'] = "Success";
+      }else
+      {
+        $response=array('status'=>false,'categories'=>'','message'=>'Oops! Invalid credential.');
+      } 
         return response()->json($response);
     }
 
@@ -73,6 +82,9 @@ class WebserviceController extends Controller
      * @return [string] message
      */
     public function getAdvertisements(Request $request){
+      $user = Auth::user(); 
+      if($user)
+      {
         $advertisements = Advertisement::with('media')->where(['is_active'=>TRUE])->where('start_date', '<=', date("Y-m-d"))->where('end_date', '>=', date("Y-m-d"))->get(['id', 'title', 'discription' ,'start_date', 'end_date']);
         if (!empty($advertisements)) {
             foreach ($advertisements as $advertisement) {
@@ -83,6 +95,10 @@ class WebserviceController extends Controller
         $response['status'] = true;  
         $response['advertisements'] = $advertisements;
         $response['message'] = "Success";
+      }else
+      {
+        $response=array('status'=>false,'advertisements'=>'','message'=>'Oops! Invalid credential.');
+      } 
         return response()->json($response);
     }
     /**
@@ -91,8 +107,11 @@ class WebserviceController extends Controller
      * @return [string] message
      */
     public function getSubCategoriesByCategoryId(Request $request){
+      $user = Auth::user(); 
+      if($user)
+      {
         $category_id = intval($request->input('category_id')); 
-        $categories= Category::where(array('is_active'=>true,'parent_id'=>$category_id))->get(['id','title']);
+        $categories= Category::where(array('is_active'=>true,'parent_id'=>$category_id))->where('parent_id','!=',0)->get(['id','title']);
         if(count($categories))
         {             
             if (!empty($categories)) {
@@ -106,6 +125,10 @@ class WebserviceController extends Controller
         {
             $response=array('status'=>false,'subcategories'=>'','message'=>'Record not found');
         }
+      }else
+      {
+        $response=array('status'=>false,'subcategories'=>'','message'=>'Oops! Invalid credential.');
+      }
         
         return response()->json($response);
     }
@@ -126,32 +149,41 @@ class WebserviceController extends Controller
         }
         if($user)
         {   $end_limit = config('constants.DEFAULT_WEBSERVICE_PAGINATION_ENDLIMIT');        
-            $category_id = intval($request->input('category_id'));             
-            $packages= PackageUser::with('package')
-            ->whereHas('package', function($query) use ($category_id) {
-              $query->where('category_id', $category_id);
-            });
-            //->where('user_id',$user->id);
-            $keywords = $request->input('keywords');
-            $keywords=isset($keywords)?$keywords:'';
-            if($keywords!= ''){
-                $packages->whereHas('package', function($query) use ($keywords) {
-                $query->where('title', 'LIKE', '%' . $keywords . '%');
+            $category_id = $request->input('category_id');             
+            $packages= PackageUser::with('package');
+            /*->whereHas('package', function($query) use ($category_id) {              
+              $query->whereIn('category_id', [$category_id]);              
+            })*/
+            $packages->where(function($query) use ($category_id) {
+                  $query->WhereHas('package', function($query) use ($category_id) {
+                   // echo $category_id;
+                  $query->whereIn('category_id', [$category_id]);
+                });               
+              })
+            ->where('user_id',$user->id);
+            /*$title = $request->input('title');
+            $title=isset($title)?$title:'';
+            if($title!= ''){
+                $packages->whereHas('package', function($query) use ($title) {
+                $query->where('title', 'LIKE', '%' . $title . '%');
             });
             }
-            $sortby = $request->input('sortby');
-            $sortby=isset($sortby)?$sortby:'';
-            if($sortby!= ''){
-              $packages->orderBy('price', $sortby);
-            }   
+            $price = $request->input('price');
+            $price=isset($price)?$price:'';
+            if($price!= ''){
+              $packages->orderBy('price', $price);
+            } */  
             $start_limit=(isset($request->start_limit)?$request->start_limit:0)*$end_limit;
             $packages=$packages->offset($start_limit)->limit($end_limit)->get();        
-                  
+               
             if(count($packages))
-            {   
-                $packagesdata=array();                   
+            {   foreach ($packages as $key => $value) { print_r("<pre>");  
+              echo $value->package_id;
+              # code...
+            }
+                $packagesdata=array();   echo count($packages);echo "<br/>";                
                 if (!empty($packages)) {
-                    foreach ($packages as $package) { 
+                    foreach ($packages as $package) { echo $package->package_id;
                         $package->package->image = $package->package->getMedia('image');
                         unset($package->package->media);
                         $packageImages=array();                                  
@@ -174,7 +206,7 @@ class WebserviceController extends Controller
                                               'user_id'=>$package->user_id,
                                               'price'=>$package->price,
                                               );
-                    }    
+                    }    die;
                 } 
 
                 $response=array('status'=>true,'packages'=>$packagesdata,'message'=>'Record found!');
@@ -187,7 +219,7 @@ class WebserviceController extends Controller
                 $response=array('status'=>false,'packages'=>'','message'=>'Oops! Invalid credential.');
         }        
         return response()->json($response);
-    }   
+    }    
      /**
      * API to add custom requirement
      *
