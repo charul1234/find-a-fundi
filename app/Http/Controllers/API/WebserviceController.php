@@ -155,8 +155,8 @@ class WebserviceController extends Controller
             $packages= PackageUser::with('package')
             ->whereHas('package', function($query) use ($category_id) {              
               $query->whereIn('category_id', $category_id);              
-            })          
-            ->where('user_id',$user->id);
+            });    
+            //->where('user_id',$user->id);
             $keywords = $request->input('keywords');
             $keywords=isset($keywords)?$keywords:'';
             if($keywords!= ''){
