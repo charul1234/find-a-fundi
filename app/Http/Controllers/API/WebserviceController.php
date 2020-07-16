@@ -149,41 +149,34 @@ class WebserviceController extends Controller
         }
         if($user)
         {   $end_limit = config('constants.DEFAULT_WEBSERVICE_PAGINATION_ENDLIMIT');        
-            $category_id = $request->input('category_id');             
-            $packages= PackageUser::with('package');
-            /*->whereHas('package', function($query) use ($category_id) {              
-              $query->whereIn('category_id', [$category_id]);              
-            })*/
-            $packages->where(function($query) use ($category_id) {
-                  $query->WhereHas('package', function($query) use ($category_id) {
-                   // echo $category_id;
-                  $query->whereIn('category_id', [$category_id]);
-                });               
-              })
+            $category_id = $request->input('category_id');  
+            $category_id=explode(',',$category_id);   
+                  
+            $packages= PackageUser::with('package')
+            ->whereHas('package', function($query) use ($category_id) {              
+              $query->whereIn('category_id', $category_id);              
+            })          
             ->where('user_id',$user->id);
-            /*$title = $request->input('title');
-            $title=isset($title)?$title:'';
-            if($title!= ''){
-                $packages->whereHas('package', function($query) use ($title) {
-                $query->where('title', 'LIKE', '%' . $title . '%');
+            $keywords = $request->input('keywords');
+            $keywords=isset($keywords)?$keywords:'';
+            if($keywords!= ''){
+                $packages->whereHas('package', function($query) use ($keywords) {
+                $query->where('title', 'LIKE', '%' . $keywords . '%');
             });
             }
-            $price = $request->input('price');
-            $price=isset($price)?$price:'';
-            if($price!= ''){
-              $packages->orderBy('price', $price);
-            } */  
+            $sortby = $request->input('sortby');
+            $sortby=isset($sortby)?$sortby:'';
+            if($sortby!= ''){
+              $packages->orderBy('price', $sortby);
+            }  
             $start_limit=(isset($request->start_limit)?$request->start_limit:0)*$end_limit;
             $packages=$packages->offset($start_limit)->limit($end_limit)->get();        
                
             if(count($packages))
-            {   foreach ($packages as $key => $value) { print_r("<pre>");  
-              echo $value->package_id;
-              # code...
-            }
-                $packagesdata=array();   echo count($packages);echo "<br/>";                
+            {  
+                $packagesdata=array();  
                 if (!empty($packages)) {
-                    foreach ($packages as $package) { echo $package->package_id;
+                    foreach ($packages as $package) { 
                         $package->package->image = $package->package->getMedia('image');
                         unset($package->package->media);
                         $packageImages=array();                                  
@@ -206,7 +199,7 @@ class WebserviceController extends Controller
                                               'user_id'=>$package->user_id,
                                               'price'=>$package->price,
                                               );
-                    }    die;
+                    }   
                 } 
 
                 $response=array('status'=>true,'packages'=>$packagesdata,'message'=>'Record found!');
@@ -262,10 +255,10 @@ class WebserviceController extends Controller
                 }
             }                
 
-            $response=array('status'=>true,'message'=>'Custom requirement saved successfully.');
+            $response=array('status'=>true,'booking'=>$booking->id,'message'=>'Custom requirement saved successfully.');
         }else
         {
-                $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+                $response=array('status'=>false,'booking'=>'','message'=>'Oops! Invalid credential.');
         }        
         return response()->json($response);
     }  
