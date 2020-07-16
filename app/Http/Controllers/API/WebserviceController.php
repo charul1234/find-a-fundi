@@ -141,7 +141,7 @@ class WebserviceController extends Controller
         
         $user = Auth::user(); 
         $validator = Validator::make($request->all(), [
-            'category_id'=>'required',
+            'subcategory_id'=>'required',
         ]);
             
         if ($validator->fails()) {
@@ -149,7 +149,7 @@ class WebserviceController extends Controller
         }
         if($user)
         {   $end_limit = config('constants.DEFAULT_WEBSERVICE_PAGINATION_ENDLIMIT');        
-            $category_id = $request->input('category_id');  
+            $category_id = $request->input('subcategory_id');  
             $category_id=explode(',',$category_id);   
                   
             $packages= PackageUser::with('package')
