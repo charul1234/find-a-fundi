@@ -104,7 +104,7 @@ class WebserviceController extends Controller
      *
      * @return [string] message
      */
-    public function getSubCategoriesByCategoryId(Request $request){
+    public function getSubCategories(Request $request){
      
       $categories=array();
      
@@ -131,7 +131,7 @@ class WebserviceController extends Controller
      *
      * @return [string] message
      */
-    public function getPackagesBySubCategoryId(Request $request){
+    public function getPackages(Request $request){
         
         $user = Auth::user(); 
         $packagesdata=array(); 
@@ -263,7 +263,7 @@ class WebserviceController extends Controller
      *
      * @return [string] message
      */
-    public function addSendRequest(Request $request){
+    public function bookingRequest(Request $request){
 
         $user = Auth::user(); 
         $data = $request->all(); 

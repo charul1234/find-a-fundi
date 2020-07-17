@@ -31,7 +31,7 @@ Route::group(['namespace'=>'API'], function(){
 	});
     Route::get('getCountries', 'WebserviceController@getCountries');
     Route::get('getCategories', 'WebserviceController@getCategories');
-    Route::post('getSubCategoriesByCategoryId', 'WebserviceController@getSubCategoriesByCategoryId');
+    Route::post('getSubCategories', 'WebserviceController@getSubCategories');
 	
 
 
@@ -41,9 +41,9 @@ Route::group(['namespace'=>'API'], function(){
 	], function() {		
 		 
 		 Route::get('getAdvertisements', 'WebserviceController@getAdvertisements');		 
-		 Route::post('getPackagesBySubCategoryId', 'WebserviceController@getPackagesBySubCategoryId');
+		 Route::post('getPackages', 'WebserviceController@getPackages');
 		 Route::post('addCustomRequirement', 'WebserviceController@addCustomRequirement');
-		 Route::post('addSendRequest', 'WebserviceController@addSendRequest');
+		 Route::post('bookingRequest', 'WebserviceController@bookingRequest');
 		 Route::post('getProvidersByLatLong', 'WebserviceController@getProvidersByLatLong');
 		 Route::post('getProviderDetail', 'WebserviceController@getProviderDetail');
 		 Route::post('addProviderInfo', 'WebserviceController@addProviderInfo');
