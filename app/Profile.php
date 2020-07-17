@@ -32,5 +32,12 @@ class Profile extends Model
     {
         return $this->belongsTo(PaymentOption::class,'payment_option_id');
     }
+    /**
+     * Get the city name that belong to this user.
+    */
+    public function city()
+    {
+        return $this->belongsTo(City::class,'city_id');
+    }
     
 }

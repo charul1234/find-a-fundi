@@ -246,7 +246,7 @@ class WebserviceController extends Controller
             $data['user_id']=$user->id;
             $data['datetime']=$data['date'].' '.$data['time']; 
             $booking = Booking::create($data);
-            $subcategories=$data['subcategory_id'];
+            $subcategories=isset($data['subcategory_id'])?$data['subcategory_id']:'';
             if($subcategories)
             {
                 $subcategories=explode(',',$subcategories);
@@ -316,4 +316,107 @@ class WebserviceController extends Controller
         }        
         return response()->json($response);
     }  
+    /**
+     * API to get provider details according to Id 
+     *
+     * @return [string] message
+     */
+    public function getProviderById(Request $request){
+        $user = Auth::user(); 
+        $data = $request->all(); 
+        $provider=array();
+        $user_id=isset($data['user_id'])?$data['user_id']:'';
+        if($user)
+        {
+          $validator = Validator::make($data, [
+                'user_id'=>'required', 
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['status'=>false,'data'=>$provider,'message'=>$validator->errors()->first()]);
+            }
+          $provider= User::with(['profile','media','profile.experience_level','profile.payment_option','profile.city'])
+            ->whereHas('profile', function($query) use ($user_id) {    
+              $query->where('user_id',$user_id);            
+            })
+            ->first(); 
+          $provider['profile_picture']='';
+          if(isset($provider) && $provider->getMedia('profile_picture')->count() > 0 && file_exists($provider->getFirstMedia('profile_picture')->getPath()))
+          {
+            $provider['profile_picture']=$provider->getFirstMedia('profile_picture')->getFullUrl();
+          }  
+
+          $response=array('status'=>true,'data'=>$provider,'message'=>'Record found');
+        }else
+        {
+            $response=array('status'=>false,'data'=>$provider,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
+    }
+    /**
+     * API to get all providers listing according lat, long, radius
+     *
+     * @return [string] message
+     */
+    public function getProvidersByLatLong(Request $request){
+        $user = Auth::user(); 
+        $data = $request->all(); 
+        $providers=array();
+        if($user)
+        {
+            $end_limit = config('constants.DEFAULT_WEBSERVICE_PAGINATION_ENDLIMIT');
+            $validator = Validator::make($data, [
+                'latitude'=>'required', 
+                'longitude'=>'required',
+                'category_id'=>'required',
+                'subcategory_id'=>'required',
+                'type'=>'required'
+            ]);
+            $type=$data['type'];
+            /*if($type=='is_hourly')
+            {
+              $type=true;
+            }*/
+            
+            $providers= User::with('profile')
+            ->whereHas('profile', function($query) use ($type) {    
+              $query->where('user_id',17);            
+            })
+            ->get(); 
+            //echo $this->distance(32.9697, -96.80322, 33.46786, -97.53506, "K") . " Kilometers<br>";
+
+            if ($validator->fails()) {
+                return response()->json(['status'=>false,'providers'=>'','message'=>$validator->errors()->first()]);
+            }
+
+            $response=array('status'=>true,'providers'=>$providers,'message'=>'Record not found');
+        }else
+        {
+            $response=array('status'=>false,'providers'=>$providers,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
+    }
+    
+    /**
+     * distance check
+     *
+     * @return [string] message
+     */
+    function distance($lat1, $lon1, $lat2, $lon2, $unit) {
+      $theta = $lon1 - $lon2;
+      $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) +  cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
+      $dist = acos($dist);
+      $dist = rad2deg($dist);
+      $miles = $dist * 60 * 1.1515;
+      $unit = strtoupper($unit);
+
+      if ($unit == "K") {
+          return ($miles * 1.609344);
+      } else if ($unit == "N") {
+          return ($miles * 0.8684);
+      } else {
+          return $miles;
+      }
+}
+
 }

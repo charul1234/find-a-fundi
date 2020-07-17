@@ -42,6 +42,8 @@ Route::group(['namespace'=>'API'], function(){
 		 Route::post('getPackagesBySubCategoryId', 'WebserviceController@getPackagesBySubCategoryId');
 		 Route::post('addCustomRequirement', 'WebserviceController@addCustomRequirement');
 		 Route::post('addSendRequest', 'WebserviceController@addSendRequest');
+		 Route::post('getProvidersByLatLong', 'WebserviceController@getProvidersByLatLong');
+		 Route::post('getProviderById', 'WebserviceController@getProviderById');
 	});
 
 	// APIs that can access without login
