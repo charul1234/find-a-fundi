@@ -322,7 +322,7 @@ class WebserviceController extends Controller
      *
      * @return [string] message
      */
-    public function getProvider(Request $request){
+    public function getProviderDetail(Request $request){
         $user = Auth::user(); 
         $data = $request->all(); 
         $provider=array();
