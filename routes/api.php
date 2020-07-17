@@ -16,6 +16,7 @@ Route::group(['namespace'=>'API'], function(){
 	  'prefix' => 'auth'
 	], function() {
 		Route::post('register', 'AuthController@index');
+		Route::post('providerRegistration', 'AuthController@providerRegistration');
 		Route::post('login', 'AuthController@login');
 		Route::post('forgotPassword', 'AuthController@forgotPassword');
 		Route::post('resetPassword', 'AuthController@resetPassword');
@@ -43,7 +44,7 @@ Route::group(['namespace'=>'API'], function(){
 		 Route::post('addCustomRequirement', 'WebserviceController@addCustomRequirement');
 		 Route::post('addSendRequest', 'WebserviceController@addSendRequest');
 		 Route::post('getProvidersByLatLong', 'WebserviceController@getProvidersByLatLong');
-		 Route::post('getProviderById', 'WebserviceController@getProviderById');
+		 Route::post('getProvider', 'WebserviceController@getProvider');
 	});
 
 	// APIs that can access without login

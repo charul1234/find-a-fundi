@@ -15,6 +15,7 @@ use App\User;
 use App\OtpUser;
 use App\PasswordReset;
 use App\Profile;
+use App\CategoryUser;
 
 class AuthController extends Controller
 {
@@ -276,5 +277,75 @@ class AuthController extends Controller
         $response['user'] = $user->getUserDetail();
         $response['message'] = "Profile updated Successfully.";
         return response()->json($response);
+    }
+    /** 
+     * Provider Register api 
+     * 
+     * @return \Illuminate\Http\Response 
+     */ 
+    public function providerRegistration(Request $request){ 
+         
+        $validator = Validator::make($request->all(), [ 
+            'name' => 'required', 
+            'email' => 'required|email|unique:'.with(new User)->getTable().',email',
+            'mobile_number' => 'required|numeric|unique:'.with(new User)->getTable().',mobile_number',   
+            'category_id' => 'required',
+            'password' => 'required'
+        ]);
+
+        if ($validator->fails()) { 
+            return response()->json(['status'=>FALSE, 'message'=>$validator->errors()->first()]);            
+        }        
+        $input = ['name'=>$request->name, 'email'=>$request->email, 'mobile_number'=>$request->mobile_number, 'is_active'=>false];
+        $input['password'] = bcrypt($request->password);
+
+
+        $user = User::create($input); 
+        if($user){
+             //upload profile picture
+            if ($request->hasFile('profile_picture')){
+                $file = $request->file('profile_picture');
+                $customimagename  = time() . '.' . $file->getClientOriginalExtension();
+                $user->addMedia($file)->toMediaCollection('profile_picture');
+            }
+            $user->assignRole(config('constants.ROLE_TYPE_PROVIDER_ID'));
+           
+            $user_id=$user->id;
+            if(intval($user_id) > 0)
+            {
+                $profile_data=array('user_id'=>$user_id);
+                $user->profiles()->create($profile_data);
+            }
+            $category_id=$request->category_id;
+            
+            if(intval($category_id) > 0)
+            {
+               $user->category_user()->create(['user_id'=>$user_id,'category_id'=>$category_id]);
+            }      
+            $subcategory_ids=$request->subcategory_id;            
+            if(!empty($subcategory_ids) && isset($subcategory_ids))
+            {
+                  foreach ($subcategory_ids as $key => $subcategory_id) 
+                  {                     
+                     $user->category_user()->create(['user_id'=>$user_id,'category_id'=>$subcategory_id]);   
+                  }                              
+            }
+               
+            // For store access token of user
+            $tokenResult = $user->createToken('Login Token');
+            $token = $tokenResult->token;
+
+            $response['status'] = TRUE; 
+            $response['message'] = "You has been successfully registered. Wait until admin verify your registration";
+            $response['user'] = $user->getUserDetail();
+            $response['access_token'] = $tokenResult->accessToken;
+            $response['token_type'] = 'Bearer';
+            $response['expires_at'] = Carbon::parse(
+                $tokenResult->token->expires_at
+            )->toDateTimeString();
+            return response()->json($response);
+        }else{
+            return response()->json(['status'=>FALSE, 'message'=>'Something wrong in registration.']);
+        }
     }
 }

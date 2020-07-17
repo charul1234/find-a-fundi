@@ -17,6 +17,7 @@ use App\Package;
 use App\PackageUser;
 use App\Booking;
 use App\BookingSubcategory;
+use App\CategoryUser;
 
 class WebserviceController extends Controller
 {
@@ -321,7 +322,7 @@ class WebserviceController extends Controller
      *
      * @return [string] message
      */
-    public function getProviderById(Request $request){
+    public function getProvider(Request $request){
         $user = Auth::user(); 
         $data = $request->all(); 
         $provider=array();
@@ -335,7 +336,7 @@ class WebserviceController extends Controller
             if ($validator->fails()) {
                 return response()->json(['status'=>false,'data'=>$provider,'message'=>$validator->errors()->first()]);
             }
-          $provider= User::with(['profile','media','profile.experience_level','profile.payment_option','profile.city'])
+           $provider= User::with(['profile','media','profile.experience_level','profile.payment_option','profile.city'])
             ->whereHas('profile', function($query) use ($user_id) {    
               $query->where('user_id',$user_id);            
             })
@@ -373,15 +374,60 @@ class WebserviceController extends Controller
                 'type'=>'required'
             ]);
             $type=$data['type'];
-            /*if($type=='is_hourly')
+            $is_type=false;
+            $is_hourly=false;
+            $is_rfq=false;
+            if($type=='is_hourly')
             {
-              $type=true;
-            }*/
+              $is_hourly=true;
+
+            }
+            if($type=='is_rfq')
+            {
+               $$is_rfq=true;
+            }
+            $user_id = $request->input('user_id'); 
+            $category_id = $request->input('category_id'); 
+            $subcategory_id = $request->input('subcategory_id');  
+            $subcategory_id=explode(',',$subcategory_id);
+
+            $providers= CategoryUser::with(['category','user','user.profile'])
+            ->whereHas('category', function($query) use ($subcategory_id) {             
+              $query->whereIn('category_id', $subcategory_id);            
+            })  
             
-            $providers= User::with('profile')
-            ->whereHas('profile', function($query) use ($type) {    
-              $query->where('user_id',17);            
+            ->whereHas('user.profile', function($query) use ($is_hourly,$is_rfq) {
+              if($is_hourly==true)
+              {
+                $query->where('is_hourly',$is_hourly); 
+              }else
+              {
+                $query->where('is_rfq',$is_rfq); 
+              }
+
+                       
             })
+          
+          
+            
+                        
+            ->whereIn('category_id',$subcategory_id)
+ 
+
+            /*->whereHas('category', function($query) use ($subcategory_id) {              
+              $query->where('category_id', $subcategory_id);            
+            }) */
+
+           /* $providers= User::with('profile','category_user')
+            ->whereHas('profile', function($query) use ($user_id) {    
+                $query->where('user_id',$user_id);            
+            })
+            ->whereHas('category_user', function($query) use ($subcategory_id) {              print_r($subcategory_id);
+                $query->where('category_id', $subcategory_id);               
+            })
+            ->where('id',$user_id)
+*/
+
             ->get(); 
             //echo $this->distance(32.9697, -96.80322, 33.46786, -97.53506, "K") . " Kilometers<br>";
 
