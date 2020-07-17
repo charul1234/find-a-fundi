@@ -46,11 +46,9 @@ class WebserviceController extends Controller
      * @return [string] message
      */
     public function getCategories(Request $request){
-      $user = Auth::user(); 
-      $categories=array();
-      if($user)
-      {
-        $categories = Category::with(['media','children' => function($q) {
+      
+      $categories=array();      
+      $categories = Category::with(['media','children' => function($q) {
                         $q->select('id','title','parent_id');
                         $q->where('is_active',TRUE);
                     }])->where(['is_active'=>TRUE, 'parent_id'=>0])->get(['id','title']);
@@ -71,10 +69,7 @@ class WebserviceController extends Controller
         $response['status'] = true;  
         $response['categories'] = $categories;
         $response['message'] = "Success";
-      }else
-      {
-        $response=array('status'=>false,'categories'=>$categories,'message'=>'Oops! Invalid credential.');
-      } 
+      
         return response()->json($response);
     }
 
@@ -110,10 +105,9 @@ class WebserviceController extends Controller
      * @return [string] message
      */
     public function getSubCategoriesByCategoryId(Request $request){
-      $user = Auth::user(); 
+     
       $categories=array();
-      if($user)
-      {
+     
         $category_id = intval($request->input('category_id')); 
         $categories= Category::where(array('is_active'=>true,'parent_id'=>$category_id))->where('parent_id','!=',0)->get(['id','title']);
         if(count($categories))
@@ -128,11 +122,7 @@ class WebserviceController extends Controller
         }else
         {
             $response=array('status'=>false,'subcategories'=>$categories,'message'=>'Record not found');
-        }
-      }else
-      {
-        $response=array('status'=>false,'subcategories'=>$categories,'message'=>'Oops! Invalid credential.');
-      }
+        }      
         
         return response()->json($response);
     }
@@ -351,6 +341,45 @@ class WebserviceController extends Controller
         }else
         {
             $response=array('status'=>false,'data'=>$provider,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
+    }
+    /**
+     * API to save provider information
+     *
+     * @return [string] message
+     */
+    public function addProviderInfo(Request $request){
+        $user = Auth::user(); 
+        $data = $request->all(); 
+        $provider=array();
+        if($user)
+        {
+          //print_r($user);
+           $validator = Validator::make($request->all(), [ 
+            'category_id' => 'required',
+            'subcategory_id' => 'required',
+          ]);
+           $category_id=$request->category_id;
+           $subcategory_ids=$request->subcategory_id;   
+           if($request->is_package==true)
+           {
+            $packagesdata=json_decode(stripslashes($request->packages));
+            if(intval($packagesdata) > 0 && !empty($packagesdata)){ 
+              foreach ($packagesdata as $key => $data) {
+                //print_r($data->); echo "<br/>";
+              }
+            }
+
+           } 
+           
+          if ($validator->fails()) { 
+              return response()->json(['status'=>FALSE, 'message'=>$validator->errors()->first()]);            
+          }  
+          $response=array('status'=>true,'provider'=>$provider,'message'=>'Record found.');
+        }else
+        {
+            $response=array('status'=>false,'providers'=>$provider,'message'=>'Oops! Invalid credential.');
         }        
         return response()->json($response);
     }

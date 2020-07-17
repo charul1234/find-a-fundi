@@ -30,6 +30,8 @@ Route::group(['namespace'=>'API'], function(){
 		});
 	});
     Route::get('getCountries', 'WebserviceController@getCountries');
+    Route::get('getCategories', 'WebserviceController@getCategories');
+    Route::post('getSubCategoriesByCategoryId', 'WebserviceController@getSubCategoriesByCategoryId');
 	
 
 
@@ -37,14 +39,14 @@ Route::group(['namespace'=>'API'], function(){
 	Route::group([
 	  'middleware' => 'auth:api'
 	], function() {		
-		 Route::get('getCategories', 'WebserviceController@getCategories');
-		 Route::get('getAdvertisements', 'WebserviceController@getAdvertisements');
-		 Route::post('getSubCategoriesByCategoryId', 'WebserviceController@getSubCategoriesByCategoryId');
+		 
+		 Route::get('getAdvertisements', 'WebserviceController@getAdvertisements');		 
 		 Route::post('getPackagesBySubCategoryId', 'WebserviceController@getPackagesBySubCategoryId');
 		 Route::post('addCustomRequirement', 'WebserviceController@addCustomRequirement');
 		 Route::post('addSendRequest', 'WebserviceController@addSendRequest');
 		 Route::post('getProvidersByLatLong', 'WebserviceController@getProvidersByLatLong');
 		 Route::post('getProviderDetail', 'WebserviceController@getProviderDetail');
+		 Route::post('addProviderInfo', 'WebserviceController@addProviderInfo');
 	});
 
 	// APIs that can access without login
