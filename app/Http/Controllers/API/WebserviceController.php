@@ -365,12 +365,22 @@ class WebserviceController extends Controller
            if($request->is_package==true)
            {
             $packagesdata=json_decode(stripslashes($request->packages));
-            if(intval($packagesdata) > 0 && !empty($packagesdata)){ 
-              foreach ($packagesdata as $key => $data) {
-                //print_r($data->); echo "<br/>";
+            if(intval($packagesdata) > 0 && !empty($packagesdata))
+            { 
+              foreach ($packagesdata as $key => $data) {                
+                $user->package_user()->create(['package_id'=>$data->package_id,'price'=>$data->price]);  
               }
             }
-
+           } 
+           if($request->is_hourly==true)
+           {
+            $hourlydata=json_decode(stripslashes($request->hourly));
+            if(intval($hourlydata) > 0 && !empty($hourlydata))
+            { 
+              foreach ($hourlydata as $key => $data) {                
+                $user->hourly_charge()->create(['user_id'=>$user->id,'hours'=>$data->hours,'price'=>$data->price,'type'=>$data->type]);  
+              }
+            }
            } 
            
           if ($validator->fails()) { 

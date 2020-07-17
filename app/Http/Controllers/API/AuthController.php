@@ -322,8 +322,9 @@ class AuthController extends Controller
             {
                $user->category_user()->create(['user_id'=>$user_id,'category_id'=>$category_id]);
             }      
-            $subcategory_ids=$request->subcategory_id;            
-            if(!empty($subcategory_ids) && isset($subcategory_ids))
+            $subcategory_ids=$request->subcategory_id;   
+            $subcategory_ids=explode(',',$subcategory_ids);         
+            if(count($subcategory_ids)>0)
             {
                   foreach ($subcategory_ids as $key => $subcategory_id) 
                   {                     
