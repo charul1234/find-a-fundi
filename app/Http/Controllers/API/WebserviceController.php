@@ -498,8 +498,9 @@ class WebserviceController extends Controller
                 $query->where('is_rfq',$is_rfq); 
               }                       
             })          
-            ->whereIn('category_id',$subcategory_id) 
-            ->get(); 
+            ->whereIn('category_id',$subcategory_id);
+            $start_limit=(isset($request->start_limit)?$request->start_limit:0)*$end_limit;
+            $providers=$providers->offset($start_limit)->limit($end_limit)->get();
             $providersdata=[];
             foreach ($providers as $key => $provider) {
                //$provider['profile_picture']='';
