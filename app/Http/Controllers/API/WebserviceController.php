@@ -360,6 +360,8 @@ class WebserviceController extends Controller
             'latitude' => 'required',
             'longitude' => 'required',
             'radius' => 'required',
+            'category_id' => 'required',
+            'subcategory_id' => 'required',
            ]);
 
            $data['work_address']=isset($data['location'])?$data['location']:'';
@@ -369,6 +371,26 @@ class WebserviceController extends Controller
            $data['is_hourly']=isset($data['is_hourly'])?$data['is_hourly']:'';
 
             $user_id=$user->id;
+            $category_id=$request->category_id;
+            
+            if(intval($category_id) > 0)
+            {
+               CategoryUser::where('user_id',$user_id)->delete();
+               $user->category_user()->create(['user_id'=>$user_id,'category_id'=>$category_id]);
+            } 
+            $subcategory_ids=$request->subcategory_id;   
+            $subcategory_ids=explode(',',$subcategory_ids);
+            if(count($subcategory_ids)>0)
+            {
+                  foreach ($subcategory_ids as $key => $subcategory_id) 
+                  {  
+                    if(intval($subcategory_id) > 0)
+                     {          
+                      $user->category_user()->create(['user_id'=>$user_id,'category_id'=>$subcategory_id]); 
+                      }  
+                  }                              
+            }
+
             $profile = Profile::where(array('user_id'=>$user_id));
             if(intval($user_id) > 0)
             {
