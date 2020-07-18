@@ -476,23 +476,7 @@ class WebserviceController extends Controller
                 $query->where('is_rfq',$is_rfq); 
               }                       
             })          
-            ->whereIn('category_id',$subcategory_id)
- 
-
-            /*->whereHas('category', function($query) use ($subcategory_id) {              
-              $query->where('category_id', $subcategory_id);            
-            }) */
-
-           /* $providers= User::with('profile','category_user')
-            ->whereHas('profile', function($query) use ($user_id) {    
-                $query->where('user_id',$user_id);            
-            })
-            ->whereHas('category_user', function($query) use ($subcategory_id) {              print_r($subcategory_id);
-                $query->where('category_id', $subcategory_id);               
-            })
-            ->where('id',$user_id)
-*/
-
+            ->whereIn('category_id',$subcategory_id) 
             ->get(); 
             $providersdata=[];
             foreach ($providers as $key => $provider) {
@@ -523,8 +507,14 @@ class WebserviceController extends Controller
             if ($validator->fails()) {
                 return response()->json(['status'=>false,'providers'=>'','message'=>$validator->errors()->first()]);
             }
+             if(count($providers))
+            { 
 
-            $response=array('status'=>true,'providers'=>$providers,'message'=>'Record not found');
+               $response=array('status'=>true,'providers'=>$providers,'message'=>'Record found');
+            }else
+            {
+               $response=array('status'=>false,'providers'=>$providers,'message'=>'Record not found');
+            }
         }else
         {
             $response=array('status'=>false,'providers'=>$providers,'message'=>'Oops! Invalid credential.');
