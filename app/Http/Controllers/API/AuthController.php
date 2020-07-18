@@ -46,7 +46,10 @@ class AuthController extends Controller
         if (!$otpuser) {
             return response()->json(['status'=>FALSE, 'message'=>'OTP is incorrect.']);
         }
-        $input = ['name'=>$request->name, 'email'=>$request->email, 'mobile_number'=>$request->mobile_number, 'is_active'=>TRUE];
+        $device_token=isset($request->device_token)?$request->device_token:'';
+        $device_type=isset($request->device_type)?$request->device_type:'';
+        $device_id=isset($request->device_id)?$request->device_id:'';
+        $input = ['name'=>$request->name, 'email'=>$request->email, 'mobile_number'=>$request->mobile_number, 'is_active'=>TRUE,'device_token'=>$device_token,'device_type'=>$device_type,'device_id'=>$device_id];
         $input['password'] = bcrypt($request->password);
         $user = User::create($input); 
         if($user){
@@ -134,6 +137,12 @@ class AuthController extends Controller
 
             if($user->is_active==false){
                 return response()->json(['status'=>FALSE, 'message'=>trans('auth.noactive')]);
+            }
+            if($user){ 
+                $userdata=array('device_token'=>$request->device_token,
+                              'device_type'=>$request->device_type,
+                              'device_id'=>$request->device_id);                
+                $user->update($userdata);
             }
             // For store access token of user
             $tokenResult = $user->createToken('Login Token');
@@ -296,7 +305,10 @@ class AuthController extends Controller
         if ($validator->fails()) { 
             return response()->json(['status'=>FALSE, 'message'=>$validator->errors()->first()]);            
         }        
-        $input = ['name'=>$request->name, 'email'=>$request->email, 'mobile_number'=>$request->mobile_number, 'is_active'=>true];
+        $device_token=isset($request->device_token)?$request->device_token:'';
+        $device_type=isset($request->device_type)?$request->device_type:'';
+        $device_id=isset($request->device_id)?$request->device_id:'';
+        $input = ['name'=>$request->name, 'email'=>$request->email, 'mobile_number'=>$request->mobile_number, 'is_active'=>true,'device_token'=>$device_token,'device_type'=>$device_type,'device_id'=>$device_id];
         $input['password'] = bcrypt($request->password);
 
 
