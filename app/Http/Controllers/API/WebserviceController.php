@@ -452,12 +452,14 @@ class WebserviceController extends Controller
             }
             if($type=='is_rfq')
             {
-               $$is_rfq=true;
+               $is_rfq=true;
             }
             $user_id = $request->input('user_id'); 
             $category_id = $request->input('category_id'); 
             $subcategory_id = $request->input('subcategory_id');  
             $subcategory_id=explode(',',$subcategory_id);
+            $latitude = $request->input('latitude');  
+            $longitude = $request->input('longitude');  
 
             $providers= CategoryUser::with(['category','user','user.profile'])
             ->whereHas('category', function($query) use ($subcategory_id) {             
@@ -468,17 +470,12 @@ class WebserviceController extends Controller
               if($is_hourly==true)
               {
                 $query->where('is_hourly',$is_hourly); 
-              }else
+              }
+              if($is_rfq==true)
               {
                 $query->where('is_rfq',$is_rfq); 
-              }
-
-                       
-            })
-          
-          
-            
-                        
+              }                       
+            })          
             ->whereIn('category_id',$subcategory_id)
  
 
@@ -497,7 +494,31 @@ class WebserviceController extends Controller
 */
 
             ->get(); 
-            //echo $this->distance(32.9697, -96.80322, 33.46786, -97.53506, "K") . " Kilometers<br>";
+            $providersdata=[];
+            foreach ($providers as $key => $provider) {
+               //$provider['profile_picture']='';
+              if(isset($provider->user) && $provider->user->getMedia('profile_picture')->count() > 0 && file_exists($provider->user->getFirstMedia('profile_picture')->getPath()))
+              {
+                $provider['profile_picture']=$provider->user->getFirstMedia('profile_picture')->getFullUrl();
+              }               
+               
+               //print_r($provider->user->profile->latitude);
+               /* echo $latitude; echo "<br/>";
+               echo $longitude;echo "<br/>";
+               echo $provider->user->profile->latitude;echo "<br/>";
+               echo $provider->user->profile->longitude;echo "<br/>";     */       
+              /* $Kilometer_distance=  $this->distance($latitude, $longitude, $provider->user->profile->latitude, $provider->user->profile->longitude, "K");
+               if($provider->user->profile->latitude!='null' && $provider->user->profile->latitude!='')
+               {
+                echo "vvv". $Kilometer_distance."vvv".$provider->user->profile->radius;
+                echo "<br/>";
+                if($Kilometer_distance<=$provider->user->profile->radius)
+                {
+                  //echo "bb";  echo $provider->user->profile->user_id; echo "bb";
+                  $providersdata[]=$provider;                  
+                }
+               }*/
+            }
 
             if ($validator->fails()) {
                 return response()->json(['status'=>false,'providers'=>'','message'=>$validator->errors()->first()]);
