@@ -354,12 +354,14 @@ class WebserviceController extends Controller
         $data = $request->all(); 
         $provider=array();
         if($user)
-        {
-          //print_r($user);
+        {          
            $validator = Validator::make($request->all(), [ 
             'category_id' => 'required',
             'subcategory_id' => 'required',
-          ]);
+            'location' => 'required',
+            'latitude' => 'required',
+            'longitude' => 'required',
+           ]);
            $category_id=$request->category_id;
            $subcategory_ids=$request->subcategory_id;   
            if($request->is_package==true)

@@ -296,7 +296,7 @@ class AuthController extends Controller
         if ($validator->fails()) { 
             return response()->json(['status'=>FALSE, 'message'=>$validator->errors()->first()]);            
         }        
-        $input = ['name'=>$request->name, 'email'=>$request->email, 'mobile_number'=>$request->mobile_number, 'is_active'=>false];
+        $input = ['name'=>$request->name, 'email'=>$request->email, 'mobile_number'=>$request->mobile_number, 'is_active'=>true];
         $input['password'] = bcrypt($request->password);
 
 
