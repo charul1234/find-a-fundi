@@ -18,7 +18,7 @@ use App\PackageUser;
 use App\Booking;
 use App\BookingSubcategory;
 use App\CategoryUser;
-
+use App\Profile;
 class WebserviceController extends Controller
 {
 
@@ -355,15 +355,27 @@ class WebserviceController extends Controller
         $provider=array();
         if($user)
         {          
-           $validator = Validator::make($request->all(), [ 
-            'category_id' => 'required',
-            'subcategory_id' => 'required',
+           $validator = Validator::make($request->all(), [             
             'location' => 'required',
             'latitude' => 'required',
             'longitude' => 'required',
+            'radius' => 'required',
            ]);
-           $category_id=$request->category_id;
-           $subcategory_ids=$request->subcategory_id;   
+
+           $data['work_address']=isset($data['location'])?$data['location']:'';
+           $data['latitude']=isset($data['latitude'])?$data['latitude']:'';
+           $data['longitude']=isset($data['longitude'])?$data['longitude']:'';
+           $data['is_package']=isset($data['is_package'])?$data['is_package']:'';
+           $data['is_hourly']=isset($data['is_hourly'])?$data['is_hourly']:'';
+
+            $user_id=$user->id;
+            $profile = Profile::where(array('user_id'=>$user_id));
+            if(intval($user_id) > 0)
+            {
+                $profile_data=array('work_address'=>$data['work_address'] ,'latitude'=>$data['latitude'],'longitude'=>$data['longitude'],'radius'=>$data['radius'],'is_hourly'=>$data['is_hourly'],'is_package'=>$data['is_package']);
+                $profile->update($profile_data);
+            }
+            
            if($request->is_package==true)
            {
             $packagesdata=json_decode(stripslashes($request->packages));
@@ -380,18 +392,33 @@ class WebserviceController extends Controller
             if(intval($hourlydata) > 0 && !empty($hourlydata))
             { 
               foreach ($hourlydata as $key => $data) {                
-                $user->hourly_charge()->create(['user_id'=>$user->id,'hours'=>$data->hours,'price'=>$data->price,'type'=>$data->type]);  
+                $user->hourly_charge()->create(['user_id'=>$user_id,'hours'=>$data->hours,'price'=>$data->price,'type'=>$data->type]);  
               }
             }
            } 
+            if ($request->hasFile('qualification')){
+                $file = $request->file('qualification');
+                $customimagename  = time() . '.' . $file->getClientOriginalExtension();
+                $user->addMedia($file)->toMediaCollection('qualification');
+            }
+            if ($request->hasFile('badge')){
+                $file = $request->file('badge');
+                $customimagename  = time() . '.' . $file->getClientOriginalExtension();
+                $user->addMedia($file)->toMediaCollection('badge');
+            }
+            if ($request->hasFile('certification')){
+                $file = $request->file('certification');
+                $customimagename  = time() . '.' . $file->getClientOriginalExtension();
+                $user->addMedia($file)->toMediaCollection('certification');
+            }
            
           if ($validator->fails()) { 
               return response()->json(['status'=>FALSE, 'message'=>$validator->errors()->first()]);            
           }  
-          $response=array('status'=>true,'provider'=>$provider,'message'=>'Record found.');
+          $response=array('status'=>true,'message'=>'Provider information successfully added.');
         }else
         {
-            $response=array('status'=>false,'providers'=>$provider,'message'=>'Oops! Invalid credential.');
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
         }        
         return response()->json($response);
     }
