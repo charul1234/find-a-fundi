@@ -329,8 +329,28 @@ class WebserviceController extends Controller
            $provider= User::with(['profile','media','profile.experience_level','profile.payment_option','profile.city','category_user.category'])
             ->whereHas('profile', function($query) use ($user_id) {    
               $query->where('user_id',$user_id);            
-            })
-            ->first(); 
+            })->first();
+            //echo $provider_category_id=$provider->category_user;die;
+            //$provider->category_user->category->where('parent_id','!=',0)  
+            /*$provider->whereHas('category_user.category', function($query){    
+              $query->where('parent_id','!=',0);            
+            })*/
+          $subcategories=[];
+          if(count($provider->category_user)>0)
+          {
+            foreach ($provider->category_user as $key => $providerdata) 
+            {
+              if($providerdata->category->parent_id!=0){
+                $subcategories[]=array('id'=>$providerdata->category->id,
+                                     'title'=>$providerdata->category->title,
+                                     'parent_id'=>$providerdata->category->parent_id,
+                                     'is_active'=>$providerdata->category->is_active);
+            }
+           }  
+          }
+          $provider['subcategories']=$subcategories;
+                  
+             
           $provider['profile_picture']='';
           if(isset($provider) && $provider->getMedia('profile_picture')->count() > 0 && file_exists($provider->getFirstMedia('profile_picture')->getPath()))
           {
