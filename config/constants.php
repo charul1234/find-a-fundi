@@ -23,5 +23,7 @@
 		'ERROR_FORM_GROUP_CLASS' => 'has-error border-left-danger',
 		'DEFAULT_CURRENCY_SYMBOL' => '$',
 		'DEFAULT_WEBSERVICE_PAGINATION_ENDLIMIT' => '10',
+		'SCREEN_NAME1' => 'screen1',
+		'SCREEN_NAME2' => 'screen2',
 	];
 ?>

@@ -147,11 +147,11 @@ class AuthController extends Controller
             $message='';
             if($user->is_verify==false)
             {
-                if($user->screen_name=='screen1' || $user->screen_name=='')
+                if($user->screen_name==config('constants.SCREEN_NAME1') || $user->screen_name=='')
                 {
                     $message='Logged in successfully. please complete your profile.';
                 }
-                if($user->screen_name=='screen2')
+                if($user->screen_name==config('constants.SCREEN_NAME2'))
                 {
                     $message='Logged in successfully. your account under review, admin will notify you.';
                 }                

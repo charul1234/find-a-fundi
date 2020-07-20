@@ -37,7 +37,7 @@
         </div>
           <div class="col-md-12">
          <div class="form-group">
-                        <label class="col-form-label"><strong>They are not middlemen :  </strong>
+                        <label class="col-form-label"><strong>I am not middlemen :  </strong>
                        <?php 
                        if($user->profile->fundi_is_middlemen == TRUE ){
                         ?><i class="fa badge-success fa-check" aria-hidden="true"></i>
@@ -46,7 +46,7 @@
                         ?> </label>
                     </div> 
                      <div class="form-group">
-                        <label class="col-form-label"><strong>They have all the required tools to do their job : </strong>
+                        <label class="col-form-label"><strong>I have all the required tools to do their job : </strong>
                        <?php 
                        if($user->profile->fundi_have_tools == TRUE ){
                         ?><i class="fa badge-success fa-check" aria-hidden="true"></i>
@@ -55,7 +55,7 @@
                         ?> </label>
                     </div>
                        <div class="form-group">
-                        <label class="col-form-label"><strong>They have a smartphone : </strong>
+                        <label class="col-form-label"><strong>I have a smartphone : </strong>
                        <?php 
                        if($user->profile->fundi_have_smartphone == TRUE ){
                       ?><i class="fa badge-success fa-check" aria-hidden="true"></i>
