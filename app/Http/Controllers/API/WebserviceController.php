@@ -377,10 +377,15 @@ class WebserviceController extends Controller
             'subcategory_id' => 'required',
            ]);
            
-           $data['is_package']=isset($data['is_package'])?$data['is_package']:'';
-           $data['is_hourly']=isset($data['is_hourly'])?$data['is_hourly']:'';
+           $is_package=isset($data['is_package'])?$data['is_package']:'';
+           $is_hourly=isset($data['is_hourly'])?$data['is_hourly']:'';
+           $screen_name=isset($data['screen_name'])?$data['screen_name']:'';
 
             $user_id=$user->id;
+            if($user_id){ 
+                $userdata=array('screen_name'=>$screen_name);                
+                $user->update($userdata);
+            }
             $category_id=$request->category_id;
             
             if(intval($category_id) > 0)
@@ -408,7 +413,7 @@ class WebserviceController extends Controller
                 $profile->update($profile_data);
             }
             
-           if($request->is_package==true)
+           if($is_package==true)
            {
             $packagesdata=json_decode(stripslashes($request->packages));
             if(intval($packagesdata) > 0 && !empty($packagesdata))
@@ -418,7 +423,7 @@ class WebserviceController extends Controller
               }
             }
            } 
-           if($request->is_hourly==true)
+           if($is_hourly==true)
            {
             $hourlydata=json_decode(stripslashes($request->hourly));
             if(intval($hourlydata) > 0 && !empty($hourlydata))
@@ -473,9 +478,14 @@ class WebserviceController extends Controller
            $fundi_is_middlemen=isset($data['fundi_is_middlemen'])?$data['fundi_is_middlemen']:0;
            $fundi_have_tools=isset($data['fundi_have_tools'])?$data['fundi_have_tools']:0;
            $fundi_have_smartphone=isset($data['fundi_have_smartphone'])?$data['fundi_have_smartphone']:0;
-           
+           $screen_name=isset($data['screen_name'])?$data['screen_name']:'';
 
             $user_id=$user->id;
+            if($user_id){ 
+                $userdata=array('screen_name'=>$screen_name);                
+                $user->update($userdata);
+            }
+            
             $profile = Profile::where(array('user_id'=>$user_id));
             if(intval($user_id) > 0)
             {

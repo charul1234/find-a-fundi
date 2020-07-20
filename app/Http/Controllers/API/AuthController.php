@@ -144,12 +144,27 @@ class AuthController extends Controller
                               'device_id'=>$request->device_id);                
                 $user->update($userdata);
             }
+            $message='';
+            if($user->is_verify==false)
+            {
+                if($user->screen_name=='screen1' || $user->screen_name=='')
+                {
+                    $message='Logged in successfully. please complete your profile.';
+                }
+                if($user->screen_name=='screen2')
+                {
+                    $message='Logged in successfully. your account under review, admin will notify you.';
+                }                
+            }else
+            {
+                $message='Logged in successfully.';
+            }
             // For store access token of user
             $tokenResult = $user->createToken('Login Token');
             $token = $tokenResult->token;
 
             $response['status'] = TRUE; 
-            $response['message'] = "Logged in successfully.";
+            $response['message'] = $message;
             $response['user'] = $user->getUserDetail();
             $response['access_token'] = $tokenResult->accessToken;
             $response['token_type'] = 'Bearer';
