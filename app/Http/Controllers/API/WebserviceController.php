@@ -19,6 +19,8 @@ use App\Booking;
 use App\BookingSubcategory;
 use App\CategoryUser;
 use App\Profile;
+use App\Certification;
+
 class WebserviceController extends Controller
 {
 
@@ -329,12 +331,7 @@ class WebserviceController extends Controller
            $provider= User::with(['profile','media','profile.experience_level','profile.payment_option','profile.city','category_user.category'])
             ->whereHas('profile', function($query) use ($user_id) {    
               $query->where('user_id',$user_id);            
-            })->first();
-            //echo $provider_category_id=$provider->category_user;die;
-            //$provider->category_user->category->where('parent_id','!=',0)  
-            /*$provider->whereHas('category_user.category', function($query){    
-              $query->where('parent_id','!=',0);            
-            })*/
+            })->first();            
           $subcategories=[];
           if(count($provider->category_user)>0)
           {
@@ -375,18 +372,11 @@ class WebserviceController extends Controller
         $provider=array();
         if($user)
         {          
-           $validator = Validator::make($request->all(), [             
-            'location' => 'required',
-            'latitude' => 'required',
-            'longitude' => 'required',
-            'radius' => 'required',
+           $validator = Validator::make($request->all(), [   
             'category_id' => 'required',
             'subcategory_id' => 'required',
            ]);
-
-           $data['work_address']=isset($data['location'])?$data['location']:'';
-           $data['latitude']=isset($data['latitude'])?$data['latitude']:'';
-           $data['longitude']=isset($data['longitude'])?$data['longitude']:'';
+           
            $data['is_package']=isset($data['is_package'])?$data['is_package']:'';
            $data['is_hourly']=isset($data['is_hourly'])?$data['is_hourly']:'';
 
@@ -414,7 +404,7 @@ class WebserviceController extends Controller
             $profile = Profile::where(array('user_id'=>$user_id));
             if(intval($user_id) > 0)
             {
-                $profile_data=array('work_address'=>$data['work_address'] ,'latitude'=>$data['latitude'],'longitude'=>$data['longitude'],'radius'=>$data['radius'],'is_hourly'=>$data['is_hourly'],'is_package'=>$data['is_package']);
+                $profile_data=array('is_hourly'=>$data['is_hourly'],'is_package'=>$data['is_package']);
                 $profile->update($profile_data);
             }
             
@@ -437,22 +427,7 @@ class WebserviceController extends Controller
                 $user->hourly_charge()->create(['user_id'=>$user_id,'hours'=>$data->hours,'price'=>$data->price,'type'=>$data->type]);  
               }
             }
-           } 
-            if ($request->hasFile('qualification')){
-                $file = $request->file('qualification');
-                $customimagename  = time() . '.' . $file->getClientOriginalExtension();
-                $user->addMedia($file)->toMediaCollection('qualification');
-            }
-            if ($request->hasFile('badge')){
-                $file = $request->file('badge');
-                $customimagename  = time() . '.' . $file->getClientOriginalExtension();
-                $user->addMedia($file)->toMediaCollection('badge');
-            }
-            if ($request->hasFile('certification')){
-                $file = $request->file('certification');
-                $customimagename  = time() . '.' . $file->getClientOriginalExtension();
-                $user->addMedia($file)->toMediaCollection('certification');
-            }
+           }             
            
           if ($validator->fails()) { 
               return response()->json(['status'=>FALSE, 'message'=>$validator->errors()->first()]);            
@@ -464,6 +439,106 @@ class WebserviceController extends Controller
         }        
         return response()->json($response);
     }
+    /**
+     * API to save provider more information
+     *
+     * @return [string] message
+     */
+    public function addProviderMoreInfo(Request $request){
+        $user = Auth::user(); 
+        $data = $request->all(); 
+        $provider=array();
+        if($user)
+        {          
+           $validator = Validator::make($request->all(), [             
+            'location' => 'required',
+            'latitude' => 'required',
+            'longitude' => 'required',
+            'radius' => 'required',
+            'passport_number' => 'required',
+            'residential_address'=>'required'
+           ]);
+
+           $location=isset($data['location'])?$data['location']:'';
+           $latitude=isset($data['latitude'])?$data['latitude']:'';
+           $longitude=isset($data['longitude'])?$data['longitude']:'';
+           $radius=isset($data['radius'])?$data['radius']:'';
+           $passport_number=isset($data['passport_number'])?$data['passport_number']:'';
+           $residential_address=isset($data['residential_address'])?$data['residential_address']:'';
+           $year_experience=isset($data['year_experience'])?$data['year_experience']:'';
+           $reference=isset($data['reference'])?$data['reference']:'';
+           $facebook_url=isset($data['facebook_url'])?$data['facebook_url']:'';
+           $instagram_url=isset($data['instagram_url'])?$data['instagram_url']:'';
+           $twitter_url=isset($data['twitter_url'])?$data['twitter_url']:'';
+           $fundi_is_middlemen=isset($data['fundi_is_middlemen'])?$data['fundi_is_middlemen']:0;
+           $fundi_have_tools=isset($data['fundi_have_tools'])?$data['fundi_have_tools']:0;
+           $fundi_have_smartphone=isset($data['fundi_have_smartphone'])?$data['fundi_have_smartphone']:0;
+           
+
+            $user_id=$user->id;
+            $profile = Profile::where(array('user_id'=>$user_id));
+            if(intval($user_id) > 0)
+            {
+                $profile_data=array('work_address'=>$location,'latitude'=>$latitude,'longitude'=>$longitude,'radius'=>$radius,'passport_number'=>$passport_number,'residential_address'=>$residential_address,'year_experience'=>$year_experience,'reference'=>$reference,'facebook_url'=>$facebook_url,'instagram_url'=>$instagram_url,'twitter_url'=>$twitter_url,'fundi_is_middlemen'=>$fundi_is_middlemen,'fundi_have_tools'=>$fundi_have_tools,'fundi_have_smartphone'=>$fundi_have_smartphone);
+                $profile->update($profile_data);
+            }            
+            if ($request->hasFile('certificate_conduct')){
+                $file = $request->file('certificate_conduct');
+                $customimagename  = time() . '.' . $file->getClientOriginalExtension();
+                $user->addMedia($file)->toMediaCollection('certificate_conduct');
+            }
+            if ($request->hasFile('nca')){
+                $file = $request->file('nca');
+                $customimagename  = time() . '.' . $file->getClientOriginalExtension();
+                $user->addMedia($file)->toMediaCollection('nca');
+            }
+            if ($request->hasFile('certification')){
+                $file = $request->file('certification');
+                $customimagename  = time() . '.' . $file->getClientOriginalExtension();
+                $user->addMedia($file)->toMediaCollection('certification');
+            }
+          
+            if ($request->hasFile('diploma')){
+                $file = $request->file('diploma');
+                $customimagename  = time() . '.' . $file->getClientOriginalExtension();
+                $user->addMedia($file)->toMediaCollection('diploma');
+            }
+            if ($request->hasFile('degree')){
+                $file = $request->file('degree');
+                $customimagename  = time() . '.' . $file->getClientOriginalExtension();
+                $user->addMedia($file)->toMediaCollection('degree');
+            }
+           
+            if ($request->hasFile('works_photo')){
+                 $files = $request->file('works_photo');
+                  foreach ($files as $file) {
+                     $customname = time() . '.' . $file->getClientOriginalExtension();
+                     $user->addMedia($file)
+                       ->usingFileName($customname)
+                       ->toMediaCollection('works_photo');
+               }
+            }
+            
+            $certification_data=json_decode(stripslashes($request->certification_data));
+            if(intval($certification_data) > 0 && !empty($certification_data))
+            { 
+              foreach ($certification_data as $key => $data) {                
+                $user->Certification()->create(['user_id'=>$user_id,'title'=>$data->title,'type'=>$data->type]);  
+              }
+            }
+            
+           
+          if ($validator->fails()) { 
+              return response()->json(['status'=>FALSE, 'message'=>$validator->errors()->first()]);            
+          }  
+          $response=array('status'=>true,'message'=>'Provider information successfully added.');
+        }else
+        {
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
+    }
+
     /**
      * API to get all providers listing according lat, long, radius
      *
