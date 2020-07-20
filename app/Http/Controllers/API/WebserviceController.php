@@ -538,6 +538,51 @@ class WebserviceController extends Controller
         }        
         return response()->json($response);
     }
+    /**
+     * API to get user provider details according to Id 
+     *
+     * @return [string] message
+     */
+    public function getUserProfile(Request $request){
+        $user = Auth::user(); 
+        $data = $request->all(); 
+        $provider=array();
+        
+        if($user)
+        {  $user_id=$user->id;        
+           $provider= User::with(['profile','media','profile.experience_level','profile.payment_option','profile.city','category_user.category'])
+            ->whereHas('profile', function($query) use ($user_id) {    
+              $query->where('user_id',$user_id);            
+            })->first();            
+          $subcategories=[];
+          if(count($provider->category_user)>0)
+          {
+            foreach ($provider->category_user as $key => $providerdata) 
+            {
+              if($providerdata->category->parent_id!=0){
+                $subcategories[]=array('id'=>$providerdata->category->id,
+                                     'title'=>$providerdata->category->title,
+                                     'parent_id'=>$providerdata->category->parent_id,
+                                     'is_active'=>$providerdata->category->is_active);
+            }
+           }  
+          }
+          $provider['subcategories']=$subcategories;
+                  
+             
+          $provider['profile_picture']='';
+          if(isset($provider) && $provider->getMedia('profile_picture')->count() > 0 && file_exists($provider->getFirstMedia('profile_picture')->getPath()))
+          {
+            $provider['profile_picture']=$provider->getFirstMedia('profile_picture')->getFullUrl();
+          }  
+
+          $response=array('status'=>true,'data'=>$provider,'message'=>'Record found');
+        }else
+        {
+            $response=array('status'=>false,'data'=>$provider,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
+    }
 
     /**
      * API to get all providers listing according lat, long, radius
