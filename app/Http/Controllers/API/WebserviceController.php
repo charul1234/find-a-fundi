@@ -326,7 +326,7 @@ class WebserviceController extends Controller
             if ($validator->fails()) {
                 return response()->json(['status'=>false,'data'=>$provider,'message'=>$validator->errors()->first()]);
             }
-           $provider= User::with(['profile','media','profile.experience_level','profile.payment_option','profile.city'])
+           $provider= User::with(['profile','media','profile.experience_level','profile.payment_option','profile.city','category_user.category'])
             ->whereHas('profile', function($query) use ($user_id) {    
               $query->where('user_id',$user_id);            
             })
