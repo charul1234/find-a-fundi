@@ -223,7 +223,8 @@ class WebserviceController extends Controller
         $data = $request->all(); 
         if($user)
         {
-            $validator = Validator::make($data, [
+
+          $rules = [   
                 'title'=>'required', 
                 'description'=>'required',
                 'date'=>'required',
@@ -231,14 +232,21 @@ class WebserviceController extends Controller
                 'location'=>'required',
                 'latitude'=>'required',
                 'longitude'=>'required',
-                'category_id'=>'required',
-                'user_id'=>'required',
-            ]);
+                'category_id'=>'required',           
+          ]; 
+            if(isset($data['is_hourly'])==1 && intval($data['is_hourly'])>0) {          
+               $rules['user_id'] =  'required';   
+               $rules['min_budget'] =  'required'; 
+               $rules['max_budget'] =  'required';  
+            }
+           $validator = Validator::make($data, $rules);
 
             if ($validator->fails()) {
                 return response()->json(['status'=>false,'booking'=>'','message'=>$validator->errors()->first()]);
             }
-            $data['datetime']=$data['date'].' '.$data['time']; 
+            $provider_id=isset($data['user_id'])?$data['user_id']:0;
+            $data['user_id']=$provider_id;
+            $data['datetime']=$data['date'].' '.$data['time'];
             $booking = Booking::create($data);
             $subcategories=isset($data['subcategory_id'])?$data['subcategory_id']:'';
             if($subcategories!='')
