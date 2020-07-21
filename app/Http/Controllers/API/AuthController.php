@@ -48,8 +48,7 @@ class AuthController extends Controller
         }
         $device_token=isset($request->device_token)?$request->device_token:'';
         $device_type=isset($request->device_type)?$request->device_type:'';
-        $device_id=isset($request->device_id)?$request->device_id:'';
-        $input = ['name'=>$request->name, 'email'=>$request->email, 'mobile_number'=>$request->mobile_number, 'is_active'=>TRUE,'device_token'=>$device_token,'device_type'=>$device_type,'device_id'=>$device_id];
+        $input = ['name'=>$request->name, 'email'=>$request->email, 'mobile_number'=>$request->mobile_number, 'is_active'=>TRUE,'device_token'=>$device_token,'device_type'=>$device_type];
         $input['password'] = bcrypt($request->password);
         $user = User::create($input); 
         if($user){
@@ -140,8 +139,7 @@ class AuthController extends Controller
             }
             if($user){ 
                 $userdata=array('device_token'=>$request->device_token,
-                              'device_type'=>$request->device_type,
-                              'device_id'=>$request->device_id);                
+                              'device_type'=>$request->device_type);                
                 $user->update($userdata);
             }
             $message='';
@@ -322,8 +320,7 @@ class AuthController extends Controller
         }        
         $device_token=isset($request->device_token)?$request->device_token:'';
         $device_type=isset($request->device_type)?$request->device_type:'';
-        $device_id=isset($request->device_id)?$request->device_id:'';
-        $input = ['name'=>$request->name, 'email'=>$request->email, 'mobile_number'=>$request->mobile_number, 'is_active'=>true,'device_token'=>$device_token,'device_type'=>$device_type,'device_id'=>$device_id];
+        $input = ['name'=>$request->name, 'email'=>$request->email, 'mobile_number'=>$request->mobile_number, 'is_active'=>true,'device_token'=>$device_token,'device_type'=>$device_type];
         $input['password'] = bcrypt($request->password);
 
 

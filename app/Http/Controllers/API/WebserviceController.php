@@ -211,55 +211,7 @@ class WebserviceController extends Controller
         }        
         return response()->json($response);
     }    
-     /**
-     * API to add custom requirement
-     *
-     * @return [string] message
-     */
-    public function addCustomRequirement(Request $request){
-
-        $user = Auth::user(); 
-        $data = $request->all(); 
-        if($user)
-        {
-            $validator = Validator::make($data, [
-                'title'=>'required', 
-                'description'=>'required',
-                'date'=>'required',
-                'time'=>'required',
-                'location'=>'required',
-                'latitude'=>'required',
-                'longitude'=>'required',
-                'category_id'=>'required',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json(['status'=>false,'booking'=>'','message'=>$validator->errors()->first()]);
-            }
-            $data['user_id']=$user->id;
-            $data['datetime']=$data['date'].' '.$data['time']; 
-            $booking = Booking::create($data);
-            $subcategories=isset($data['subcategory_id'])?$data['subcategory_id']:'';
-            if($subcategories)
-            {
-                $subcategories=explode(',',$subcategories);
-                if(count($subcategories)>0)
-                {
-                    foreach ($subcategories as $key => $subcategory) 
-                    {
-                        BookingSubcategory::create(array('booking_id'=>$booking->id,
-                                                         'category_id'=>$subcategory));
-                    }
-                }
-            }                
-
-            $response=array('status'=>true,'booking'=>$booking->id,'message'=>'Custom requirement saved successfully.');
-        }else
-        {
-                $response=array('status'=>false,'booking'=>'','message'=>'Oops! Invalid credential.');
-        }        
-        return response()->json($response);
-    }  
+     
     /**
      * API to add Send Request
      *
@@ -345,6 +297,18 @@ class WebserviceController extends Controller
             }
            }  
           }
+          $provider_works_photo = $provider->getMedia('works_photo');  
+          $works_photo_Images=array(); 
+          if (count($provider_works_photo) > 0) 
+          {
+            foreach ($provider_works_photo as $key => $works_photo) {
+               $works_photo_Images[]=array('id'=>$works_photo->id,
+                                      'name'=>$works_photo->name,
+                                      'file_name'=>$works_photo->file_name,
+                                      'image_path'=>$works_photo->getFullUrl());
+            }
+          }
+          $provider['works_photo']=$works_photo_Images;
           $provider['subcategories']=$subcategories;
                   
              
@@ -556,15 +520,15 @@ class WebserviceController extends Controller
     public function getUserProfile(Request $request){
         $user = Auth::user(); 
         $data = $request->all(); 
-        $provider=array();
+        $provider=$subcategories=$categories=array();
         
         if($user)
         {  $user_id=$user->id;        
-           $provider= User::with(['profile','media','profile.experience_level','profile.payment_option','profile.city','category_user.category'])
+           $provider= User::with(['profile','media','profile.experience_level','profile.payment_option','profile.city'])
             ->whereHas('profile', function($query) use ($user_id) {    
               $query->where('user_id',$user_id);            
             })->first();            
-          $subcategories=[];
+        
           if(count($provider->category_user)>0)
           {
             foreach ($provider->category_user as $key => $providerdata) 
@@ -575,8 +539,17 @@ class WebserviceController extends Controller
                                      'parent_id'=>$providerdata->category->parent_id,
                                      'is_active'=>$providerdata->category->is_active);
             }
+             if($providerdata->category->parent_id==0){
+                $categories[]=array('id'=>$providerdata->category->id,
+                                     'title'=>$providerdata->category->title,
+                                     'parent_id'=>$providerdata->category->parent_id,
+                                     'is_active'=>$providerdata->category->is_active);
+            }
            }  
           }
+          
+          
+          $provider['categories']=$categories;
           $provider['subcategories']=$subcategories;
                   
              
@@ -585,7 +558,8 @@ class WebserviceController extends Controller
           {
             $provider['profile_picture']=$provider->getFirstMedia('profile_picture')->getFullUrl();
           }  
-
+          unset($provider['category_user']);
+          unset($provider['media']);
           $response=array('status'=>true,'data'=>$provider,'message'=>'Record found');
         }else
         {
