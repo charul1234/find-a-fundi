@@ -634,45 +634,41 @@ class WebserviceController extends Controller
             $start_limit=(isset($request->start_limit)?$request->start_limit:0)*$end_limit;
             $providers=$providers->offset($start_limit)->limit($end_limit)->get();
             $providersdata=[];
-            foreach ($providers as $key => $provider) {
-               //$provider['profile_picture']='';
+            foreach ($providers as $key => $provider) {              
               if(isset($provider->user) && $provider->user->getMedia('profile_picture')->count() > 0 && file_exists($provider->user->getFirstMedia('profile_picture')->getPath()))
               {
                 $provider['profile_picture']=$provider->user->getFirstMedia('profile_picture')->getFullUrl();
-              }               
+              } 
+                  
+                $Kilometer_distance=  $this->distance($provider->user->profile->latitude,$provider->user->profile->longitude , $latitude,$longitude , "K");
+                $radius=floatval($provider->user->profile->radius);
+                $Kilometer_distance=round($Kilometer_distance, 2);
+               //$address =$provider->user->profile->work_address;
+               //$address."-".$Kilometer_distance."-".$radius."-u".$provider->user->profile->user_id."-radi".(floatval($provider->user->profile->radius)); echo "<br/>";
                
-               //print_r($provider->user->profile->latitude);
-               /* echo $latitude; echo "<br/>";
-               echo $longitude;echo "<br/>";
-               echo $provider->user->profile->latitude;echo "<br/>";
-               echo $provider->user->profile->longitude;echo "<br/>";     */       
-              /* $Kilometer_distance=  $this->distance($latitude, $longitude, $provider->user->profile->latitude, $provider->user->profile->longitude, "K");
-               if($provider->user->profile->latitude!='null' && $provider->user->profile->latitude!='')
+               if($provider->user->profile->radius!='null' && $provider->user->profile->radius!='')
                {
-                echo "vvv". $Kilometer_distance."vvv".$provider->user->profile->radius;
-                echo "<br/>";
-                if($Kilometer_distance<=$provider->user->profile->radius)
+               if($radius>=$Kilometer_distance)
                 {
-                  //echo "bb";  echo $provider->user->profile->user_id; echo "bb";
-                  $providersdata[]=$provider;                  
+                   $providersdata[]=$provider;                  
                 }
-               }*/
-            }
+               }              
+            }            
 
             if ($validator->fails()) {
                 return response()->json(['status'=>false,'providers'=>'','message'=>$validator->errors()->first()]);
             }
-             if(count($providers))
+             if(count($providersdata))
             { 
 
-               $response=array('status'=>true,'providers'=>$providers,'message'=>'Record found');
+                $response=array('status'=>true,'providers'=>$providersdata,'message'=>'Record found');
             }else
             {
-               $response=array('status'=>false,'providers'=>$providers,'message'=>'Record not found');
+                $response=array('status'=>false,'providers'=>$providersdata,'message'=>'Record not found');
             }
         }else
         {
-            $response=array('status'=>false,'providers'=>$providers,'message'=>'Oops! Invalid credential.');
+            $response=array('status'=>false,'providers'=>$providersdata,'message'=>'Oops! Invalid credential.');
         }        
         return response()->json($response);
     }
