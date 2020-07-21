@@ -14,6 +14,7 @@ class RemoveForeignUseridUsersTable extends Migration
     public function up()
     {
         Schema::table('bookings', function (Blueprint $table) {
+             $table->dropForeign(['user_id']);
              $table->dropColumn('user_id');
         });
         Schema::table('bookings', function (Blueprint $table) {
