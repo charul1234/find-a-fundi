@@ -373,4 +373,41 @@ class AuthController extends Controller
             return response()->json(['status'=>FALSE, 'message'=>'Something wrong in registration.']);
         }
     }
+    /** 
+     * mobileVerify api 
+     * 
+     * @return \Illuminate\Http\Response 
+     */ 
+    public function mobileVerify(Request $request){
+        $user = Auth::user();
+        $validator = Validator::make($request->all(), [
+            'mobile_number' => 'required',
+            'token' => 'required'
+        ]);
+        if ($validator->fails()) { 
+            return response()->json(['status'=>FALSE, 'message'=>$validator->errors()->first()]);            
+        }
+        
+        if($user)
+        {
+            $otpuser = OtpUser::where(['otp'=>$request->token,'mobile_number'=>$request->mobile_number])->first();            
+            if($otpuser)
+            {
+                echo $user_id=$user->id;
+                if($user_id){ 
+                    $userdata=array('is_mobile_verify'=>true);  
+                    $user->update($userdata);
+                }
+                $response=array('status'=>true,'message'=>'User verified.');
+            }else
+            {
+                $response=array('status'=>false,'message'=>'OTP is incorrect.');
+            }           
+            
+        }else
+        {
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);           
+    }
 }

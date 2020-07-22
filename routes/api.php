@@ -22,11 +22,13 @@ Route::group(['namespace'=>'API'], function(){
 		Route::post('resetPassword', 'AuthController@resetPassword');
 		Route::post('sendOTP', 'AuthController@sendOTP');
 
+
 		Route::group([
 		  'middleware' => 'auth:api'
 		], function() {
 		    Route::get('logout', 'AuthController@logout');
 		    Route::post('updateProfile', 'AuthController@updateProfile');
+		    Route::post('mobileVerify', 'AuthController@mobileVerify');
 		});
 	});
     Route::get('getCountries', 'WebserviceController@getCountries');
