@@ -247,6 +247,8 @@ class WebserviceController extends Controller
             $provider_id=isset($data['user_id'])?$data['user_id']:0;
             $data['user_id']=$provider_id;
             $data['datetime']=$data['date'].' '.$data['time'];
+            $data['requested_id']=isset($user->id)?$user->id:0;
+            $data['status']='requested';
             $booking = Booking::create($data);
             $subcategories=isset($data['subcategory_id'])?$data['subcategory_id']:'';
             if($subcategories!='')
@@ -349,8 +351,9 @@ class WebserviceController extends Controller
             'subcategory_id' => 'required',
            ]);
            
-           $is_package=isset($data['is_package'])?$data['is_package']:'';
-           $is_hourly=isset($data['is_hourly'])?$data['is_hourly']:'';
+           $is_package=isset($data['is_package'])?$data['is_package']:0;
+           $is_hourly=isset($data['is_hourly'])?$data['is_hourly']:0;
+           $is_rfq=isset($data['is_rfq'])?$data['is_rfq']:0;
            $screen_name=isset($data['screen_name'])?$data['screen_name']:'';
 
             $user_id=$user->id;
@@ -359,7 +362,7 @@ class WebserviceController extends Controller
                 $user->update($userdata);
             }
             $category_id=$request->category_id;
-            
+            echo $user_id;
             if(intval($category_id) > 0)
             {
                CategoryUser::where('user_id',$user_id)->delete();
@@ -381,7 +384,7 @@ class WebserviceController extends Controller
             $profile = Profile::where(array('user_id'=>$user_id));
             if(intval($user_id) > 0)
             {
-                $profile_data=array('is_hourly'=>$data['is_hourly'],'is_package'=>$data['is_package']);
+                $profile_data=array('is_hourly'=>$data['is_hourly'],'is_package'=>$data['is_package'],'is_rfq'=>$is_rfq);
                 $profile->update($profile_data);
             }
             
@@ -672,7 +675,110 @@ class WebserviceController extends Controller
         }        
         return response()->json($response);
     }
-    
+    /**
+     * API to get all providers jobs listing 
+     *
+     * @return [string] message
+    */
+    public function getProvidersJob(Request $request){
+        $user = Auth::user(); 
+        $data = $request->all(); 
+        $bookingdata=$booking_data=$bookings=$bookingtype=array();
+        $type=isset($request->type)?$request->type:'';
+        if($user)
+        {
+            $validator = Validator::make($data, [
+                'type'=>'required', 
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['status'=>false,'bookingdata'=>$booking_data,'message'=>$validator->errors()->first()]);
+            }
+
+            $end_limit =config('constants.DEFAULT_WEBSERVICE_PAGINATION_ENDLIMIT');
+            $bookings= Booking::with(['category','user','user.profile','subcategory'])->where(['requested_id'=>$user->id,'is_hourly'=>true]);
+            if($type==config('constants.PAYMENT_STATUS_ACCEPTED'))
+            { 
+              //$bookings=$bookings->where('datetime','<',date('Y-m-d H:i:s'))->where('status'=>config('constants.PAYMENT_STATUS_ACCEPTED'));
+              $bookings=$bookings->where('status',config('constants.PAYMENT_STATUS_ACCEPTED'));
+            }elseif($type==config('constants.PAYMENT_STATUS_REQUESTED'))
+            {
+              $bookings=$bookings->where('status',config('constants.PAYMENT_STATUS_REQUESTED'));
+            }else
+            {
+              $bookings=$bookings->where('datetime','=',date('Y-m-d H:i:s'));
+            }
+            
+            $start_limit=(isset($request->start_limit)?$request->start_limit:0)*$end_limit;
+            $bookings=$bookings->offset($start_limit)->limit($end_limit)->get();
+           if(count($bookings)>0)
+           {
+            foreach ($bookings as $key => $booking) 
+             {  
+              $subcategories=$categories=array();   
+              if($booking->category!='')
+              {
+                 $categories[]=array('id'=>$booking->category->id,
+                                     'title'=>$booking->category->title,
+                                     'parent_id'=>$booking->category->parent_id,
+                                     'is_active'=>$booking->category->is_active);
+              }
+              if(count($booking->subcategory)>0)
+              {
+                foreach ($booking->subcategory as $key => $subcategory) 
+                {
+                  $subcategories[]=array('id'=>$subcategory->category->id,
+                                     'title'=>$subcategory->category->title,
+                                     'parent_id'=>$subcategory->category->parent_id,
+                                     'is_active'=>$subcategory->category->is_active);
+                 
+                }
+              }   
+              $profile_picture='';
+              if(isset($booking->user) && $booking->user->getMedia('profile_picture')->count() > 0 && file_exists($booking->user->getFirstMedia('profile_picture')->getPath()))
+              {
+                $profile_picture=$booking->user->getFirstMedia('profile_picture')->getFullUrl();
+              }else
+              {
+                  $profile_picture = asset(config('constants.NO_IMAGE_URL'));
+              } 
+              
+
+                  $bookingtype[$type][]=array(
+                                      'booking_id'=>$booking->id,
+                                      'category_id'=>$booking->category_id,
+                                      'user_id'=>$booking->user_id,
+                                      'title'=>$booking->title,
+                                      'description'=>$booking->description,
+                                      'location'=>$booking->location,
+                                      'latitude'=>$booking->latitude,
+                                      'longitude'=>$booking->longitude,
+                                      'budget'=>$booking->budget,
+                                      'is_rfq'=>$booking->is_rfq,
+                                      'request_for_quote_budget'=>$booking->request_for_quote_budget,
+                                      'is_hourly'=>$booking->is_hourly,
+                                      'min_budget'=>$booking->min_budget,
+                                      'max_budget'=>$booking->max_budget,
+                                      'datetime'=>$booking->datetime,
+                                      'requested_id'=>$booking->requested_id,
+                                      'categories'=>$categories,
+                                      'subcategories'=>$subcategories,
+                                      'name'=>$booking->user->name,
+                                      'email'=>$booking->user->email,
+                                      'mobile_number'=>$booking->user->mobile_number,
+                                      'profile_picture'=>$profile_picture
+                                      ); 
+                 
+             }
+             $booking_data[]=$bookingtype;
+           }
+            $response=array('status'=>true,'bookingdata'=>$booking_data,'message'=>'record found');
+        }else
+        {
+            $response=array('status'=>false,'bookingdata'=>$bookingdata,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
+    }
     /**
      * distance check
      *

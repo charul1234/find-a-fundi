@@ -15,4 +15,11 @@ class BookingSubcategory extends Model
     protected $fillable = [
         'booking_id', 'category_id'
     ];
+    /**
+     * Get the category information that belong to this booking.
+    */
+    public function category()
+    {
+        return $this->belongsTo(Category::class,'category_id');
+    }
 }
