@@ -453,12 +453,15 @@ class WebserviceController extends Controller
            $fundi_have_tools=isset($data['fundi_have_tools'])?$data['fundi_have_tools']:0;
            $fundi_have_smartphone=isset($data['fundi_have_smartphone'])?$data['fundi_have_smartphone']:0;
            $screen_name=isset($data['screen_name'])?$data['screen_name']:'';
+           $certification_text=isset($data['certification_text'])?$data['certification_text']:'';
+           $diploma_text=isset($data['diploma_text'])?$data['diploma_text']:'';
+           $degree_text=isset($data['degree_text'])?$data['degree_text']:'';
 
-            $user_id=$user->id;
-            if($user_id){ 
+           $user_id=$user->id;
+           if($user_id){ 
                 $userdata=array('screen_name'=>$screen_name);                
                 $user->update($userdata);
-            }
+           }
             
             $profile = Profile::where(array('user_id'=>$user_id));
             if(intval($user_id) > 0)
@@ -503,12 +506,24 @@ class WebserviceController extends Controller
                }
             }
             
-            $certification_data=json_decode(stripslashes($request->certification_data));
+            /*$certification_data=json_decode(stripslashes($request->certification_data));
             if(intval($certification_data) > 0 && !empty($certification_data))
             { 
               foreach ($certification_data as $key => $data) {                
                 $user->Certification()->create(['user_id'=>$user_id,'title'=>$data->title,'type'=>$data->type]);  
               }
+            }*/
+            if(isset($certification_text) && $certification_text!='')
+            {
+              $user->Certification()->create(['user_id'=>$user_id,'title'=>$certification_text,'type'=>'certification']); 
+            }
+            if(isset($diploma_text) && $diploma_text!='')
+            {
+              $user->Certification()->create(['user_id'=>$user_id,'title'=>$diploma_text,'type'=>'diploma']); 
+            }
+            if(isset($degree_text) && $degree_text!='')
+            {
+              $user->Certification()->create(['user_id'=>$user_id,'title'=>$degree_text,'type'=>'degree']); 
             }
             
            
@@ -703,10 +718,14 @@ class WebserviceController extends Controller
             }elseif($type==config('constants.PAYMENT_STATUS_REQUESTED'))
             {
               $bookings=$bookings->where('status',config('constants.PAYMENT_STATUS_REQUESTED'));
+            }elseif($type==config('constants.PAYMENT_STATUS_COMPLETED'))
+            {
+              $bookings=$bookings->where('status',config('constants.PAYMENT_STATUS_COMPLETED'));
             }else
             {
               $bookings=$bookings->where('datetime','=',date('Y-m-d H:i:s'));
             }
+            $bookings=$bookings->orderBy('datetime','desc');
             
             $start_limit=(isset($request->start_limit)?$request->start_limit:0)*$end_limit;
             $bookings=$bookings->offset($start_limit)->limit($end_limit)->get();
