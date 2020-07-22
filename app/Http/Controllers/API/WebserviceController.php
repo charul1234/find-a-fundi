@@ -790,7 +790,14 @@ class WebserviceController extends Controller
              }
              $booking_data[]=$bookingtype;
            }
-            $response=array('status'=>true,'bookingdata'=>$booking_data,'message'=>'record found');
+            if(count($booking_data)>0)
+            {
+              $response=array('status'=>true,'bookingdata'=>$booking_data,'message'=>'record found');
+            }else
+            {
+              $response=array('status'=>false,'bookingdata'=>$booking_data,'message'=>'no record found');
+            }
+            
         }else
         {
             $response=array('status'=>false,'bookingdata'=>$bookingdata,'message'=>'Oops! Invalid credential.');
