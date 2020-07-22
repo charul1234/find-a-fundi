@@ -700,7 +700,7 @@ class WebserviceController extends Controller
         $bookingdata=$booking_data=$bookings=$bookingtype=array();
         $type=isset($request->type)?$request->type:'';
         if($user)
-        {
+        {          
             $validator = Validator::make($data, [
                 'type'=>'required', 
             ]);
