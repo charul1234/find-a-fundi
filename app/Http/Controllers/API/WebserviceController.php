@@ -362,7 +362,6 @@ class WebserviceController extends Controller
                 $user->update($userdata);
             }
             $category_id=$request->category_id;
-            echo $user_id;
             if(intval($category_id) > 0)
             {
                CategoryUser::where('user_id',$user_id)->delete();
