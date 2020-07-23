@@ -21,8 +21,7 @@ Route::group(['namespace'=>'API'], function(){
 		Route::post('forgotPassword', 'AuthController@forgotPassword');
 		Route::post('resetPassword', 'AuthController@resetPassword');
 		Route::post('sendOTP', 'AuthController@sendOTP');
-		Route::post('sendProviderOTP', 'AuthController@sendProviderOTP');
-		
+		Route::post('sendProviderOTP', 'AuthController@sendProviderOTP');		
 
 
 		Route::group([
@@ -31,6 +30,8 @@ Route::group(['namespace'=>'API'], function(){
 		    Route::get('logout', 'AuthController@logout');
 		    Route::post('updateProfile', 'AuthController@updateProfile');
 		    Route::post('mobileVerify', 'AuthController@mobileVerify');
+		    Route::post('emailVerify', 'AuthController@emailVerify');
+		    
 		});
 	});
     Route::get('getCountries', 'WebserviceController@getCountries');

@@ -411,6 +411,35 @@ class AuthController extends Controller
         return response()->json($response);           
     }
     /** 
+     * emailVerify api 
+     * 
+     * @return \Illuminate\Http\Response 
+     */ 
+    public function emailVerify(Request $request){
+        $user = Auth::user();
+        $validator = Validator::make($request->all(), [
+            'email' => 'required'
+        ]);
+        if ($validator->fails()) { 
+            return response()->json(['status'=>FALSE, 'message'=>$validator->errors()->first()]);            
+        }
+        $checkemailuser = User::where(['email'=>$request->email])->first();  
+        if($checkemailuser)
+        {                      
+            $user_id=$user->id;
+            if($user_id){ 
+                $userdata=array('is_email_verify'=>true);  
+                $checkemailuser->update($userdata);
+            }
+            $response=array('status'=>true,'message'=>'Please check your email, verification email have been sent successfully.');         
+            
+        }else
+        {
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);           
+    }
+    /** 
      * Provider send OTP api 
      * 
      * @return \Illuminate\Http\Response 
