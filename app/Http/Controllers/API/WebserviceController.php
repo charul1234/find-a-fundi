@@ -398,13 +398,14 @@ class WebserviceController extends Controller
            if($is_hourly==true)
            {
             $hourlydata=json_decode(stripslashes($request->hourly));
-            if(intval($hourlydata) > 0 && !empty($hourlydata))
-            { 
-              foreach ($hourlydata as $key => $data) {                
-                $user->hourly_charge()->create(['user_id'=>$user_id,'hours'=>$data->hours,'price'=>$data->price,'type'=>$data->type]);  
+            if(!empty($hourlydata))
+            {               
+              foreach ($hourlydata as $key => $data) {             
+                $user->hourly_charge()->create(['user_id'=>$user_id,'hours'=>$data->duration,'price'=>$data->price,'type'=>$data->type]);  
               }
             }
-           }             
+           }         
+
            
           if ($validator->fails()) { 
               return response()->json(['status'=>FALSE, 'message'=>$validator->errors()->first()]);            
