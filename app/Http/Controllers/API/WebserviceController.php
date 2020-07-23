@@ -727,6 +727,7 @@ class WebserviceController extends Controller
             
             $start_limit=(isset($request->start_limit)?$request->start_limit:0)*$end_limit;
             $bookings=$bookings->offset($start_limit)->limit($end_limit)->get();
+
            if(count($bookings)>0)
            {
             foreach ($bookings as $key => $booking) 
@@ -793,11 +794,13 @@ class WebserviceController extends Controller
               $response=array('status'=>true,'bookingdata'=>$booking_data,'message'=>'record found');
             }else
             {
+              $booking_data[$type]=$bookingtype;
               $response=array('status'=>false,'bookingdata'=>$booking_data,'message'=>'no record found');
             }
             
         }else
         {
+            $booking_data[$type]=$bookingtype;
             $response=array('status'=>false,'bookingdata'=>$bookingdata,'message'=>'Oops! Invalid credential.');
         }        
         return response()->json($response);

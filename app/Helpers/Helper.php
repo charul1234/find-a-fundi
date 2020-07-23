@@ -52,7 +52,7 @@ function sendEmailVerifyToUser($data = null)
         $settings['to']           = $data->email;
         $settings['sender']       = getSetting('contact_person_name');
         $settings['receiver']     = $data->name;
-        $settings['txtBody']      = view('emails.emailverify_to_user', $settings)->render();
+        $settings['txtBody']      = view('emails.emailverify_to_user', $settings)->render();        
         unset($settings['txtBody']);
         sendEmail('emails.emailverify_to_user', $settings);
     }
