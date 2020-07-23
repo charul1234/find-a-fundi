@@ -12,6 +12,7 @@
 */
 
 Auth::routes(['verify' => false,'register' => false]);
+Route::get('isEmailVerify/{id?}', 'HomeController@isEmailVerify')->name('home.isEmailVerify');
 Route::get('/{url?}', 'HomeController@index')->where(['url' => '|home'])->name('home');
 
 Route::group(['middleware' => ['auth']], function(){

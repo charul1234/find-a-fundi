@@ -424,14 +424,17 @@ class AuthController extends Controller
         if ($validator->fails()) { 
             return response()->json(['status'=>FALSE, 'message'=>$validator->errors()->first()]);            
         }
-        $checkemailuser = User::where(['email'=>$request->email])->first();  
+        $email=isset($request->email)?$request->email:'';
+        $checkemailuser = User::where(['email'=>$email])->first(); 
+        
+
         if($checkemailuser)
         {                      
             $user_id=$user->id;
             if($user_id){ 
-                //sendEmailVerifyToUser($checkemailuser);
-                $userdata=array('is_email_verify'=>true);  
-                $checkemailuser->update($userdata);
+                $emails=Mail::send('emails/emailverify_to_user', ['data'=>array('id'=>$user_id)], function($message) use ($email){ 
+                           $message->to($email)->subject('Email verification');
+                });                   
             }
             $response=array('status'=>true,'message'=>'Please check your email, verification email have been sent successfully.');         
             
@@ -441,6 +444,7 @@ class AuthController extends Controller
         }        
         return response()->json($response);           
     }
+
     /** 
      * Provider send OTP api 
      * 

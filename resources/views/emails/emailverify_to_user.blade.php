@@ -1,16 +1,26 @@
-@extends('emails.common')
-@section('content')
+<div style="background-color:#ddd;font-family:Helvetica Neue,Helvetica,Arial,sans-serif;font-size:14px;color:#666;margin:0 auto;padding:0"><div class="adM">
+        <br>
+</div><table align="center">
+<tbody>
 <tr>
-    <td class="body" width="100%" cellpadding="0" cellspacing="0" style="font-family: Avenir, Helvetica, sans-serif; box-sizing: border-box; background-color: #FFFFFF; border-bottom: 1px solid #EDEFF2; border-top: 1px solid #EDEFF2; margin: 0; padding: 0; width: 100%; -premailer-cellpadding: 0; -premailer-cellspacing: 0; -premailer-width: 100%;">
-        <table class="inner-body" align="center" width="570" cellpadding="0" cellspacing="0" style="font-family: Avenir, Helvetica, sans-serif; box-sizing: border-box; background-color: #FFFFFF; margin: 0 auto; padding: 0; width: 570px; -premailer-cellpadding: 0; -premailer-cellspacing: 0; -premailer-width: 570px;">
-            <!-- Body content -->
-            <tr>
-                <td class="content-cell" style="font-family: Avenir, Helvetica, sans-serif; box-sizing: border-box; padding: 35px;">
-                    <h1 style="font-family: Avenir, Helvetica, sans-serif; box-sizing: border-box; color: #2F3133; font-size: 19px; font-weight: bold; margin-top: 0; text-align: left;">Hello, {{ ucfirst($receiver) }}!</h1>
-                    <p style="font-family: Avenir, Helvetica, sans-serif; box-sizing: border-box; color: #74787E; font-size: 16px; line-height: 1.5em; margin-top: 0; text-align: left;">Thanks for subscribing our newsletters.</p>
-                </td>
-            </tr>
-        </table>
-    </td>
+<td style="font-family:Helvetica Neue,Helvetica,Arial,sans-serif;font-size:14px;color:#666">
+<div style="text-align:left;max-width:600px;border-top:10px solid #4e73df;border-bottom:3px solid #4e73df">
+<div style="padding:10px 20px;color:#000;font-size:20px;background-color:#efefef;border-bottom:1px solid #ddd">
+                                                    </div>
+<div style="padding:20px;background-color:#fff;line-height:18px">
+<p>Hello, </p>
+<?php $user_id=isset($data["id"])?$data["id"]:'';?>
+<p>Please click on Activate button and make activated account. </p>
+<p><a href="{{route('home.isEmailVerify',$user_id)}}" style="padding: 10px;background: #4e73df; color: #fff;text-decoration: none;margin: 2px;margin-top: 20px;"><span class="text">Activate</span></a></p>
+<P style='text-align:center'>Thank you, our support team will get back to you shortly.</P>
+</div>
+</div>
+</td>
 </tr>
-@endsection
+</tbody>
+</table><div class="yj6qo"></div><div class="adL">
+</div><div class="adL"></div><div class="adL">
+</div><div class="adL">
+    </div><div class="adL">
+</div></div>
+

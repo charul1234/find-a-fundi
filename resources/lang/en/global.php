@@ -20,6 +20,7 @@ return [
         'delete_confirm' => 'Are you sure you want to delete this record?',
         'password_mismatch'=>'Old password does not match the current password.',
         'something_wrong' => 'Something went wrong.',
+        'account_activated' => 'Account activated.',
     ],  
 
     'setting'=>[
