@@ -786,7 +786,7 @@ class WebserviceController extends Controller
                                       ); 
                  
              }
-             $booking_data[]=$bookingtype;
+             $booking_data=$bookingtype;
            }
             if(count($booking_data)>0)
             {
