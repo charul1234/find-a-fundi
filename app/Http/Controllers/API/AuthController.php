@@ -393,7 +393,7 @@ class AuthController extends Controller
             $otpuser = OtpUser::where(['otp'=>$request->token,'mobile_number'=>$request->mobile_number])->first();            
             if($otpuser)
             {
-                echo $user_id=$user->id;
+                $user_id=$user->id;
                 if($user_id){ 
                     $userdata=array('is_mobile_verify'=>true);  
                     $user->update($userdata);
