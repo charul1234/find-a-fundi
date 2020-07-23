@@ -87,26 +87,13 @@ class AuthController extends Controller
      * @return \Illuminate\Http\Response 
      */ 
     public function sendOTP(Request $request){ 
-          $data = $request->all(); 
-          $mobile_verification=$request->input('mobile_verification');
-          if($mobile_verification==TRUE)
-          {
-             $rules = [   
-                   'mobile_number' => 'required|numeric|unique:'.with(new User)->getTable().',mobile_number'    
-              ];
-            
-          }else
-          {
-             $rules = [   
-               'mobile_number' => 'required|numeric'    
-             ]; 
-          }
-        
-        $validator = Validator::make($data, $rules);
+        $validator = Validator::make($request->all(), [
+            'mobile_number' => 'required|numeric|unique:'.with(new User)->getTable().',mobile_number'
+        ]);
+
         if ($validator->fails()) { 
             return response()->json(['status'=>FALSE, 'message'=>$validator->errors()->first()]);            
         }
-        
         $input = array_map('trim', $request->all());
         $input['otp'] = rand(100000,999999);
         $userotp = OtpUser::updateOrCreate(['mobile_number'=>$request->mobile_number],$input); 
@@ -422,5 +409,36 @@ class AuthController extends Controller
             $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
         }        
         return response()->json($response);           
+    }
+    /** 
+     * Provider send OTP api 
+     * 
+     * @return \Illuminate\Http\Response 
+     */ 
+    public function sendProviderOTP(Request $request){ 
+        $validator = Validator::make($request->all(), [
+            'mobile_number' => 'required|numeric'
+        ]);
+
+        if ($validator->fails()) { 
+            return response()->json(['status'=>FALSE, 'message'=>$validator->errors()->first()]);            
+        }
+        $user = User::where('mobile_number', $request->input('mobile_number'))->first();
+        if($user)
+        {
+
+            $input = array_map('trim', $request->all());
+            $input['otp'] = rand(100000,999999);
+            $userotp = OtpUser::updateOrCreate(['mobile_number'=>$request->mobile_number],$input); 
+            if($userotp){
+                $response['status'] = TRUE; 
+                $response['otp'] = $input['otp']; 
+                $response['message'] = "You OTP has been sent successfully.";
+            }
+        }else
+        {
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response); 
     }
 }

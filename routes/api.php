@@ -21,6 +21,8 @@ Route::group(['namespace'=>'API'], function(){
 		Route::post('forgotPassword', 'AuthController@forgotPassword');
 		Route::post('resetPassword', 'AuthController@resetPassword');
 		Route::post('sendOTP', 'AuthController@sendOTP');
+		Route::post('sendProviderOTP', 'AuthController@sendProviderOTP');
+		
 
 
 		Route::group([
