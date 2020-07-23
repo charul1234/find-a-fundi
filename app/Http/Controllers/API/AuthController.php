@@ -16,6 +16,7 @@ use App\OtpUser;
 use App\PasswordReset;
 use App\Profile;
 use App\CategoryUser;
+use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
@@ -428,6 +429,7 @@ class AuthController extends Controller
         {                      
             $user_id=$user->id;
             if($user_id){ 
+                //sendEmailVerifyToUser($checkemailuser);
                 $userdata=array('is_email_verify'=>true);  
                 $checkemailuser->update($userdata);
             }

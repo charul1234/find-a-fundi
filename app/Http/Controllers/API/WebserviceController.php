@@ -149,24 +149,23 @@ class WebserviceController extends Controller
             $category_id = $request->input('subcategory_id');  
             $category_id=explode(',',$category_id);   
                   
-            $packages= PackageUser::with('package')
+            /*$packages= PackageUser::with('package')
             ->whereHas('package', function($query) use ($category_id) {              
               $query->whereIn('category_id', $category_id);  
               $query->where('is_active',true);            
-            });    
-            //->where('user_id',$user->id);
+            });  */  
+            $packages= Package::with(['category','media'])->whereIn('category_id', $category_id)->where('is_active',true);            
+          
             $keywords = $request->input('keywords');
             $keywords=isset($keywords)?$keywords:'';
             if($keywords!= ''){
-                $packages->whereHas('package', function($query) use ($keywords) {
-                $query->where('title', 'LIKE', '%' . $keywords . '%');
-            });
+                $packages->where('title', 'LIKE', '%' . $keywords . '%');            
             }
-            $sortby = $request->input('sortby');
+            /*$sortby = $request->input('sortby');
             $sortby=isset($sortby)?$sortby:'';
             if($sortby!= ''){
               $packages->orderBy('price', $sortby);
-            }  
+            } */ 
             $start_limit=(isset($request->start_limit)?$request->start_limit:0)*$end_limit;
             $packages=$packages->offset($start_limit)->limit($end_limit)->get();        
                
@@ -175,12 +174,13 @@ class WebserviceController extends Controller
                  
                 if (!empty($packages)) {
                     foreach ($packages as $package) { 
-                        $package->package->image = $package->package->getMedia('image');
-                        unset($package->package->media);
+                       $packageImages=array();              
+                        $package->image = $package->getMedia('image');
+                        unset($package->media);
                         $packageImages=array();                                  
-                        if (count($package->package->image) > 0) 
+                        if (count($package->image) > 0) 
                         {
-                            foreach ($package->package->image as $media)
+                            foreach ($package->image as $media)
                             {                        
                                $packageImages[]=array('id'=>$media->id,
                                                       'name'=>$media->name,
@@ -188,14 +188,12 @@ class WebserviceController extends Controller
                                                       'image_path'=>$media->getFullUrl());
                              }
                         }
-                        $packagesdata[]=array('id'=>$package->package->id,
-                                              'title'=>$package->package->title,
-                                              'category_id'=>$package->package->category_id,
-                                              'duration'=>$package->package->duration,
-                                              'description'=>$package->package->description,
-                                              'images'=>$packageImages,
-                                              'user_id'=>$package->user_id,
-                                              'price'=>$package->price,
+                        $packagesdata[]=array('id'=>$package->id,
+                                              'title'=>$package->title,
+                                              'category_id'=>$package->category_id,
+                                              'duration'=>$package->duration,
+                                              'description'=>$package->description,
+                                              'images'=>$packageImages
                                               );
                     }   
                 } 

@@ -42,4 +42,28 @@ function getSetting($option_name){
     }
     return '';
 }
+function sendEmailVerifyToUser($data = null)
+{
+    if ($data != null) {
+        $settings                 = [];
+        $settings["subject"]      = "Email Verification";
+        $settings['emailType']    = 'Email Verification';
+        $settings['from']         = getSetting('email');
+        $settings['to']           = $data->email;
+        $settings['sender']       = getSetting('contact_person_name');
+        $settings['receiver']     = $data->name;
+        $settings['txtBody']      = view('emails.emailverify_to_user', $settings)->render();
+        unset($settings['txtBody']);
+        sendEmail('emails.emailverify_to_user', $settings);
+    }
+}
+function sendEmail($view = null, $settings = null)
+{
+    if (!empty($settings) && $view != null) {
+        $sent = Mail::send($view, $settings, function ($message) use ($settings) {
+            $message->from($settings['from'], $settings['sender']);
+            $message->to($settings['to'], $settings['receiver'])->subject($settings['subject']);
+        });
+    }
+} 
 ?>
