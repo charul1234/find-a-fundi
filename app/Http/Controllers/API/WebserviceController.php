@@ -316,15 +316,58 @@ class WebserviceController extends Controller
                                       'image_path'=>$works_photo->getFullUrl());
             }
           }
+          /*$certificate_conduct = $provider->getMedia('certificate_conduct');
+          $provider['certificate_conduct']=''; 
+          $provider['certificate_conduct_name']='';
+
+          
+          if(isset($provider) && $provider->getMedia('certificate_conduct')->count() > 0 && file_exists($provider->getFirstMedia('certificate_conduct')->getPath()))
+          {           
+            $provider['certificate_conduct']=$provider->getFirstMedia('certificate_conduct')->getFullUrl();
+            $provider['certificate_conduct_name']=$provider->getFirstMedia('certificate_conduct')->name;
+          } */
+          $certifications=Certification::where('user_id',$user_id)->get();
+          $certificationdata='';      
+          $degreedata='';  
+          $deplomadata='';  
+          if(count($certifications)>0)
+          {
+             foreach ($certifications as $key => $certification) {
+              if($certification->type=='certification')
+              {
+                $certificationdata=$certification->title;
+              }
+              if($certification->type=='degree')
+              {
+                $degreedata=$certification->title;
+              }
+              if($certification->type=='deploma')
+              {
+                $deplomadata=$certification->title;
+              }
+               
+             }
+          }
+          $provider['certification_text']=$certificationdata;
+          $provider['degree_text']=$degreedata;
+          $provider['diploma_text']=$deplomadata;
+          
           $provider['works_photo']=$works_photo_Images;
           $provider['subcategories']=$subcategories;
                   
              
           $provider['profile_picture']='';
+          $provider['age']='';                
           if(isset($provider) && $provider->getMedia('profile_picture')->count() > 0 && file_exists($provider->getFirstMedia('profile_picture')->getPath()))
           {
             $provider['profile_picture']=$provider->getFirstMedia('profile_picture')->getFullUrl();
           }  
+          if(isset($provider->profile->dob) && $provider->profile->dob!='')
+          {
+
+            $provider['age'] = (date('Y') - date('Y',strtotime($provider->profile->dob)));          
+          }
+          unset($provider['media']);
 
           $response=array('status'=>true,'data'=>$provider,'message'=>'Record found');
         }else
