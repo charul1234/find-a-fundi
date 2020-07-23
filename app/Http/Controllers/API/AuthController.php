@@ -87,13 +87,26 @@ class AuthController extends Controller
      * @return \Illuminate\Http\Response 
      */ 
     public function sendOTP(Request $request){ 
-        $validator = Validator::make($request->all(), [
-            'mobile_number' => 'required|numeric|unique:'.with(new User)->getTable().',mobile_number'
-        ]);
-
+          $data = $request->all(); 
+          $mobile_verification=$request->input('mobile_verification');
+          if($mobile_verification==TRUE)
+          {
+             $rules = [   
+                   'mobile_number' => 'required|numeric|unique:'.with(new User)->getTable().',mobile_number'    
+              ];
+            
+          }else
+          {
+             $rules = [   
+               'mobile_number' => 'required|numeric'    
+             ]; 
+          }
+        
+        $validator = Validator::make($data, $rules);
         if ($validator->fails()) { 
             return response()->json(['status'=>FALSE, 'message'=>$validator->errors()->first()]);            
         }
+        
         $input = array_map('trim', $request->all());
         $input['otp'] = rand(100000,999999);
         $userotp = OtpUser::updateOrCreate(['mobile_number'=>$request->mobile_number],$input); 
