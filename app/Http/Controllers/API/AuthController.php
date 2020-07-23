@@ -398,7 +398,7 @@ class AuthController extends Controller
                     $userdata=array('is_mobile_verify'=>true);  
                     $user->update($userdata);
                 }
-                $response=array('status'=>true,'message'=>'User verified.');
+                $response=array('status'=>true,'message'=>'Mobile number has been verified successfully.');
             }else
             {
                 $response=array('status'=>false,'message'=>'OTP is incorrect.');
