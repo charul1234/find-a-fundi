@@ -702,18 +702,6 @@ class WebserviceController extends Controller
               {
                  $provider['profile_picture']= asset(config('constants.NO_IMAGE_URL'));
               }
-              $hourlydata=array();
-              if(count($provider->user->hourly_charge)>0)
-              {
-                foreach ($provider->user->hourly_charge as $key => $hourly_charge) {                
-                 $hourlydata[]=array('id'=>$hourly_charge->id,
-                                     'user_id'=>$hourly_charge->user_id,
-                                     'duration'=>$hourly_charge->hours,
-                                     'price'=>$hourly_charge->price,
-                                     'type'=>$hourly_charge->type);
-                }
-              }
-
               
                   
                 $Kilometer_distance=  $this->distance($provider->user->profile->latitude,$provider->user->profile->longitude , $latitude,$longitude , "K");
@@ -734,7 +722,6 @@ class WebserviceController extends Controller
                                           'mobile_number'=>$provider->user->mobile_number,
                                           'is_hourly'=>$provider->user->profile->is_hourly,
                                           'is_rfq'=>$provider->user->profile->is_rfq,
-                                          'hourly'=>$hourlydata,
                                           'profile_picture'=>$provider['profile_picture'],
                                           'rating'=>$rating
                                           );              
@@ -983,7 +970,7 @@ class WebserviceController extends Controller
                }
                 $providerdata=User::with(['profile'])->where('id',$user->id)->get();
                 print_r("<pre>");
-                print_r($providerdata->user->profile);
+                print_r($providerdata->profile);
 
                 $Kilometer_distance=  $this->distance($provider_latitude,$provider_longitude, $booking_latitude,$booking_longitude , "K");
                 $provider_radius=floatval($provider_radius);
