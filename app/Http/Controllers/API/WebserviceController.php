@@ -707,8 +707,8 @@ class WebserviceController extends Controller
                 $Kilometer_distance=  $this->distance($provider->user->profile->latitude,$provider->user->profile->longitude , $latitude,$longitude , "K");
                 $radius=floatval($provider->user->profile->radius);
                 $Kilometer_distance=round($Kilometer_distance, 2);
-               //$address =$provider->user->profile->work_address;
-               //$address."-".$Kilometer_distance."-".$radius."-u".$provider->user->profile->user_id."-radi".(floatval($provider->user->profile->radius)); echo "<br/>";
+                //$address =$provider->user->profile->work_address;
+                //$address."-".$Kilometer_distance."-".$radius."-u".$provider->user->profile->user_id."-radi".(floatval($provider->user->profile->radius)); echo "<br/>";
                $rating=0.0;
                
                if($provider->user->profile->radius!='null' && $provider->user->profile->radius!='')
@@ -912,7 +912,7 @@ class WebserviceController extends Controller
             
             $start_limit=(isset($request->start_limit)?$request->start_limit:0)*$end_limit;
             $bookings=$bookings->offset($start_limit)->limit($end_limit)->get();
-            echo $user->id;
+           
             //print_r($bookings->all());
             //die;
             
@@ -953,24 +953,29 @@ class WebserviceController extends Controller
               $provider_name=$provider_email=$provider_mobile_number=$provider_profile_picture=$provider_latitude=$provider_longitude=$provider_radius=$provider_location='';
               if($provider_user_id)
               {
-                $provider_latitude=$booking->user->profile->latitude;
-                $provider_longitude=$booking->user->profile->longitude; 
-                $provider_radius=$booking->user->profile->radius;   
-                $provider_location=$booking->user->profile->work_address;           
+
+                $provider_latitude=isset($booking->user->profile->latitude)?$booking->user->profile->latitude:'';
+                $provider_longitude=isset($booking->user->profile->longitude)?$booking->user->profile->longitude:''; 
+                $provider_radius=isset($booking->user->profile->radius)?$booking->user->profile->radius:'';   
+                $provider_location=isset($booking->user->profile->work_address)?$booking->user->profile->work_address:'';           
                 $provider_name=$booking->user->name;
                 $provider_email=$booking->user->email;
                 $provider_mobile_number=$booking->user->mobile_number;
                 if(isset($booking->user) && $booking->user->getMedia('profile_picture')->count() > 0 && file_exists($booking->user->getFirstMedia('profile_picture')->getPath()))
-                {
-                    $provider_profile_picture=$booking->user->getFirstMedia('profile_picture')->getFullUrl();
-                }else
-                {
-                    $provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
+                  {
+                      $provider_profile_picture=$booking->user->getFirstMedia('profile_picture')->getFullUrl();
+                  }else
+                  {
+                      $provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
+                  }
                 }
-               }
-                $providerdata=User::with(['profile'])->where('id',$user->id)->get();
-                print_r("<pre>");
-                print_r($providerdata->profile);
+                $providerdata=User::with(['profile'])->where('id',$user->id)->first();
+                if($provider_latitude=='' || $provider_longitude=='' || $provider_radius=='')
+                {
+                  $provider_latitude=$providerdata->profile->latitude;
+                  $provider_longitude=$providerdata->profile->longitude;
+                  $provider_radius=$providerdata->profile->radius;
+                }                 
 
                 $Kilometer_distance=  $this->distance($provider_latitude,$provider_longitude, $booking_latitude,$booking_longitude , "K");
                 $provider_radius=floatval($provider_radius);
@@ -981,7 +986,7 @@ class WebserviceController extends Controller
                 if($provider_radius!='null' && $provider_radius!='')
                 {
                  if($provider_radius>=$Kilometer_distance)
-                  {  
+                  { 
                        $bookingtype[$type][]=array(
                                       'booking_id'=>$booking->id,
                                       'type'=>$booking_type,
@@ -1009,7 +1014,7 @@ class WebserviceController extends Controller
                                       'profile_picture'=>$provider_profile_picture
                                       );                
                   }
-               }                 
+               }                
              }
              $booking_data=$bookingtype;
            }
