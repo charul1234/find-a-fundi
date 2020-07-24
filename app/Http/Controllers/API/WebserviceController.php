@@ -721,6 +721,7 @@ class WebserviceController extends Controller
                 $Kilometer_distance=round($Kilometer_distance, 2);
                //$address =$provider->user->profile->work_address;
                //$address."-".$Kilometer_distance."-".$radius."-u".$provider->user->profile->user_id."-radi".(floatval($provider->user->profile->radius)); echo "<br/>";
+               $rating=0.0;
                
                if($provider->user->profile->radius!='null' && $provider->user->profile->radius!='')
                {
@@ -735,7 +736,7 @@ class WebserviceController extends Controller
                                           'is_rfq'=>$provider->user->profile->is_rfq,
                                           'hourly'=>$hourlydata,
                                           'profile_picture'=>$provider['profile_picture'],
-                                          'rating'=>''
+                                          'rating'=>$rating
                                           );              
                 }
                }              
