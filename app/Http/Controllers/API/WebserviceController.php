@@ -357,7 +357,7 @@ class WebserviceController extends Controller
                   
              
           $provider['profile_picture']='';
-          $provider['age']='';                
+          $age="";                
           if(isset($provider) && $provider->getMedia('profile_picture')->count() > 0 && file_exists($provider->getFirstMedia('profile_picture')->getPath()))
           {
             $provider['profile_picture']=$provider->getFirstMedia('profile_picture')->getFullUrl();
@@ -365,8 +365,9 @@ class WebserviceController extends Controller
           if(isset($provider->profile->dob) && $provider->profile->dob!='')
           {
 
-            $provider['age'] = (date('Y') - date('Y',strtotime($provider->profile->dob)));          
+            $age = (date('Y') - date('Y',strtotime($provider->profile->dob)));          
           }
+          $provider['age']=(string)$age;
           unset($provider['media']);
 
           $response=array('status'=>true,'data'=>$provider,'message'=>'Record found');
@@ -674,7 +675,7 @@ class WebserviceController extends Controller
             $latitude = $request->input('latitude');  
             $longitude = $request->input('longitude');  
 
-            $providers= CategoryUser::with(['category','user','user.profile'])
+            $providers= CategoryUser::with(['category','user','user.profile','user.hourly_charge'])
             ->whereHas('category', function($query) use ($subcategory_id) {             
               $query->whereIn('category_id', $subcategory_id);            
             })  
@@ -696,8 +697,24 @@ class WebserviceController extends Controller
             foreach ($providers as $key => $provider) {              
               if(isset($provider->user) && $provider->user->getMedia('profile_picture')->count() > 0 && file_exists($provider->user->getFirstMedia('profile_picture')->getPath()))
               {
-                $provider['profile_picture']=$provider->user->getFirstMedia('profile_picture')->getFullUrl();
-              } 
+                 $provider['profile_picture']=$provider->user->getFirstMedia('profile_picture')->getFullUrl();
+              }else
+              {
+                 $provider['profile_picture']= asset(config('constants.NO_IMAGE_URL'));
+              }
+              $hourlydata=array();
+              if(count($provider->user->hourly_charge)>0)
+              {
+                foreach ($provider->user->hourly_charge as $key => $hourly_charge) {                
+                 $hourlydata[]=array('id'=>$hourly_charge->id,
+                                     'user_id'=>$hourly_charge->user_id,
+                                     'duration'=>$hourly_charge->hours,
+                                     'price'=>$hourly_charge->price,
+                                     'type'=>$hourly_charge->type);
+                }
+              }
+
+              
                   
                 $Kilometer_distance=  $this->distance($provider->user->profile->latitude,$provider->user->profile->longitude , $latitude,$longitude , "K");
                 $radius=floatval($provider->user->profile->radius);
@@ -709,7 +726,17 @@ class WebserviceController extends Controller
                {
                if($radius>=$Kilometer_distance)
                 {
-                   $providersdata[]=$provider;                  
+                   //$providersdata[]=$provider;     
+                   $providersdata[]=array('user_id'=>$provider->user->id,
+                                          'name'=>$provider->user->name,
+                                          'email'=>$provider->user->email,
+                                          'mobile_number'=>$provider->user->mobile_number,
+                                          'is_hourly'=>$provider->user->profile->is_hourly,
+                                          'is_rfq'=>$provider->user->profile->is_rfq,
+                                          'hourly'=>$hourlydata,
+                                          'profile_picture'=>$provider['profile_picture'],
+                                          'rating'=>''
+                                          );              
                 }
                }              
             }            
@@ -868,28 +895,39 @@ class WebserviceController extends Controller
             if ($validator->fails()) {
                 return response()->json(['status'=>false,'bookingdata'=>$booking_data,'message'=>$validator->errors()->first()]);
             }
-
+            //echo $user->id;
             $end_limit =config('constants.DEFAULT_WEBSERVICE_PAGINATION_ENDLIMIT');
-            $bookings= Booking::with(['category','user','user.profile','subcategory'])->where(['requested_id'=>$user->id,'is_hourly'=>true]);
-            if($type==config('constants.PAYMENT_STATUS_ACCEPTED'))
-            { 
-              //$bookings=$bookings->where('datetime','<',date('Y-m-d H:i:s'))->where('status'=>config('constants.PAYMENT_STATUS_ACCEPTED'));
-              $bookings=$bookings->where('status',config('constants.PAYMENT_STATUS_ACCEPTED'));
-            }elseif($type==config('constants.PAYMENT_STATUS_REQUESTED'))
+            $bookings= Booking::with(['category','user','user.profile','subcategory']);
+            
+            if($type==config('constants.PAYMENT_STATUS_REQUESTED'))
             {
               $bookings=$bookings->where('status',config('constants.PAYMENT_STATUS_REQUESTED'));
             }elseif($type==config('constants.PAYMENT_STATUS_COMPLETED'))
             {
               $bookings=$bookings->where('status',config('constants.PAYMENT_STATUS_COMPLETED'));
+            }elseif($type==config('constants.PAYMENT_STATUS_PENDING'))
+            {
+              $bookings=$bookings->where('status',config('constants.PAYMENT_STATUS_PENDING'));
+            }elseif($type==config('constants.PAYMENT_STATUS_DECLINED'))
+            {
+              $bookings=$bookings->where('status',config('constants.PAYMENT_STATUS_DECLINED'));
             }else
             {
               $bookings=$bookings->where('datetime','=',date('Y-m-d H:i:s'));
             }
             $bookings=$bookings->orderBy('datetime','desc');
+            if($user->id!='')
+            {
+              
+              $bookings->whereRaw("(user_id= '$user->id' OR user_id=0)");
+            }
             
             $start_limit=(isset($request->start_limit)?$request->start_limit:0)*$end_limit;
             $bookings=$bookings->offset($start_limit)->limit($end_limit)->get();
-
+            echo $user->id;
+            //print_r($bookings->all());
+            //die;
+            
            if(count($bookings)>0)
            {
             foreach ($bookings as $key => $booking) 
@@ -909,22 +947,56 @@ class WebserviceController extends Controller
                   $subcategories[]=array('id'=>$subcategory->category->id,
                                      'title'=>$subcategory->category->title,
                                      'parent_id'=>$subcategory->category->parent_id,
-                                     'is_active'=>$subcategory->category->is_active);
-                 
+                                     'is_active'=>$subcategory->category->is_active);                 
                 }
               }   
-              $profile_picture='';
-              if(isset($booking->user) && $booking->user->getMedia('profile_picture')->count() > 0 && file_exists($booking->user->getFirstMedia('profile_picture')->getPath()))
+              $booking_type='';
+              if($booking->is_hourly)
               {
-                $profile_picture=$booking->user->getFirstMedia('profile_picture')->getFullUrl();
-              }else
+                $booking_type='hourly';
+              }elseif ($booking->is_rfq) {
+                $booking_type='rfq';
+              }elseif ($booking->is_package) {
+                $booking_type='package';
+              }
+              $booking_latitude=$booking->latitude;
+              $booking_longitude=$booking->longitude;
+              $provider_user_id=isset($booking->user->profile->user_id)?$booking->user->profile->user_id:'';
+              $provider_name=$provider_email=$provider_mobile_number=$provider_profile_picture=$provider_latitude=$provider_longitude=$provider_radius=$provider_location='';
+              if($provider_user_id)
               {
-                  $profile_picture = asset(config('constants.NO_IMAGE_URL'));
-              } 
-              
+                $provider_latitude=$booking->user->profile->latitude;
+                $provider_longitude=$booking->user->profile->longitude; 
+                $provider_radius=$booking->user->profile->radius;   
+                $provider_location=$booking->user->profile->work_address;           
+                $provider_name=$booking->user->name;
+                $provider_email=$booking->user->email;
+                $provider_mobile_number=$booking->user->mobile_number;
+                if(isset($booking->user) && $booking->user->getMedia('profile_picture')->count() > 0 && file_exists($booking->user->getFirstMedia('profile_picture')->getPath()))
+                {
+                    $provider_profile_picture=$booking->user->getFirstMedia('profile_picture')->getFullUrl();
+                }else
+                {
+                    $provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
+                }
+               }
+                $providerdata=User::with(['profile'])->where('id',$user->id)->get();
+                print_r("<pre>");
+                print_r($providerdata->user->profile);
 
-                  $bookingtype[$type][]=array(
+                $Kilometer_distance=  $this->distance($provider_latitude,$provider_longitude, $booking_latitude,$booking_longitude , "K");
+                $provider_radius=floatval($provider_radius);
+                $Kilometer_distance=round($Kilometer_distance, 2);               
+                //echo $provider_location."-kk".$Kilometer_distance."-r".$provider_radius."-u".$provider_user_id."Id".$booking->id; echo "<br/>";
+                //echo  "Provider ra".$provider_radius."KK".$Kilometer_distance."B".$booking->id;echo "<br/>";
+
+                if($provider_radius!='null' && $provider_radius!='')
+                {
+                 if($provider_radius>=$Kilometer_distance)
+                  {  
+                       $bookingtype[$type][]=array(
                                       'booking_id'=>$booking->id,
+                                      'type'=>$booking_type,
                                       'category_id'=>$booking->category_id,
                                       'user_id'=>$booking->user_id,
                                       'title'=>$booking->title,
@@ -942,12 +1014,14 @@ class WebserviceController extends Controller
                                       'requested_id'=>$booking->requested_id,
                                       'categories'=>$categories,
                                       'subcategories'=>$subcategories,
-                                      'name'=>$booking->user->name,
-                                      'email'=>$booking->user->email,
-                                      'mobile_number'=>$booking->user->mobile_number,
-                                      'profile_picture'=>$profile_picture
-                                      ); 
-                 
+                                      'status'=>$booking->status,
+                                      'name'=>$provider_name,
+                                      'email'=>$provider_email,
+                                      'mobile_number'=>$provider_mobile_number,
+                                      'profile_picture'=>$provider_profile_picture
+                                      );                
+                  }
+               }                 
              }
              $booking_data=$bookingtype;
            }
