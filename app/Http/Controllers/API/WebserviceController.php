@@ -753,10 +753,10 @@ class WebserviceController extends Controller
 
             $end_limit =config('constants.DEFAULT_WEBSERVICE_PAGINATION_ENDLIMIT');
             $bookings= Booking::with(['category','user','user.profile','subcategory'])->where(['requested_id'=>$user->id,'is_hourly'=>true]);
-            if($type==config('constants.PAYMENT_STATUS_ACCEPTED'))
+            if($type==config('constants.PAYMENT_STATUS_PENDING'))
             { 
               //$bookings=$bookings->where('datetime','<',date('Y-m-d H:i:s'))->where('status'=>config('constants.PAYMENT_STATUS_ACCEPTED'));
-              $bookings=$bookings->where('status',config('constants.PAYMENT_STATUS_ACCEPTED'));
+              $bookings=$bookings->where(array('status'=>config('constants.PAYMENT_STATUS_PENDING'),'is_quoted'=>true));
             }elseif($type==config('constants.PAYMENT_STATUS_REQUESTED'))
             {
               $bookings=$bookings->where('status',config('constants.PAYMENT_STATUS_REQUESTED'));
