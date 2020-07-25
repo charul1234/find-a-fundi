@@ -950,10 +950,7 @@ class WebserviceController extends Controller
             }
             
             $start_limit=(isset($request->start_limit)?$request->start_limit:0)*$end_limit;
-            $bookings=$bookings->offset($start_limit)->limit($end_limit)->get();
-           
-            //print_r($bookings->all());
-            //die;
+            $bookings=$bookings->offset($start_limit)->limit($end_limit)->get();           
             
            if(count($bookings)>0)
            {
