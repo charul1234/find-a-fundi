@@ -700,13 +700,21 @@ class WebserviceController extends Controller
             $subcategory_id=explode(',',$subcategory_id);
             $latitude = $request->input('latitude');  
             $longitude = $request->input('longitude');  
+            $role_id =  config('constants.ROLE_TYPE_SEEKER_ID');
 
-            $providers= CategoryUser::with(['category','user','user.profile','user.hourly_charge'])
+            /*$providers= CategoryUser::with(['category','user','user.profile','user.hourly_charge'])
             ->whereHas('category', function($query) use ($subcategory_id) {             
               $query->whereIn('category_id', $subcategory_id);            
-            })  
+            })  */
+           $providers= User::with(['category_user','profile','hourly_charge','roles'])
+           /*->whereHas('category_user', function($query) use ($subcategory_id) {             
+              $query->whereIn('category_id', $subcategory_id);            
+            }) */
+            /*->whereHas('category_user', function($query) use ($subcategory_id) {             
+              $query->whereIn('category_id', $subcategory_id);            
+            }) */
             
-            ->whereHas('user.profile', function($query) use ($is_hourly,$is_rfq) {
+            ->whereHas('profile', function($query) use ($is_hourly,$is_rfq) {
               if($is_hourly==true)
               {
                 $query->where('is_hourly',$is_hourly); 
@@ -715,39 +723,46 @@ class WebserviceController extends Controller
               {
                 $query->where('is_rfq',$is_rfq); 
               }                       
-            })          
-            ->whereIn('category_id',$subcategory_id);
+            }) 
+
+            ->whereHas('category_user', function($query) use ($subcategory_id) {
+               $query->whereIn('category_id',$subcategory_id);
+            });   
+             $providers->whereHas('roles', function($query) use ($role_id) {
+                $query->where('id', config('constants.ROLE_TYPE_PROVIDER_ID'));
+            });      
+            //->whereIn('category_id',$subcategory_id);
             $start_limit=(isset($request->start_limit)?$request->start_limit:0)*$end_limit;
             $providers=$providers->offset($start_limit)->limit($end_limit)->get();
             $providersdata=[];
             foreach ($providers as $key => $provider) {              
-              if(isset($provider->user) && $provider->user->getMedia('profile_picture')->count() > 0 && file_exists($provider->user->getFirstMedia('profile_picture')->getPath()))
+              if(isset($provider) && $provider->getMedia('profile_picture')->count() > 0 && file_exists($provider->getFirstMedia('profile_picture')->getPath()))
               {
-                 $provider['profile_picture']=$provider->user->getFirstMedia('profile_picture')->getFullUrl();
+                 $provider['profile_picture']=$provider->getFirstMedia('profile_picture')->getFullUrl();
               }else
               {
                  $provider['profile_picture']= asset(config('constants.NO_IMAGE_URL'));
               }
               
                   
-                $Kilometer_distance=  $this->distance($provider->user->profile->latitude,$provider->user->profile->longitude , $latitude,$longitude , "K");
-                $radius=floatval($provider->user->profile->radius);
-                $Kilometer_distance=round($Kilometer_distance, 2);
-                //$address =$provider->user->profile->work_address;
-                //$address."-".$Kilometer_distance."-".$radius."-u".$provider->user->profile->user_id."-radi".(floatval($provider->user->profile->radius)); echo "<br/>";
+               $Kilometer_distance=  $this->distance($provider->profile->latitude,$provider->profile->longitude , $latitude,$longitude , "K");
+               $radius=floatval($provider->profile->radius);
+               $Kilometer_distance=round($Kilometer_distance, 2);
+               //$address =$provider->user->profile->work_address;
+               //$address."-".$Kilometer_distance."-".$radius."-u".$provider->user->profile->user_id."-radi".(floatval($provider->user->profile->radius)); echo "<br/>";
                $rating=0.0;
                
-               if($provider->user->profile->radius!='null' && $provider->user->profile->radius!='')
+               if($provider->profile->radius!='null' && $provider->profile->radius!='')
                {
                if($radius>=$Kilometer_distance)
                 {
                    //$providersdata[]=$provider;     
-                   $providersdata[]=array('user_id'=>$provider->user->id,
-                                          'name'=>$provider->user->name,
-                                          'email'=>$provider->user->email,
-                                          'mobile_number'=>$provider->user->mobile_number,
-                                          'is_hourly'=>$provider->user->profile->is_hourly,
-                                          'is_rfq'=>$provider->user->profile->is_rfq,
+                   $providersdata[]=array('user_id'=>$provider->id,
+                                          'name'=>$provider->name,
+                                          'email'=>$provider->email,
+                                          'mobile_number'=>$provider->mobile_number,
+                                          'is_hourly'=>$provider->profile->is_hourly,
+                                          'is_rfq'=>$provider->profile->is_rfq,
                                           'profile_picture'=>$provider['profile_picture'],
                                           'rating'=>$rating
                                           );              
