@@ -35,9 +35,16 @@ class WebserviceController extends Controller
                       $q->select('id','title','country_id');
                       $q->where('is_active',TRUE);
                   }])->where('is_active',TRUE)->get(['id','title']);
-        $response['status'] = true;  
-        $response['countries'] = $countries;
-        $response['message'] = "Success";       
+       if(count($countries))
+       {
+          $response['status'] = true;  
+          $response['countries'] = $countries;
+          $response['message'] = "Record found"; 
+        }else
+        {
+          $response['status'] = false;  
+          $response['message'] = "Record not found"; 
+        }             
       
        return response()->json($response);
     }
@@ -67,10 +74,17 @@ class WebserviceController extends Controller
                 unset($category->media);
             }
         }
+        if(count($categories)>0)
+        { 
+          $response['status'] = true;  
+          $response['categories'] = $categories;
+          $response['message'] = "Success";
+        }else
+        {
+          $response['status'] = false;  
+          $response['message'] = "Record not found";
+        }
 
-        $response['status'] = true;  
-        $response['categories'] = $categories;
-        $response['message'] = "Success";
       
         return response()->json($response);
     }
@@ -92,12 +106,20 @@ class WebserviceController extends Controller
                 unset($advertisement->media);
             }
         }
-        $response['status'] = true;  
-        $response['advertisements'] = $advertisements;
-        $response['message'] = "Success";
+        if(count($advertisements)>0)
+        {
+           $response['status'] = true;  
+           $response['advertisements'] = $advertisements;
+           $response['message'] = "Success";
+        }else
+        {
+           $response['status'] = false;  
+           $response['message'] = "Record not found";
+        }
+        
       }else
       {
-        $response=array('status'=>false,'advertisements'=>$advertisements,'message'=>'Oops! Invalid credential.');
+        $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
       } 
         return response()->json($response);
     }
@@ -123,7 +145,7 @@ class WebserviceController extends Controller
             $response=array('status'=>true,'subcategories'=>$categories,'message'=>'Record found!');
         }else
         {
-            $response=array('status'=>false,'subcategories'=>$categories,'message'=>'Record not found');
+            $response=array('status'=>false,'message'=>'Record not found');
         }      
         
         return response()->json($response);
@@ -142,7 +164,7 @@ class WebserviceController extends Controller
         ]);
             
         if ($validator->fails()) {
-            return response()->json(['status'=>false,'packages'=>$packagesdata,'message'=>$validator->errors()->first()]);
+            return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
         }
         if($user)
         {   $end_limit = config('constants.DEFAULT_WEBSERVICE_PAGINATION_ENDLIMIT');        
@@ -201,11 +223,11 @@ class WebserviceController extends Controller
                 $response=array('status'=>true,'packages'=>$packagesdata,'message'=>'Record found!');
             }else
             {
-                $response=array('status'=>false,'packages'=>$packagesdata,'message'=>'Record not found');
+                $response=array('status'=>false,'message'=>'Record not found');
             }
         }else
         {
-                $response=array('status'=>false,'packages'=>$packagesdata,'message'=>'Oops! Invalid credential.');
+                $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
         }        
         return response()->json($response);
     }    
@@ -240,7 +262,7 @@ class WebserviceController extends Controller
            $validator = Validator::make($data, $rules);
 
             if ($validator->fails()) {
-                return response()->json(['status'=>false,'booking'=>'','message'=>$validator->errors()->first()]);
+                return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
             }
             $provider_id=isset($data['user_id'])?$data['user_id']:0;
             $data['user_id']=$provider_id;
@@ -260,12 +282,13 @@ class WebserviceController extends Controller
                                                          'category_id'=>$subcategory));
                     }
                 }
-            }                
+            } 
+            //need to send request or notification to all providers user that are belong to Lat long address.               
 
             $response=array('status'=>true,'booking'=>$booking->id,'message'=>'Send request saved successfully.');
         }else
         {
-                $response=array('status'=>false,'booking'=>'','message'=>'Oops! Invalid credential.');
+                $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
         }        
         return response()->json($response);
     }  
@@ -286,7 +309,7 @@ class WebserviceController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return response()->json(['status'=>false,'data'=>$provider,'message'=>$validator->errors()->first()]);
+                return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
             }
            $provider= User::with(['profile','media','profile.experience_level','profile.payment_option','profile.city','category_user.category'])
             ->whereHas('profile', function($query) use ($user_id) {    
@@ -373,7 +396,7 @@ class WebserviceController extends Controller
           $response=array('status'=>true,'data'=>$provider,'message'=>'Record found');
         }else
         {
-            $response=array('status'=>false,'data'=>$provider,'message'=>'Oops! Invalid credential.');
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
         }        
         return response()->json($response);
     }
@@ -392,6 +415,9 @@ class WebserviceController extends Controller
             'category_id' => 'required',
             'subcategory_id' => 'required',
            ]);
+           if ($validator->fails()) { 
+              return response()->json(['status'=>FALSE, 'message'=>$validator->errors()->first()]);           
+           } 
            
            $is_package=isset($data['is_package'])?$data['is_package']:0;
            $is_hourly=isset($data['is_hourly'])?$data['is_hourly']:0;
@@ -449,11 +475,8 @@ class WebserviceController extends Controller
               }
             }
            }         
-
-           
-          if ($validator->fails()) { 
-              return response()->json(['status'=>FALSE, 'message'=>$validator->errors()->first()]);            
-          }  
+          
+          
           $response=array('status'=>true,'message'=>'Provider information successfully added.');
         }else
         {
@@ -480,6 +503,9 @@ class WebserviceController extends Controller
             'passport_number' => 'required',
             'residential_address'=>'required'
            ]);
+           if ($validator->fails()) { 
+              return response()->json(['status'=>FALSE, 'message'=>$validator->errors()->first()]);           
+           } 
 
            $location=isset($data['location'])?$data['location']:'';
            $latitude=isset($data['latitude'])?$data['latitude']:'';
@@ -567,12 +593,9 @@ class WebserviceController extends Controller
             if(isset($degree_text) && $degree_text!='')
             {
               $user->Certification()->create(['user_id'=>$user_id,'title'=>$degree_text,'type'=>'degree']); 
-            }
-            
+            }           
            
-          if ($validator->fails()) { 
-              return response()->json(['status'=>FALSE, 'message'=>$validator->errors()->first()]);            
-          }  
+           
           $response=array('status'=>true,'message'=>'Provider information successfully added.');
         }else
         {
@@ -631,7 +654,7 @@ class WebserviceController extends Controller
           $response=array('status'=>true,'data'=>$provider,'message'=>'Record found');
         }else
         {
-            $response=array('status'=>false,'data'=>$provider,'message'=>'Oops! Invalid credential.');
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
         }        
         return response()->json($response);
     }
@@ -655,6 +678,9 @@ class WebserviceController extends Controller
                 'subcategory_id'=>'required',
                 'type'=>'required'
             ]);
+            if ($validator->fails()) {
+                return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
+            }
             $type=$data['type'];
             $is_type=false;
             $is_hourly=false;
@@ -729,20 +755,17 @@ class WebserviceController extends Controller
                }              
             }            
 
-            if ($validator->fails()) {
-                return response()->json(['status'=>false,'providers'=>'','message'=>$validator->errors()->first()]);
-            }
+            
              if(count($providersdata))
             { 
-
                 $response=array('status'=>true,'providers'=>$providersdata,'message'=>'Record found');
             }else
             {
-                $response=array('status'=>false,'providers'=>$providersdata,'message'=>'Record not found');
+                $response=array('status'=>false,'message'=>'Record not found');
             }
         }else
         {
-            $response=array('status'=>false,'providers'=>$providersdata,'message'=>'Oops! Invalid credential.');
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
         }        
         return response()->json($response);
     }
@@ -763,7 +786,7 @@ class WebserviceController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return response()->json(['status'=>false,'bookingdata'=>$booking_data,'message'=>$validator->errors()->first()]);
+                return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
             }
 
             $end_limit =config('constants.DEFAULT_WEBSERVICE_PAGINATION_ENDLIMIT');
@@ -853,14 +876,12 @@ class WebserviceController extends Controller
               $response=array('status'=>true,'bookingdata'=>$booking_data,'message'=>'record found');
             }else
             {
-              $booking_data[$type]=$bookingtype;
-              $response=array('status'=>false,'bookingdata'=>$booking_data,'message'=>'no record found');
+              $response=array('status'=>false,'message'=>'no record found');
             }
             
         }else
         {
-            $booking_data[$type]=$bookingtype;
-            $response=array('status'=>false,'bookingdata'=>$bookingdata,'message'=>'Oops! Invalid credential.');
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
         }        
         return response()->json($response);
     }
@@ -881,7 +902,7 @@ class WebserviceController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return response()->json(['status'=>false,'bookingdata'=>$booking_data,'message'=>$validator->errors()->first()]);
+                return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
             }
             //echo $user->id;
             $end_limit =config('constants.DEFAULT_WEBSERVICE_PAGINATION_ENDLIMIT');
@@ -890,6 +911,9 @@ class WebserviceController extends Controller
             if($type==config('constants.PAYMENT_STATUS_REQUESTED'))
             {
               $bookings=$bookings->where('status',config('constants.PAYMENT_STATUS_REQUESTED'));
+            }elseif($type==config('constants.PAYMENT_STATUS_ACCEPTED'))
+            {
+              $bookings=$bookings->where('status',config('constants.PAYMENT_STATUS_ACCEPTED'));
             }elseif($type==config('constants.PAYMENT_STATUS_COMPLETED'))
             {
               $bookings=$bookings->where('status',config('constants.PAYMENT_STATUS_COMPLETED'));
@@ -1024,13 +1048,13 @@ class WebserviceController extends Controller
             }else
             {
               $booking_data[$type]=$bookingtype;
-              $response=array('status'=>false,'bookingdata'=>$booking_data,'message'=>'no record found');
+              $response=array('status'=>false,'message'=>'no record found');
             }
             
         }else
         {
             $booking_data[$type]=$bookingtype;
-            $response=array('status'=>false,'bookingdata'=>$bookingdata,'message'=>'Oops! Invalid credential.');
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
         }        
         return response()->json($response);
     }
@@ -1054,6 +1078,80 @@ class WebserviceController extends Controller
       } else {
           return $miles;
       }
-}
+    }
+    /**
+     * API to get user seeker details according to Id 
+     *
+     * @return [string] message
+     */
+    public function getSeekerProfile(Request $request){
+        $user = Auth::user(); 
+        $data = $request->all(); 
+        $seeker=array();
+        $role_id =  config('constants.ROLE_TYPE_SEEKER_ID');
+        $seeker = User::with(['roles','media','profile','profile.city'])->whereHas('roles', function($query) use ($role_id){
+              $query->where('id', $role_id);
+        });
+        $seeker=$seeker->where(['id'=>$user->id])->first();
+        if($seeker)
+        { 
+          $seeker['profile_picture']='';
+          $age="";                
+          if(isset($seeker) && $seeker->getMedia('profile_picture')->count() > 0 && file_exists($seeker->getFirstMedia('profile_picture')->getPath()))
+          {
+            $seeker['profile_picture']=$seeker->getFirstMedia('profile_picture')->getFullUrl();
+          }  
+          if(isset($seeker->profile->dob) && $seeker->profile->dob!='')
+          {
+
+            $age = (date('Y') - date('Y',strtotime($seeker->profile->dob)));          
+          }      
+          $country='';
+          $city='';
+          $country_id='';
+          $city_id='';
+          
+          if(!empty($seeker->profile->city))
+          {
+             $city=isset($seeker->profile->city->title)?$seeker->profile->city->title:'';
+             $country=isset($seeker->profile->city->country->title)?$seeker->profile->city->country->title:'';
+             $country_id=isset($seeker->profile->city->country->id)?$seeker->profile->city->country->id:'';
+             $city_id=isset($seeker->profile->city->id)?$seeker->profile->city->id:'';
+          }
+          $seeker=array('id'=>$seeker->id,
+                        'name'=>$seeker->name,
+                        'email'=>$seeker->email,
+                        'mobile_number'=>$seeker->mobile_number,
+                        'facebook_id'=>$seeker->facebook_id,
+                        'facebook_data'=>$seeker->facebook_data,
+                        'google_plus_id'=>$seeker->google_plus_id,
+                        'google_plus_data'=>$seeker->google_plus_data,
+                        'device_type'=>$seeker->device_type,
+                        'device_token'=>$seeker->device_token,
+                        'age'=>(string)$age,
+                        'facebook_url'=>$seeker->profile->facebook_url,
+                        'twitter_url'=>$seeker->profile->twitter_url,
+                        'linkedin_url'=>$seeker->profile->linkedin_url,
+                        'googleplus_url'=>$seeker->profile->googleplus_url,
+                        'instagram_url'=>$seeker->profile->instagram_url,
+                        'residential_address'=>$seeker->profile->residential_address,
+                        'work_address'=>$seeker->profile->work_address,
+                        'radius'=>$seeker->profile->radius,
+                        'latitude'=>$seeker->profile->latitude,
+                        'longitude'=>$seeker->profile->longitude,
+                        'longitude'=>$seeker->profile->longitude,
+                        'country'=>$country,
+                        'city'=>$city,
+                        'country_id'=>$country_id,
+                        'city_id'=>$city_id);
+          
+          unset($seeker['media']);
+          $response=array('status'=>true,'data'=>$seeker,'message'=>'Record found');
+        }else
+        {
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
+    }
 
 }

@@ -29,6 +29,6 @@ class Country extends Model
 	    static::addGlobalScope('order', function ($query) {
 	        $query->orderBy('title', 'ASC');
 	    });
-	}
+	}   
 
 }
