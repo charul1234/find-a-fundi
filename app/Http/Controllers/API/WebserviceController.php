@@ -1170,11 +1170,11 @@ class WebserviceController extends Controller
      *
      * @return [string] message
      */
-    public function getBookingForProviderLogin(Request $request){
+    public function getProviderBookingDetail(Request $request){
         $user = Auth::user(); 
         $data = $request->all(); 
-        $provider=array();
-
+        $providerData=array();
+        $role_id =  config('constants.ROLE_TYPE_PROVIDER_ID');
         if($user)
         {
             $validator = Validator::make($data, [
@@ -1184,10 +1184,51 @@ class WebserviceController extends Controller
             if ($validator->fails()) {
                 return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
             }
-           
-            $booking= Booking::where('id',$request->id)->first();
-            //print_r($user->profiles());
-          $response=array('status'=>true,'data'=>$provider,'message'=>'Record found');
+            $userdata=User::with(['roles','profile','media'])->whereHas('roles', function($query) use ($role_id){
+              $query->where('id', $role_id);
+            })->where('id',$user->id)->first();
+            $provider['profile_picture']='';
+            $age="";                
+            if(isset($userdata) && $userdata->getMedia('profile_picture')->count() > 0 && file_exists($userdata->getFirstMedia('profile_picture')->getPath()))
+            {
+              $userdata['profile_picture']=$userdata->getFirstMedia('profile_picture')->getFullUrl();
+            }  
+            if(isset($userdata->profile->dob) && $userdata->profile->dob!='')
+            {
+
+              $age = (date('Y') - date('Y',strtotime($userdata->profile->dob)));          
+            }
+            $userdata['age']=(string)$age;
+            unset($userdata['media']);
+            $booking= Booking::where('id',$request->booking_id)->first();
+            if($booking)
+            {
+                 $providerData=array('user_id'=>$userdata->id,
+                                     'name'=>$userdata->name,
+                                     'email'=>$userdata->email,
+                                     'age'=>$userdata['age'],
+                                     'profile_picture'=>$userdata['profile_picture'],
+                                     'booking'=>array('id'=>$booking->id,
+                                                      'title'=>$booking->title,
+                                                      'description'=>$booking->description,
+                                                      'location'=>$booking->location,
+                                                      'latitude'=>$booking->latitude,
+                                                      'longitude'=>$booking->longitude,
+                                                      'budget'=>$booking->budget,
+                                                      'is_rfq'=>$booking->is_rfq,
+                                                      'request_for_quote_budget'=>$booking->request_for_quote_budget,
+                                                      'is_hourly'=>$booking->is_hourly,
+                                                      'estimated_hours'=>$booking->estimated_hours,
+                                                      'min_budget'=>$booking->min_budget,
+                                                      'max_budget'=>$booking->max_budget,
+                                                      'datetime'=>$booking->datetime,
+                                                      'created_at'=>$booking->created_at));
+                 $response=array('status'=>true,'data'=>$providerData,'message'=>'Record found');
+            }else
+            {
+                 $response=array('status'=>false,'message'=>'No record found');
+            }
+         
         }else
         {
             $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
