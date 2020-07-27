@@ -132,14 +132,15 @@
 
                     <div class="form-group">
                 <div class="ml-0">
-        <h6 class="ml-0 font-weight-bold text-primary">Companies</h6>
+        <h6 class="ml-0 font-weight-bold text-primary">Company</h6>
         </div>
                   <div class="table-responsive">
                      <table class="table table-striped table-bordered table-hover" id="company_table">
                       <thead>
                         <tr>
                           <th scope="col">Name</th>
-                          <th scope="col">Batch</th>
+                          <th scope="col">Logo</th>
+                          <th scope="col">Document</th>
                           <th scope="col">Remarks</th>
                           <th scope="col">Document Number</th>
                           <th scope="col">Status</th>
@@ -154,8 +155,15 @@
                     ?>
                         <tr>
                           <td> {{isset($value->name)?$value->name:''}}</td>
-                          <td>@if(isset($value) && $value->getMedia('batch')->count() > 0 && file_exists($value->getFirstMedia('batch')->getPath()))  
-                       <img width="50" src="{{ $value->getFirstMedia('batch')->getFullUrl() }}" />
+                           <td>@if(isset($value) && $value->getMedia('company_logo')->count() > 0 && file_exists($value->getFirstMedia('company_logo')->getPath()))  
+                       <img width="50" src="{{ $value->getFirstMedia('company_logo')->getFullUrl() }}" />
+                      
+                    </div>
+                    @endif</td>
+
+                          <td>@if(isset($value) && $value->getMedia('document_image')->count() > 0 && file_exists($value->getFirstMedia('document_image')->getPath()))  
+                       <img width="50" src="{{ $value->getFirstMedia('document_image')->getFullUrl() }}" />
+                       <a download href="{{ $value->getFirstMedia('document_image')->getFullUrl() }}" target="_blank"><i class="fa fa-download" aria-hidden="true"></i></a>
                     </div>
                     @endif</td>
                           <td>{{isset($value->remarks)?$value->remarks:''}}</td>
