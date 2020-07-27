@@ -1203,9 +1203,9 @@ class WebserviceController extends Controller
             $booking= Booking::where('id',$request->booking_id)->first();
             if($booking)
             {
-                 $providerData=array('user_id'=>$userdata->id,
-                                     'name'=>$userdata->name,
-                                     'email'=>$userdata->email,
+                 $providerData=array('user_id'=>$user->id,
+                                     'name'=>$user->name,
+                                     'email'=>$user->email,
                                      'age'=>$userdata['age'],
                                      'profile_picture'=>$userdata['profile_picture'],
                                      'booking'=>array('id'=>$booking->id,
