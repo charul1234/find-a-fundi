@@ -1165,5 +1165,34 @@ class WebserviceController extends Controller
         }        
         return response()->json($response);
     }
+    /**
+     * API to get provider bookings according to Id 
+     *
+     * @return [string] message
+     */
+    public function getBookingForProviderLogin(Request $request){
+        $user = Auth::user(); 
+        $data = $request->all(); 
+        $provider=array();
+
+        if($user)
+        {
+            $validator = Validator::make($data, [
+                'booking_id'=>'required', 
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
+            }
+           
+            $booking= Booking::where('id',$request->id)->first();
+            //print_r($user->profiles());
+          $response=array('status'=>true,'data'=>$provider,'message'=>'Record found');
+        }else
+        {
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
+    }
 
 }

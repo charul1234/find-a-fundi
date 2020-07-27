@@ -119,6 +119,93 @@
                     @endif
                 </div>
             </div>
+             <div class="form-group {{$errors->has('company_name') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <?php  $company_name=isset($providerCompany->name)?$providerCompany->name:''; 
+                       $remarks=isset($providerCompany->remarks)?$providerCompany->remarks:'';
+                       $document_number=isset($providerCompany->document_number)?$providerCompany->document_number:'';
+                       $is_payment_received=isset($providerCompany->is_payment_received)?$providerCompany->is_payment_received:'';?>
+                 <h6 class="col-md-3 font-weight-bold text-primary">Security Company</h6>
+                <label class="col-md-3 control-label" for="company_name">Name of company <span style="color:red">*</span></label>
+                <div class="col-md-9">
+                    {!! Form::text('company_name',old('company_name',$company_name), ['class' => 'form-control', 'placeholder' => 'Name of company ']) !!}
+                    @if($errors->has('company_name'))
+                    <strong for="company_name" class="help-block">{{ $errors->first('company_name') }}</strong>
+                    @endif
+                </div>               
+            </div>
+            <div class="form-group {{$errors->has('company_logo') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-3 control-label" for="company_logo">Company logo <span style="color:red">*</span></label>
+                <div class="col-md-9">
+                    {{ Form::file('company_logo') }}
+                    @if($errors->has('company_logo'))
+                    <strong for="company_logo" class="help-block">{{ $errors->first('company_logo') }}</strong>
+                    @endif
+                    @php $company_logo_required = true; @endphp
+                    @if(isset($providerCompany) && $providerCompany->getMedia('company_logo')->count() > 0 && file_exists($providerCompany->getFirstMedia('company_logo')->getPath()))
+                        @php $company_logo_required = false; @endphp
+                        <div class="row mt-2">
+                            <div class="col-md-1 form-group">
+                        <img width="100%" src="{{ $providerCompany->getFirstMedia('company_logo')->getFullUrl() }}" />
+                          
+                    </div>
+                    <div class="col-md-1 form-group">
+                        <a download href="{{ $providerCompany->getFirstMedia('company_logo')->getFullUrl() }}" target="_blank"><i class="fa fa-download" aria-hidden="true"></i></a>
+                    </div>
+                        </div>  
+                    @endif
+                </div>               
+            </div>
+            <div class="form-group {{$errors->has('remarks') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-3 control-label" for="remarks">Remarks <span style="color:red">*</span></label>
+                <div class="col-md-9">
+                    {!! Form::textarea('remarks',old('remarks',$remarks), ['class' => 'form-control', 'placeholder' => 'Remarks','rows'=>'2']) !!}
+                    @if($errors->has('remarks'))
+                    <strong for="address" class="help-block">{{ $errors->first('remarks') }}</strong>
+                    @endif
+                </div>
+            </div>
+            <div class="form-group {{$errors->has('document_image') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-3 control-label" for="document_image">Document Image <span style="color:red">*</span></label>
+                <div class="col-md-9">
+                    {{ Form::file('document_image') }}
+                    @if($errors->has('document_image'))
+                    <strong for="document_image" class="help-block">{{ $errors->first('document_image') }}</strong>
+                    @endif
+                    @php $document_image_required = true; @endphp
+                    @if(isset($providerCompany) && $providerCompany->getMedia('document_image')->count() > 0 && file_exists($providerCompany->getFirstMedia('document_image')->getPath()))
+                        @php $document_image_required = false; @endphp
+                        <div class="row mt-2">
+                            <div class="col-md-1 form-group">
+                        <img width="100%" src="{{ $providerCompany->getFirstMedia('document_image')->getFullUrl() }}" />
+                          
+                    </div>
+                    <div class="col-md-1 form-group">
+                        <a download href="{{ $providerCompany->getFirstMedia('document_image')->getFullUrl() }}" target="_blank"><i class="fa fa-download" aria-hidden="true"></i></a>
+                    </div>
+                        </div>  
+                    @endif
+                </div>               
+            </div>
+             <div class="form-group {{$errors->has('document_number') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-3 control-label" for="document_number">Document Number <span style="color:red">*</span></label>
+                <div class="col-md-9">
+                    {!! Form::text('document_number',old('document_number',$document_number), ['class' => 'form-control', 'placeholder' => 'Document Number']) !!}
+                    @if($errors->has('document_number'))
+                    <strong for="document_number" class="help-block">{{ $errors->first('document_number') }}</strong>
+                    @endif
+                </div>               
+            </div>
+            <div class="col-md-12 form-group">
+                        <label for="is_default">Payment Received </label>
+                         <div class="clearfix"></div>
+                        <label for="is_payment_received">{{ Form::checkbox('is_payment_received', '1', old('is_payment_received',$is_payment_received),['id'=>'is_payment_received']) }}</label>
+            </div>
+            <div class="col-md-12 form-group">
+                        <label for="is_verify">Verify </label>
+                         <div class="clearfix"></div>
+                        <label for="is_verify">{{ Form::checkbox('is_verify', '1', old('is_verify',isset($user->is_verify)?$user->is_verify:0),['id'=>'is_verify']) }}</label>
+            </div>
+           
         </div> 
         <div class="card-footer">
             <button type="submit" class="btn btn-responsive btn-primary btn-sm">{{ __('Submit') }}</button>
@@ -178,6 +265,25 @@ jQuery(document).ready(function(){
                     }
                 },
                 equalTo: "#password"
+            },
+            company_name: {
+                required: true
+            },
+            @if($company_logo_required==true)            
+            company_logo: {
+                required: true
+            },
+            @endif
+            remarks: {
+                required: true
+            },
+            @if($document_image_required==true)            
+            document_image: {
+                required: true
+            },
+            @endif
+            document_number: {
+                required: true
             }
         }
     });

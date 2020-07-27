@@ -8,12 +8,12 @@
     <!-- Content Row -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <a href="{{route('admin.providers.create')}}" class="btn btn-primary btn-sm btn-icon-split float-right">
+            <!-- <a href="{{route('admin.providers.create')}}" class="btn btn-primary btn-sm btn-icon-split float-right">
                 <span class="icon text-white-50">
                   <i class="fas fa-plus"></i>
                 </span>
                 <span class="text">Add Provider</span>
-            </a>
+            </a> -->
             <h6 class="m-0 font-weight-bold text-primary">Providers</h6>
         </div>
 
@@ -27,6 +27,7 @@
                           <th>Mobile No.</th>                                               
                           <th>Profile</th>
                           <th>Created Date/Time</th>   
+                          <th>Verified</th>
                           <th>Status</th>
                           <th>Action</th>
                         </tr>
@@ -38,6 +39,7 @@
                           <th>Mobile No.</th>                                             
                           <th>Profile</th>
                           <th>Created Date/Time</th>   
+                          <th>Verified</th>
                           <th>Status</th>
                           <th>Action</th>
                         </tr>
@@ -84,6 +86,7 @@ function getUsers(){
             {data: 'mobile_number', name: 'mobile_number'},
             {data: 'media.name', name: 'media.name', class: 'text-center', orderable: false},
             {data: 'created_at', name: 'created_at'},
+            {data: 'is_verify', name: 'is_verify', class: 'text-center', "width": "5%"},
             {data: 'is_active', name: 'is_active', class: 'text-center', "width": "5%"},
             {data: 'action', name: 'action', orderable: false, searchable: false, "width": "10%"},
         ],

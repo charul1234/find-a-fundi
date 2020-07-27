@@ -76,6 +76,14 @@ class ProvidersController extends Controller
                     return "<a href='".route('admin.providers.status',$user->id)."'><span class='badge badge-danger'>Inactive</span></a>";
                 }
             })
+            ->editColumn('is_verify', function ($user) {
+                if($user->is_verify == TRUE )
+                {
+                    return "Yes";
+                }else{                    
+                    return "No";
+                }
+            })
             ->addColumn('action', function ($user) {
                 return
                         //view
@@ -92,7 +100,7 @@ class ProvidersController extends Controller
                           ' <button type="submit" class="btn btn-danger btn-circle btn-sm"><i class="fas fa-trash"></i></button>'.
                           Form::close();
             })
-            ->rawColumns(['media.name','is_active','action'])
+            ->rawColumns(['media.name','is_active','is_verify','action'])
             ->make(true);
     }
 
@@ -177,8 +185,9 @@ class ProvidersController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit($id){        
-        $user = User::with('profile')->findOrFail($id);        
-        return view('admin.providers.edit',compact('user'));
+        $user = User::with('profile')->findOrFail($id);  
+        $providerCompany=Company::query()->with('media')->where(['user_id'=>$id])->first();   
+        return view('admin.providers.edit',compact('user','providerCompany'));
     }
 
     /**
@@ -190,6 +199,7 @@ class ProvidersController extends Controller
      */
     public function update(Request $request, $id){
         $user = User::findOrFail($id);
+        $media_max_size = config('medialibrary.max_file_size') / 1024; 
         $rules = [
             'name'              => 'required', 
             'email'             => 'required|email|unique:'.with(new User)->getTable().',email,'.$user->getKey(),
@@ -198,7 +208,35 @@ class ProvidersController extends Controller
             'address'           => 'required',
             'latitude'          => 'nullable',
             'longitude'         => 'nullable',
+            'company_name'         => 'required',
+            'company_logo'=>[
+                        'image',
+                        'mimes:jpeg,jpg,png',
+                        'max:'.$media_max_size,
+                     ], 
+            'remarks'=>'required',
+            'document_image'=>[
+                        'image',
+                        'mimes:jpeg,jpg,png',
+                        'max:'.$media_max_size,
+                     ], 
+            'document_number'         => 'required',
         ];
+        $company=Company::where(['user_id'=>$id])->first(); 
+        if (isset($company) && ($company->getMedia('company_logo')->count()==0 || ($company->getMedia('company_logo')->count() >0 && !file_exists($company->getFirstMedia('company_logo')->getPath())))) {
+            $rules['company_logo'] = [
+                'required',             
+                'file',
+                'image'
+            ];
+        }
+        if (isset($company) && ($company->getMedia('document_image')->count()==0 || ($company->getMedia('document_image')->count() >0 && !file_exists($company->getFirstMedia('document_image')->getPath())))) {
+            $rules['document_image'] = [
+                'required',             
+                'file',
+                'image'
+            ];
+        }
        
         if (isset($request->reset_password) && $request->reset_password==TRUE) {
             $rules['password'] = 'required|confirmed';
@@ -213,7 +251,7 @@ class ProvidersController extends Controller
             }else{
                 unset($data['password']);
             }
-
+            $data['is_verify']=isset($request->is_verify)?$request->is_verify:0;
             $user->update($data);
             if ($request->hasFile('profile_picture')){
              $file = $request->file('profile_picture');
@@ -229,6 +267,42 @@ class ProvidersController extends Controller
                 $profile_data=array('work_address'=>$request->address ,'latitude'=>$request->latitude,'longitude'=>$request->longitude);
                 $profile->update($profile_data);
             }
+            //company data
+            $company_name=isset($request->company_name)?$request->company_name:'';
+            $remarks=isset($request->remarks)?$request->remarks:'';
+            $document_number=isset($request->document_number)?$request->document_number:'';
+            $is_payment_received=isset($request->is_payment_received)?$request->is_payment_received:0;
+            $company_data=array('user_id'=>$user_id,
+                                'name'=>$company_name,
+                                'remarks'=>$remarks,
+                                'document_number'=>$document_number,
+                                'is_payment_received'=>$is_payment_received,
+                                'is_active'=>1);
+            if($company)
+            {
+                 $company->update($company_data);
+                
+            }else
+            {
+                 $company = Company::create($company_data);
+            }
+            
+            if ($request->hasFile('company_logo')){
+                 $file = $request->file('company_logo');
+                 $customname = time() . '.' . $file->getClientOriginalExtension();
+                 $company->addMedia($request->file('company_logo'))
+                   ->usingFileName($customname)               
+                   ->toMediaCollection('company_logo');
+            } 
+            if ($request->hasFile('document_image')){
+                 $file = $request->file('document_image');
+                 $customname = time() . '.' . $file->getClientOriginalExtension();
+                 $company->addMedia($request->file('document_image'))
+                   ->usingFileName($customname)               
+                   ->toMediaCollection('document_image');
+            } 
+            //company end data
+
             $request->session()->flash('success',__('global.messages.update'));
             return redirect()->route('admin.providers.index');
         }else {
