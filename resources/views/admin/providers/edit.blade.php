@@ -148,7 +148,7 @@
                         <img width="100%" src="{{ $providerCompany->getFirstMedia('company_logo')->getFullUrl() }}" />
                           
                     </div>
-                    <div class="col-md-1 form-group">
+                    <div class="col-md-1 mt-3 form-group">
                         <a download href="{{ $providerCompany->getFirstMedia('company_logo')->getFullUrl() }}" target="_blank"><i class="fa fa-download" aria-hidden="true"></i></a>
                     </div>
                         </div>  
@@ -179,7 +179,7 @@
                         <img width="100%" src="{{ $providerCompany->getFirstMedia('document_image')->getFullUrl() }}" />
                           
                     </div>
-                    <div class="col-md-1 form-group">
+                    <div class="col-md-1 mt-3 form-group">
                         <a download href="{{ $providerCompany->getFirstMedia('document_image')->getFullUrl() }}" target="_blank"><i class="fa fa-download" aria-hidden="true"></i></a>
                     </div>
                         </div>  
