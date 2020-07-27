@@ -1175,7 +1175,10 @@ class WebserviceController extends Controller
         $data = $request->all(); 
         $providerData=array();
         $role_id =  config('constants.ROLE_TYPE_PROVIDER_ID');
-        if($user)
+        $userdata=User::with(['roles','profile','media'])->whereHas('roles', function($query) use ($role_id){
+              $query->where('id', $role_id);
+            })->where('id',$user->id)->first();
+        if($userdata)
         {
             $validator = Validator::make($data, [
                 'booking_id'=>'required', 
@@ -1184,9 +1187,7 @@ class WebserviceController extends Controller
             if ($validator->fails()) {
                 return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
             }
-            $userdata=User::with(['roles','profile','media'])->whereHas('roles', function($query) use ($role_id){
-              $query->where('id', $role_id);
-            })->where('id',$user->id)->first();
+            
             $provider['profile_picture']='';
             $age="";                
             if(isset($userdata) && $userdata->getMedia('profile_picture')->count() > 0 && file_exists($userdata->getFirstMedia('profile_picture')->getPath()))
