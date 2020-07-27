@@ -1170,7 +1170,7 @@ class WebserviceController extends Controller
      *
      * @return [string] message
      */
-    public function getProviderBookingDetail(Request $request){
+    public function getProviderBookingDetail(Request $request){ 
         $user = Auth::user(); 
         $data = $request->all(); 
         $providerData=array();
@@ -1198,16 +1198,27 @@ class WebserviceController extends Controller
 
               $age = (date('Y') - date('Y',strtotime($userdata->profile->dob)));          
             }
-            $userdata['age']=(string)$age;
+            $age=(string)$age;
             unset($userdata['media']);
             $booking= Booking::where('id',$request->booking_id)->first();
             if($booking)
             {
-                 $providerData=array('user_id'=>$user->id,
-                                     'name'=>$user->name,
-                                     'email'=>$user->email,
-                                     'age'=>$userdata['age'],
+                 $providerData=array('user_id'=>$userdata->id,
+                                     'name'=>$userdata->name,
+                                     'email'=>$userdata->email,
+                                     'age'=>$age,
                                      'profile_picture'=>$userdata['profile_picture'],
+                                     'facebook_url'=>$userdata->profile->facebook_url,
+                                     'twitter_url'=>$userdata->profile->twitter_url,
+                                     'linkedin_url'=>$userdata->profile->linkedin_url,
+                                     'googleplus_url'=>$userdata->profile->googleplus_url,
+                                     'instagram_url'=>$userdata->profile->instagram_url,
+                                     'residential_address'=>$userdata->profile->residential_address,
+                                     'work_address'=>$userdata->profile->work_address,
+                                     'radius'=>$userdata->profile->radius,
+                                     'latitude'=>$userdata->profile->latitude,
+                                     'longitude'=>$userdata->profile->longitude,
+                                     'longitude'=>$userdata->profile->longitude,
                                      'booking'=>array('id'=>$booking->id,
                                                       'title'=>$booking->title,
                                                       'description'=>$booking->description,
