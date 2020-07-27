@@ -20,6 +20,7 @@ use App\BookingSubcategory;
 use App\CategoryUser;
 use App\Profile;
 use App\Certification;
+use App\BookingUser;
 
 class WebserviceController extends Controller
 {
@@ -938,7 +939,8 @@ class WebserviceController extends Controller
             }
             //echo $user->id;
             $end_limit =config('constants.DEFAULT_WEBSERVICE_PAGINATION_ENDLIMIT');
-            $bookings= Booking::with(['category','user','user.profile','subcategory']);
+            $bookings= Booking::with(['category','user','user.profile','subcategory']);//,'booking_user'
+
             
             if($type==config('constants.PAYMENT_STATUS_REQUESTED'))
             {
@@ -968,7 +970,7 @@ class WebserviceController extends Controller
             
             $start_limit=(isset($request->start_limit)?$request->start_limit:0)*$end_limit;
             $bookings=$bookings->offset($start_limit)->limit($end_limit)->get();           
-            
+            //print_r($bookings->booking_user);
            if(count($bookings)>0)
            {
             foreach ($bookings as $key => $booking) 
@@ -1264,5 +1266,54 @@ class WebserviceController extends Controller
         }        
         return response()->json($response);
     }
+    /**
+     * API to make declined jobs for provider Id 
+     *
+     * @return [string] message
+     */
+    public function jobDeclined(Request $request){ 
+        $user = Auth::user(); 
+        $data = $request->all(); 
+        $role_id =  config('constants.ROLE_TYPE_PROVIDER_ID');
+        $userdata=User::with(['roles'])->whereHas('roles', function($query) use ($role_id){
+              $query->where('id', $role_id);
+            })->where('id',$user->id)->first();        
+        if($userdata)
+        {
+            $validator = Validator::make($data, [
+                'booking_id'=>'required', 
+                'reason'=>'required', 
+            ]);
+            if ($validator->fails()) {
+                return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
+            }
+            $booking= Booking::where('id',$request->booking_id)->first();
+            if($booking)
+            {
+              //$booking_user = BookingUser::where(['user_id'=>$userdata->id,'booking_id'=>$booking->id])->first();
+              $booking_data=array('user_id'=>$userdata->id,
+                                   'booking_id'=>$booking->id,
+                                   'status'=>config('constants.PAYMENT_STATUS_DECLINED'),
+                                   'reason'=>$request->reason);
+              $booking->booking_user()->create($booking_data);
+              /*if($booking_user)
+              {
 
+                $booking_user->update($booking_data);
+              }else
+              {
+                BookingUser::create($booking_data);
+              }  */            
+              
+              $response=array('status'=>true,'data'=>$booking->id,'message'=>'Job declined done');
+            }else
+            {
+              $response=array('status'=>false,'message'=>'no record found');
+            }            
+        }else
+        {
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
+      }
 }

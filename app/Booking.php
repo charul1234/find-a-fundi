@@ -36,4 +36,11 @@ class Booking extends Model
     {
         return $this->belongsTo(User::class,'user_id');
     }
+    /**
+     * Get the booking information that belong to this user_id.
+    */
+    public function booking_user()
+    {
+        return $this->belongsTo(BookingUser::class,'booking_id');
+    }
 }
