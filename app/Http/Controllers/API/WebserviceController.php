@@ -300,7 +300,7 @@ class WebserviceController extends Controller
     public function getProviderDetail(Request $request){
         $user = Auth::user(); 
         $data = $request->all(); 
-        $provider=array();
+        $provider=$certification_data=array();
         $user_id=isset($data['user_id'])?$data['user_id']:'';
         if($user)
         {
@@ -311,7 +311,7 @@ class WebserviceController extends Controller
             if ($validator->fails()) {
                 return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
             }
-           $provider= User::with(['profile','media','profile.experience_level','profile.payment_option','profile.city','category_user.category'])
+           $provider= User::with(['profile','media','profile.experience_level','profile.payment_option','profile.city','category_user.category','certification'])
             ->whereHas('profile', function($query) use ($user_id) {    
               $query->where('user_id',$user_id);            
             })->first();            
@@ -349,32 +349,43 @@ class WebserviceController extends Controller
             $provider['certificate_conduct']=$provider->getFirstMedia('certificate_conduct')->getFullUrl();
             $provider['certificate_conduct_name']=$provider->getFirstMedia('certificate_conduct')->name;
           } */
-          $certifications=Certification::where('user_id',$user_id)->get();
-          $certificationdata='';      
-          $degreedata='';  
-          $deplomadata='';  
-          if(count($certifications)>0)
+          //print_r($provider->certification);
+          $certification_img='';
+          if(count($provider->certification))
           {
-             foreach ($certifications as $key => $certification) {
-              if($certification->type=='certification')
-              {
-                $certificationdata=$certification->title;
+            foreach ($provider->certification as $key => $certification) {
+               if(isset($certification) && $certification->getMedia('certification')->count() > 0 && file_exists($certification->getFirstMedia('certification')->getPath()))
+              {           
+                 $certification_img=$certification->getFirstMedia('certification')->getFullUrl();
               }
-              if($certification->type=='degree')
-              {
-                $degreedata=$certification->title;
+               if(isset($certification) && $certification->getMedia('diploma')->count() > 0 && file_exists($certification->getFirstMedia('diploma')->getPath()))
+              {           
+                 $certification_img=$certification->getFirstMedia('diploma')->getFullUrl();
               }
-              if($certification->type=='deploma')
-              {
-                $deplomadata=$certification->title;
+               if(isset($certification) && $certification->getMedia('degree')->count() > 0 && file_exists($certification->getFirstMedia('degree')->getPath()))
+              {           
+                 $certification_img=$certification->getFirstMedia('degree')->getFullUrl();
               }
-               
-             }
+              $certification_data[]=array('id'=>$certification->id,
+                                        'title'=>$certification->title,
+                                        'type'=>$certification->type,
+                                        'img'=>$certification_img);
+            }
           }
-          $provider['certification_text']=$certificationdata;
-          $provider['degree_text']=$degreedata;
-          $provider['diploma_text']=$deplomadata;
-          
+          $certificate_conduct='';
+          $nca='';
+          if(isset($provider) && $provider->getMedia('certificate_conduct')->count() > 0 && file_exists($provider->getFirstMedia('certificate_conduct')->getPath()))
+          {           
+            $certificate_conduct=$provider->getFirstMedia('certificate_conduct')->getFullUrl();
+          } 
+          if(isset($provider) && $provider->getMedia('nca')->count() > 0 && file_exists($provider->getFirstMedia('nca')->getPath()))
+          {           
+            $nca=$provider->getFirstMedia('nca')->getFullUrl();
+          } 
+          $rating=0.0;
+          $provider['certification_data']=$certification_data;
+          $provider['nca']=$nca;
+          $provider['certificate_conduct']=$certificate_conduct;
           $provider['works_photo']=$works_photo_Images;
           $provider['subcategories']=$subcategories;
                   
@@ -391,7 +402,9 @@ class WebserviceController extends Controller
             $age = (date('Y') - date('Y',strtotime($provider->profile->dob)));          
           }
           $provider['age']=(string)$age;
+          $provider['rating']=$rating;
           unset($provider['media']);
+          unset($provider['certification']);
 
           $response=array('status'=>true,'data'=>$provider,'message'=>'Record found');
         }else
@@ -548,22 +561,10 @@ class WebserviceController extends Controller
                 $customimagename  = time() . '.' . $file->getClientOriginalExtension();
                 $user->addMedia($file)->toMediaCollection('nca');
             }
-            if ($request->hasFile('certification')){
-                $file = $request->file('certification');
-                $customimagename  = time() . '.' . $file->getClientOriginalExtension();
-                $user->addMedia($file)->toMediaCollection('certification');
-            }
+           
           
-            if ($request->hasFile('diploma')){
-                $file = $request->file('diploma');
-                $customimagename  = time() . '.' . $file->getClientOriginalExtension();
-                $user->addMedia($file)->toMediaCollection('diploma');
-            }
-            if ($request->hasFile('degree')){
-                $file = $request->file('degree');
-                $customimagename  = time() . '.' . $file->getClientOriginalExtension();
-                $user->addMedia($file)->toMediaCollection('degree');
-            }
+            
+           
            
             if ($request->hasFile('works_photo')){
                  $files = $request->file('works_photo');
@@ -584,15 +585,31 @@ class WebserviceController extends Controller
             }*/
             if(isset($certification_text) && $certification_text!='')
             {
-              $user->Certification()->create(['user_id'=>$user_id,'title'=>$certification_text,'type'=>'certification']); 
+             $certification= $user->Certification()->create(['user_id'=>$user_id,'title'=>$certification_text,'type'=>'certification']); 
+              if ($request->hasFile('certification')){
+                $file = $request->file('certification');
+                $customimagename  = time() . '.' . $file->getClientOriginalExtension();
+                $certification->addMedia($file)->toMediaCollection('certification');
+              }
+
             }
             if(isset($diploma_text) && $diploma_text!='')
             {
-              $user->Certification()->create(['user_id'=>$user_id,'title'=>$diploma_text,'type'=>'diploma']); 
+              $diploma=$user->Certification()->create(['user_id'=>$user_id,'title'=>$diploma_text,'type'=>'diploma']);
+              if ($request->hasFile('diploma')){
+                $file = $request->file('diploma');
+                $customimagename  = time() . '.' . $file->getClientOriginalExtension();
+                $diploma->addMedia($file)->toMediaCollection('diploma');
+              } 
             }
             if(isset($degree_text) && $degree_text!='')
             {
-              $user->Certification()->create(['user_id'=>$user_id,'title'=>$degree_text,'type'=>'degree']); 
+              $degree= $user->Certification()->create(['user_id'=>$user_id,'title'=>$degree_text,'type'=>'degree']); 
+               if ($request->hasFile('degree')){
+                $file = $request->file('degree');
+                $customimagename  = time() . '.' . $file->getClientOriginalExtension();
+                $degree->addMedia($file)->toMediaCollection('degree');
+              }
             }           
            
            
