@@ -14,6 +14,6 @@ class BookingUser extends Model
      * @var array
     */
     protected $fillable = [
-        'user_id','booking_id','status','reason'
+        'id','user_id','booking_id','is_rfq','budget','service_datetime','requirement','is_quoted','status','reason'
     ];
 }

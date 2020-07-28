@@ -1192,11 +1192,12 @@ class WebserviceController extends Controller
     public function getJobDetail(Request $request){ 
         $user = Auth::user(); 
         $data = $request->all(); 
-        $providerData=array();
+        $userData=$rfq_bookinguserData=array();
         $role_id =  config('constants.ROLE_TYPE_PROVIDER_ID');
-        $userdata=User::with(['roles','profile','media'])->whereHas('roles', function($query) use ($role_id){
+        /*$userdata=User::with(['roles','profile','media'])->whereHas('roles', function($query) use ($role_id){
               $query->where('id', $role_id);
-            })->where('id',$user->id)->first();
+            })->where('id',$user->id)->first();*/      
+        $userdata=User::with(['profile','media'])->where('id',$user->id)->first();
         if($userdata)
         {
             $validator = Validator::make($data, [
@@ -1206,39 +1207,84 @@ class WebserviceController extends Controller
             if ($validator->fails()) {
                 return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
             }
-            
-            $provider['profile_picture']='';
-            $age="";                
-            if(isset($userdata) && $userdata->getMedia('profile_picture')->count() > 0 && file_exists($userdata->getFirstMedia('profile_picture')->getPath()))
+            $booking= Booking::where('id',$request->booking_id);
+            if($user->roles->first()->id==config('constants.ROLE_TYPE_PROVIDER_ID'))
+                {
+                  $booking=$booking->where('user_id',$userdata->id);
+                }else if($user->roles->first()->id==config('constants.ROLE_TYPE_SEEKER_ID'))
+                {
+                  $booking=$booking->where('requested_id',$userdata->id);
+                }
+            $booking=$booking->first();
+            $is_rfq=isset($booking->is_rfq)?$booking->is_rfq:'';
+           if($booking)
             {
-              $userdata['profile_picture']=$userdata->getFirstMedia('profile_picture')->getFullUrl();
-            }  
-            if(isset($userdata->profile->dob) && $userdata->profile->dob!='')
-            {
+              if($is_rfq==0)
+              {
+                $user_data=User::with('profile');
+                if($user->roles->first()->id==config('constants.ROLE_TYPE_PROVIDER_ID'))
+                {
+                  $user_requested_id=$booking->requested_id;
+                }else if($user->roles->first()->id==config('constants.ROLE_TYPE_SEEKER_ID'))
+                {
+                  $user_requested_id=$booking->user_id;
+                }
+                $user_data=$user_data->where('id',$user_requested_id);
+                $user_data=$user_data->first();
+                $user_data['profile_picture']='';
+                $age="";                
+                if(isset($user_data) && $user_data->getMedia('profile_picture')->count() > 0 && file_exists($user_data->getFirstMedia('profile_picture')->getPath()))
+                {
+                   $user_data['profile_picture']=$user_data->getFirstMedia('profile_picture')->getFullUrl();
+                }else
+                {
 
-              $age = (date('Y') - date('Y',strtotime($userdata->profile->dob)));          
-            }
-            $age=(string)$age;
-            unset($userdata['media']);
-            $booking= Booking::where('id',$request->booking_id)->first();
-            if($booking)
+                   $user_data['profile_picture']= asset(config('constants.NO_IMAGE_URL'));
+              
+                }  
+                if(isset($user_data->profile->dob) && $user_data->profile->dob!='')
+                {
+
+                  $age = (date('Y') - date('Y',strtotime($user_data->profile->dob)));          
+                }
+                $age=(string)$age;
+                unset($user_data['media']);  
+            }else
             {
-                 $providerData=array('user_id'=>$userdata->id,
-                                     'name'=>$userdata->name,
-                                     'email'=>$userdata->email,
+               $booking=$booking;
+               $user_data=$userdata;
+               $user_data['profile_picture']='';
+                $age="";                
+                if(isset($user_data) && $user_data->getMedia('profile_picture')->count() > 0 && file_exists($user_data->getFirstMedia('profile_picture')->getPath()))
+                {
+                   $user_data['profile_picture']=$user_data->getFirstMedia('profile_picture')->getFullUrl();
+                }else
+                {
+
+                   $user_data['profile_picture']= asset(config('constants.NO_IMAGE_URL'));
+              
+                }  
+                if(isset($user_data->profile->dob) && $user_data->profile->dob!='')
+                {
+
+                  $age = (date('Y') - date('Y',strtotime($user_data->profile->dob)));          
+                }
+                $age=(string)$age;
+                unset($user_data['media']);  
+                $rfq_bookinguserData=array();
+              }
+            
+                 $userData=array('user_id'=>$user_data->id,
+                                     'name'=>$user_data->name,
+                                     'email'=>$user_data->email,
                                      'age'=>$age,
-                                     'profile_picture'=>$userdata['profile_picture'],
-                                     'facebook_url'=>$userdata->profile->facebook_url,
-                                     'twitter_url'=>$userdata->profile->twitter_url,
-                                     'linkedin_url'=>$userdata->profile->linkedin_url,
-                                     'googleplus_url'=>$userdata->profile->googleplus_url,
-                                     'instagram_url'=>$userdata->profile->instagram_url,
-                                     'residential_address'=>$userdata->profile->residential_address,
-                                     'work_address'=>$userdata->profile->work_address,
-                                     'radius'=>$userdata->profile->radius,
-                                     'latitude'=>$userdata->profile->latitude,
-                                     'longitude'=>$userdata->profile->longitude,
-                                     'longitude'=>$userdata->profile->longitude,
+                                     'profile_picture'=>$user_data['profile_picture'],
+                                     'residential_address'=>$user_data->profile->residential_address,
+                                     'work_address'=>$user_data->profile->work_address,
+                                     'radius'=>$user_data->profile->radius,
+                                     'latitude'=>$user_data->profile->latitude,
+                                     'longitude'=>$user_data->profile->longitude,
+                                     'longitude'=>$user_data->profile->longitude,
                                      'booking'=>array('id'=>$booking->id,
                                                       'title'=>$booking->title,
                                                       'description'=>$booking->description,
@@ -1247,14 +1293,16 @@ class WebserviceController extends Controller
                                                       'longitude'=>$booking->longitude,
                                                       'budget'=>$booking->budget,
                                                       'is_rfq'=>$booking->is_rfq,
+                                                      'is_quoted'=>$booking->is_quoted,
                                                       'request_for_quote_budget'=>$booking->request_for_quote_budget,
                                                       'is_hourly'=>$booking->is_hourly,
                                                       'estimated_hours'=>$booking->estimated_hours,
                                                       'min_budget'=>$booking->min_budget,
                                                       'max_budget'=>$booking->max_budget,
                                                       'datetime'=>$booking->datetime,
-                                                      'created_at'=>$booking->created_at));
-                 $response=array('status'=>true,'data'=>$providerData,'message'=>'Record found');
+                                                      'created_at'=>$booking->created_at),
+                                      'rfq_data'=>$rfq_bookinguserData);
+                 $response=array('status'=>true,'data'=>$userData,'message'=>'Record found');
             }else
             {
                  $response=array('status'=>false,'message'=>'No record found');
@@ -1337,9 +1385,7 @@ class WebserviceController extends Controller
                   'price'=>'required',
                   'service_datetime'=>'required'       
             ]; 
-            if(isset($request->type) && ($request->type=='is_rfq')) {          
-               $rules['user_id'] =  'required';   
-            }
+            
             $validator = Validator::make($data, $rules);
             if ($validator->fails()) {
                 return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
@@ -1360,7 +1406,7 @@ class WebserviceController extends Controller
                  $booking_data=array('requirement'=>$request->requirement,
                                      'budget'=>$request->price,
                                      'service_datetime'=>$request->service_datetime,
-                                     'status'=>'pending',
+                                     'status'=>config('constants.PAYMENT_STATUS_PENDING'),
                                      'is_quoted'=>1,
                                      'user_id'=>$user->id);
                  $booking->update($booking_data);
@@ -1383,9 +1429,29 @@ class WebserviceController extends Controller
 
             }else if($request->type=='is_rfq') 
             {             
-                $booking=$booking->where('is_rfq',1)->first();
+              $booking=$booking->where('is_rfq',1)->first();              
               if($booking)
-              {              
+              {                   
+                 $booking_user=array('user_id'=>$user->id,
+                                    // 'booking_id'=>
+                                     'requirement'=>$request->requirement,
+                                     'budget'=>$request->price,
+                                     'service_datetime'=>$request->service_datetime,
+                                     'status'=>config('constants.PAYMENT_STATUS_PENDING'),
+                                     'is_quoted'=>1,
+                                     );
+                 BookingUser::create($booking_user);
+                 if ($request->hasFile('works_photo'))
+                 {
+                   $files = $request->file('works_photo');
+                    foreach ($files as $file) 
+                    {
+                       $customname = time() . '.' . $file->getClientOriginalExtension();
+                       $booking->addMedia($file)
+                         ->usingFileName($customname)
+                         ->toMediaCollection('booking_works_photo');
+                    }
+                 }            
                  $response=array('status'=>true,'data'=>$booking->id,'message'=>'Job Quoted done');
               }else
               {
