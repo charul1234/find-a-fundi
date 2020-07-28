@@ -50,6 +50,6 @@ class Booking extends Model implements HasMedia
     */
     public function booking_user()
     {
-        return $this->belongsTo(BookingUser::class,'booking_id');
+        return $this->hasMany(BookingUser::class,'booking_id','id');
     }
 }
