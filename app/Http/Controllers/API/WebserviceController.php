@@ -1316,4 +1316,92 @@ class WebserviceController extends Controller
         }        
         return response()->json($response);
       }
+      /**
+     * API to make jobs quote for provider Id 
+     *
+     * @return [string] message
+     */
+    public function jobQuote(Request $request){ 
+        $user = Auth::user(); 
+        $data = $request->all(); 
+        $role_id =  config('constants.ROLE_TYPE_PROVIDER_ID');
+        $userdata=User::with(['roles'])->whereHas('roles', function($query) use ($role_id){
+              $query->where('id', $role_id);
+            })->where('id',$user->id)->first();        
+        if($userdata)
+        {          
+            $rules = [   
+                  'booking_id'=>'required', 
+                  'type'=>'required', 
+                  'requirement'=>'required', 
+                  'price'=>'required',
+                  'service_datetime'=>'required'       
+            ]; 
+            if(isset($request->type) && ($request->type=='is_rfq')) {          
+               $rules['user_id'] =  'required';   
+            }
+            $validator = Validator::make($data, $rules);
+            if ($validator->fails()) {
+                return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
+            }
+            $booking= Booking::where('id',$request->booking_id);
+            if($request->type=='is_package' || $request->type=='is_hourly')
+            {
+              if($request->type=='is_package')
+              {
+                  $booking=$booking->where('is_package',1);
+              }elseif($request->type=='is_hourly')
+              {
+                  $booking=$booking->where('is_hourly',1);
+              }
+              $booking=$booking->first();
+              if($booking)
+              {                 
+                 $booking_data=array('requirement'=>$request->requirement,
+                                     'budget'=>$request->price,
+                                     'service_datetime'=>$request->service_datetime,
+                                     'status'=>'pending',
+                                     'is_quoted'=>1,
+                                     'user_id'=>$user->id);
+                 $booking->update($booking_data);
+                 if ($request->hasFile('works_photo'))
+                 {
+                   $files = $request->file('works_photo');
+                    foreach ($files as $file) 
+                    {
+                       $customname = time() . '.' . $file->getClientOriginalExtension();
+                       $booking->addMedia($file)
+                         ->usingFileName($customname)
+                         ->toMediaCollection('booking_works_photo');
+                    }
+                 }
+                 $response=array('status'=>true,'data'=>$booking->id,'message'=>'Job Quoted done');
+              }else
+              {
+                 $response=array('status'=>false,'message'=>'no record found');
+              } 
+
+            }else if($request->type=='is_rfq') 
+            {             
+                $booking=$booking->where('is_rfq',1)->first();
+              if($booking)
+              {              
+                 $response=array('status'=>true,'data'=>$booking->id,'message'=>'Job Quoted done');
+              }else
+              {
+                $response=array('status'=>false,'message'=>'no record found');
+              } 
+            }else
+            {
+              $response=array('status'=>false,'message'=>'no record found');
+            }
+            
+                       
+        }else
+        {
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
+      }
+
 }
