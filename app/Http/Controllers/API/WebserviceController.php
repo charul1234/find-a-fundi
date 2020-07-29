@@ -917,9 +917,9 @@ class WebserviceController extends Controller
                                       'requested_id'=>$booking->requested_id,
                                       'categories'=>$categories,
                                       'subcategories'=>$subcategories,
-                                      'name'=>$booking->user->name,
-                                      'email'=>$booking->user->email,
-                                      'mobile_number'=>$booking->user->mobile_number,
+                                      'name'=>isset($booking->user->name)?$booking->user->name:'',
+                                      'email'=>isset($booking->user->email)?$booking->user->email:'',
+                                      'mobile_number'=>isset($booking->user->mobile_number)?$booking->user->mobile_number:'',
                                       'profile_picture'=>$profile_picture
                                       ); 
                  
