@@ -26,6 +26,7 @@
 		'SCREEN_NAME1' => 'screen1',
 		'SCREEN_NAME2' => 'screen2',
 		'PAYMENT_STATUS_REQUESTED' => 'requested',
+		'PAYMENT_STATUS_QUOTED' => 'quoted',
 		'PAYMENT_STATUS_ACCEPTED' => 'accepted',
 		'PAYMENT_STATUS_COMPLETED' => 'completed',
 		'PAYMENT_STATUS_DECLINED' => 'declined',

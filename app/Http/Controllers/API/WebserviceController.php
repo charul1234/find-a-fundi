@@ -975,7 +975,7 @@ class WebserviceController extends Controller
               $bookings=$bookings->where('status',config('constants.PAYMENT_STATUS_COMPLETED'));
             }elseif($type==config('constants.PAYMENT_STATUS_PENDING'))
             {
-              $bookings=$bookings->where('status',config('constants.PAYMENT_STATUS_PENDING'));
+              $bookings=$bookings->where('status',config('constants.PAYMENT_STATUS_QUOTED'));
             }elseif($type==config('constants.PAYMENT_STATUS_DECLINED'))
             {
               $bookings=$bookings->where('status',config('constants.PAYMENT_STATUS_DECLINED'));
@@ -991,7 +991,8 @@ class WebserviceController extends Controller
             }
             
             $start_limit=(isset($request->start_limit)?$request->start_limit:0)*$end_limit;
-            $bookings=$bookings->offset($start_limit)->limit($end_limit)->get();           
+            $bookings=$bookings->offset($start_limit)->limit($end_limit)->get();   
+
             //print_r($bookings->booking_user);
            if(count($bookings)>0)
            {
@@ -1045,7 +1046,7 @@ class WebserviceController extends Controller
                   {
                       $provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
                   }
-                }
+              }
                 $providerdata=User::with(['profile'])->where('id',$user->id)->first();
                 if($provider_latitude=='' || $provider_longitude=='' || $provider_radius=='')
                 {
@@ -1059,39 +1060,70 @@ class WebserviceController extends Controller
                 $Kilometer_distance=round($Kilometer_distance, 2);               
                 //echo $provider_location."-kk".$Kilometer_distance."-r".$provider_radius."-u".$provider_user_id."Id".$booking->id; echo "<br/>";
                 //echo  "Provider ra".$provider_radius."KK".$Kilometer_distance."B".$booking->id;echo "<br/>";
-
-                if($provider_radius!='null' && $provider_radius!='')
+                if($type==config('constants.PAYMENT_STATUS_REQUESTED'))
                 {
-                 if($provider_radius>=$Kilometer_distance)
-                  { 
-                       $bookingtype[$type][]=array(
-                                      'booking_id'=>$booking->id,
-                                      'type'=>$booking_type,
-                                      'category_id'=>$booking->category_id,
-                                      'user_id'=>$booking->user_id,
-                                      'title'=>$booking->title,
-                                      'description'=>$booking->description,
-                                      'location'=>$booking->location,
-                                      'latitude'=>$booking->latitude,
-                                      'longitude'=>$booking->longitude,
-                                      'budget'=>$booking->budget,
-                                      'is_rfq'=>$booking->is_rfq,
-                                      'request_for_quote_budget'=>$booking->request_for_quote_budget,
-                                      'is_hourly'=>$booking->is_hourly,
-                                      'min_budget'=>$booking->min_budget,
-                                      'max_budget'=>$booking->max_budget,
-                                      'datetime'=>$booking->datetime,
-                                      'requested_id'=>$booking->requested_id,
-                                      'categories'=>$categories,
-                                      'subcategories'=>$subcategories,
-                                      'status'=>$booking->status,
-                                      'name'=>$provider_name,
-                                      'email'=>$provider_email,
-                                      'mobile_number'=>$provider_mobile_number,
-                                      'profile_picture'=>$provider_profile_picture
-                                      );                
-                  }
-               }                
+                    if($provider_radius!='null' && $provider_radius!='')
+                    {
+                     if($provider_radius>=$Kilometer_distance)
+                      { 
+                           $bookingtype[$type][]=array(
+                                          'booking_id'=>$booking->id,
+                                          'type'=>$booking_type,
+                                          'category_id'=>$booking->category_id,
+                                          'user_id'=>$booking->user_id,
+                                          'title'=>$booking->title,
+                                          'description'=>$booking->description,
+                                          'location'=>$booking->location,
+                                          'latitude'=>$booking->latitude,
+                                          'longitude'=>$booking->longitude,
+                                          'budget'=>$booking->budget,
+                                          'is_rfq'=>$booking->is_rfq,
+                                          'request_for_quote_budget'=>$booking->request_for_quote_budget,
+                                          'is_hourly'=>$booking->is_hourly,
+                                          'min_budget'=>$booking->min_budget,
+                                          'max_budget'=>$booking->max_budget,
+                                          'datetime'=>$booking->datetime,
+                                          'requested_id'=>$booking->requested_id,
+                                          'categories'=>$categories,
+                                          'subcategories'=>$subcategories,
+                                          'status'=>$booking->status,
+                                          'name'=>$provider_name,
+                                          'email'=>$provider_email,
+                                          'mobile_number'=>$provider_mobile_number,
+                                          'profile_picture'=>$provider_profile_picture
+                                          );                
+                      }
+                   }     
+                }else
+                {
+                  $bookingtype[$type][]=array(
+                                          'booking_id'=>$booking->id,
+                                          'type'=>$booking_type,
+                                          'category_id'=>$booking->category_id,
+                                          'user_id'=>$booking->user_id,
+                                          'title'=>$booking->title,
+                                          'description'=>$booking->description,
+                                          'location'=>$booking->location,
+                                          'latitude'=>$booking->latitude,
+                                          'longitude'=>$booking->longitude,
+                                          'budget'=>$booking->budget,
+                                          'is_rfq'=>$booking->is_rfq,
+                                          'request_for_quote_budget'=>$booking->request_for_quote_budget,
+                                          'is_hourly'=>$booking->is_hourly,
+                                          'min_budget'=>$booking->min_budget,
+                                          'max_budget'=>$booking->max_budget,
+                                          'datetime'=>$booking->datetime,
+                                          'requested_id'=>$booking->requested_id,
+                                          'categories'=>$categories,
+                                          'subcategories'=>$subcategories,
+                                          'status'=>$booking->status,
+                                          'name'=>$provider_name,
+                                          'email'=>$provider_email,
+                                          'mobile_number'=>$provider_mobile_number,
+                                          'profile_picture'=>$provider_profile_picture
+                                          );    
+                }
+                              
              }
              $booking_data=$bookingtype;
            }
@@ -1488,27 +1520,24 @@ class WebserviceController extends Controller
                 return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
             }
             $booking= Booking::where('id',$request->booking_id);
-            if($request->type=='is_package' || $request->type=='is_hourly')
+            if($request->type=='is_hourly')
             {
               /*if($request->type=='is_package')
               {
                   $booking=$booking->where('is_package',1);
               }else*/
-              if($request->type=='is_hourly')
-              {
-                  $booking=$booking->where('is_hourly',1);
-              }
+              $booking=$booking->where('is_hourly',1);
               $booking=$booking->first();
               if($booking)
               {                 
                  $booking_data=array('requirement'=>$request->requirement,
                                      'budget'=>$request->price,
                                      'service_datetime'=>$request->service_datetime,
-                                     'status'=>config('constants.PAYMENT_STATUS_ACCEPTED'),
+                                     'status'=>config('constants.PAYMENT_STATUS_QUOTED'),
                                      'is_quoted'=>1,
                                      'user_id'=>$user->id,
                                      'comment'=>$request->comment);
-                 $booking->update($booking_data);
+                 $booking->update($booking_data);                 
                  if ($request->hasFile('works_photo'))
                  {
                    $files = $request->file('works_photo');
@@ -1532,34 +1561,38 @@ class WebserviceController extends Controller
               $booking=$booking->where('is_rfq',1)->first();              
               if($booking)
               {
-                 $bookingUser= BookingUser::where('id',$request->booking_id,'user_id',$user->id);
-                 print_r($bookingUser);die;                   
-                 $booking_user=array('user_id'=>$user->id,
-                                     'booking_id'=>$booking->id,
-                                     'is_rfq'=>1,
-                                     'budget'=>$request->price,
-                                     'service_datetime'=>$request->service_datetime,
-                                     'requirement'=>$request->requirement,  
-                                     'is_quoted'=>1,
-                                     'status'=>config('constants.PAYMENT_STATUS_ACCEPTED'),
-                                     'comment'=>$request->comment
-                                     );
-                 $booking_users=BookingUser::create($booking_user);
-                 if ($request->hasFile('works_photo'))
+                 $bookingUser= BookingUser::where(['booking_id'=>$request->booking_id,'user_id'=>$user->id])->first();
+                 if($bookingUser)
                  {
-                   $files = $request->file('works_photo');
-                    foreach ($files as $file) 
-                    {
-                       $customname = time() . '.' . $file->getClientOriginalExtension();
-                       $booking_users->addMedia($file)
-                         ->usingFileName($customname)
-                         ->toMediaCollection('booking_works_photo');
-                    }
-                 }            
-                 $response=array('status'=>true,'data'=>$booking->id,'message'=>'Job Quoted done');
+                   $booking_user=array('is_rfq'=>1,
+                                       'budget'=>$request->price,
+                                       'service_datetime'=>$request->service_datetime,
+                                       'requirement'=>$request->requirement,  
+                                       'is_quoted'=>1,
+                                       'status'=>config('constants.PAYMENT_STATUS_QUOTED'),
+                                       'comment'=>$request->comment
+                                       );
+                   $bookingUser->update($booking_user);
+                   if ($request->hasFile('works_photo'))
+                   {
+                     $files = $request->file('works_photo');
+                      foreach ($files as $file) 
+                      {
+                         $customname = time() . '.' . $file->getClientOriginalExtension();
+                         $booking_users->addMedia($file)
+                           ->usingFileName($customname)
+                           ->toMediaCollection('booking_works_photo');
+                      }
+                   } 
+                   $response=array('status'=>true,'data'=>$booking->id,'message'=>'Job Quoted done');
+                 }else
+                 {
+                   $response=array('status'=>false,'message'=>'no request found');
+                 }        
+                 
               }else
               {
-                $response=array('status'=>false,'message'=>'no record found');
+                   $response=array('status'=>false,'message'=>'no record found');
               } 
             }else
             {
