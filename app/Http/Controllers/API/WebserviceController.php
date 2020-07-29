@@ -827,7 +827,7 @@ class WebserviceController extends Controller
      *
      * @return [string] message
     */
-    public function getProvidersJob(Request $request){
+    public function getJob(Request $request){
         $user = Auth::user(); 
         $data = $request->all(); 
         $bookingdata=$booking_data=$bookings=$bookingtype=array();

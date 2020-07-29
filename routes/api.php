@@ -54,7 +54,8 @@ Route::group(['namespace'=>'API'], function(){
 		 Route::post('addProviderInfo', 'WebserviceController@addProviderInfo');
 		 Route::post('addProviderMoreInfo', 'WebserviceController@addProviderMoreInfo');
 		 Route::post('getUserProfile', 'WebserviceController@getUserProfile');
-		 Route::post('getProvidersJob', 'WebserviceController@getProvidersJob');
+		 //Route::post('getProvidersJob', 'WebserviceController@getProvidersJob');
+		 Route::post('getJob', 'WebserviceController@getJob');
 		 Route::post('getMyJobs', 'WebserviceController@getMyJobs');
 		 Route::post('getSeekerProfile', 'WebserviceController@getSeekerProfile');
 		 Route::post('getJobDetail', 'WebserviceController@getJobDetail');
