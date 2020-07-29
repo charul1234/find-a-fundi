@@ -284,6 +284,26 @@ class WebserviceController extends Controller
                     }
                 }
             } 
+            //if is_rfq type 
+           /* $is_rfq=isset($data['is_rfq'])?$data['is_rfq']:'';
+            if($subcategories!='')
+            {
+              $subcategories=explode(',',$subcategories);
+              if($is_rfq==1)
+              {
+                 $providers= User::with(['category_user','profile','hourly_charge','roles'])
+                  ->whereHas('profile', function($query) use ($is_rfq) {             
+                      $query->where('is_rfq',$is_rfq);                                 
+                  }) 
+                  ->whereHas('category_user', function($query) use ($subcategory_id) {
+                     $query->whereIn('category_id',$subcategory_id);
+                  });   
+                   $providers->whereHas('roles', function($query) use ($role_id) {
+                      $query->where('id', config('constants.ROLE_TYPE_PROVIDER_ID'));
+                  })->get();
+              }
+
+            }*/
             //need to send request or notification to all providers user that are belong to Lat long address.               
 
             $response=array('status'=>true,'booking'=>$booking->id,'message'=>'Send request saved successfully.');
@@ -823,14 +843,16 @@ class WebserviceController extends Controller
             }
 
             $end_limit =config('constants.DEFAULT_WEBSERVICE_PAGINATION_ENDLIMIT');
-            $bookings= Booking::with(['category','user','user.profile','subcategory'])->where(['requested_id'=>$user->id,'is_hourly'=>true]);
+            $bookings= Booking::with(['category','user','user.profile','subcategory'])->where(['requested_id'=>$user->id]);
             if($type==config('constants.PAYMENT_STATUS_PENDING'))
             { 
               //$bookings=$bookings->where('datetime','<',date('Y-m-d H:i:s'))->where('status'=>config('constants.PAYMENT_STATUS_ACCEPTED'));
-              $bookings=$bookings->where(array('status'=>config('constants.PAYMENT_STATUS_PENDING'),'is_quoted'=>true));
+              //$bookings=$bookings->where(array('status'=>config('constants.PAYMENT_STATUS_PENDING'),'is_quoted'=>true));
+              $bookings=$bookings->where('status',config('constants.PAYMENT_STATUS_REQUESTED'));
             }elseif($type==config('constants.PAYMENT_STATUS_REQUESTED'))
             {
-              $bookings=$bookings->where('status',config('constants.PAYMENT_STATUS_REQUESTED'));
+              //$bookings=$bookings->where('status',config('constants.PAYMENT_STATUS_REQUESTED'));
+              $bookings=$bookings->where('status',config('constants.PAYMENT_STATUS_ACCEPTED'));
             }elseif($type==config('constants.PAYMENT_STATUS_COMPLETED'))
             {
               $bookings=$bookings->where('status',config('constants.PAYMENT_STATUS_COMPLETED'));
@@ -1267,7 +1289,7 @@ class WebserviceController extends Controller
                   $age = (date('Y') - date('Y',strtotime($user_data->profile->dob)));          
                 }
                 $age=(string)$age;
-                unset($user_data['media']);  
+                unset($user_data['media']);   
                 $userData=array('user_id'=>$user_data->id,
                                      'name'=>$user_data->name,
                                      'email'=>$user_data->email,
@@ -1439,7 +1461,7 @@ class WebserviceController extends Controller
         return response()->json($response);
       }
       /**
-     * API to make jobs quote for provider Id 
+     * API to make jobs Quote for provider Id 
      *
      * @return [string] message
      */
@@ -1457,7 +1479,8 @@ class WebserviceController extends Controller
                   'type'=>'required', 
                   'requirement'=>'required', 
                   'price'=>'required',
-                  'service_datetime'=>'required'       
+                  'service_datetime'=>'required',  
+                  'comment'=>'nullable'      
             ]; 
             
             $validator = Validator::make($data, $rules);
@@ -1467,10 +1490,11 @@ class WebserviceController extends Controller
             $booking= Booking::where('id',$request->booking_id);
             if($request->type=='is_package' || $request->type=='is_hourly')
             {
-              if($request->type=='is_package')
+              /*if($request->type=='is_package')
               {
                   $booking=$booking->where('is_package',1);
-              }elseif($request->type=='is_hourly')
+              }else*/
+              if($request->type=='is_hourly')
               {
                   $booking=$booking->where('is_hourly',1);
               }
@@ -1480,9 +1504,10 @@ class WebserviceController extends Controller
                  $booking_data=array('requirement'=>$request->requirement,
                                      'budget'=>$request->price,
                                      'service_datetime'=>$request->service_datetime,
-                                     'status'=>config('constants.PAYMENT_STATUS_PENDING'),
+                                     'status'=>config('constants.PAYMENT_STATUS_ACCEPTED'),
                                      'is_quoted'=>1,
-                                     'user_id'=>$user->id);
+                                     'user_id'=>$user->id,
+                                     'comment'=>$request->comment);
                  $booking->update($booking_data);
                  if ($request->hasFile('works_photo'))
                  {
@@ -1495,6 +1520,7 @@ class WebserviceController extends Controller
                          ->toMediaCollection('booking_works_photo');
                     }
                  }
+                 //send notification to seeker job accepted by provider
                  $response=array('status'=>true,'data'=>$booking->id,'message'=>'Job Quoted done');
               }else
               {
@@ -1505,7 +1531,9 @@ class WebserviceController extends Controller
             {             
               $booking=$booking->where('is_rfq',1)->first();              
               if($booking)
-              {                   
+              {
+                 $bookingUser= BookingUser::where('id',$request->booking_id,'user_id',$user->id);
+                 print_r($bookingUser);die;                   
                  $booking_user=array('user_id'=>$user->id,
                                      'booking_id'=>$booking->id,
                                      'is_rfq'=>1,
@@ -1513,7 +1541,8 @@ class WebserviceController extends Controller
                                      'service_datetime'=>$request->service_datetime,
                                      'requirement'=>$request->requirement,  
                                      'is_quoted'=>1,
-                                     'status'=>config('constants.PAYMENT_STATUS_PENDING')
+                                     'status'=>config('constants.PAYMENT_STATUS_ACCEPTED'),
+                                     'comment'=>$request->comment
                                      );
                  $booking_users=BookingUser::create($booking_user);
                  if ($request->hasFile('works_photo'))
@@ -1544,5 +1573,6 @@ class WebserviceController extends Controller
         }        
         return response()->json($response);
       }
+     
 
 }
