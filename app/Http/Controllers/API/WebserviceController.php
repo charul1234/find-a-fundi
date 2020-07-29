@@ -1231,7 +1231,7 @@ class WebserviceController extends Controller
             {
               $booking=$booking->first();
             }  */ 
-            echo $user->id;
+            //echo $user->id;
             $boking_id=isset($request->booking_id)?$request->booking_id:'';
             $booking=$booking->where('id',$boking_id)->first();
             
@@ -1268,7 +1268,6 @@ class WebserviceController extends Controller
                 }
                 $age=(string)$age;
                 unset($user_data['media']);  
-                print_r($booking->id);
                 $userData=array('user_id'=>$user_data->id,
                                      'name'=>$user_data->name,
                                      'email'=>$user_data->email,
