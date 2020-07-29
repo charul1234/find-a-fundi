@@ -1207,7 +1207,7 @@ class WebserviceController extends Controller
             if ($validator->fails()) {
                 return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
             }
-            $booking= Booking::where('id',$request->booking_id)->first(); //echo $booking->id;
+            $booking= Booking::where('id',$request->booking_id)->first(); 
             $is_rfq=isset($booking->is_rfq)?$booking->is_rfq:0; 
             if(($user->roles->first()->id==config('constants.ROLE_TYPE_PROVIDER_ID')) && ($is_rfq==0))
                 { 
@@ -1216,18 +1216,31 @@ class WebserviceController extends Controller
                 {
                   $booking=$booking->where('requested_id',$userdata->id);
                 }
-                else if($is_rfq==1)
+
+                /*else if($is_rfq==1)
                 {
                   $booking=$booking;
-                }
-               
-            $booking=$booking->first();
+                }*/
+           //     echo $booking->id;
+           //$booking=$booking->first();
+           /* $boking_id=isset($booking->id)?$booking->id:'';
+            if($boking_id)
+            {
+              $booking=$booking->where('id',$boking_id)->first();
+            }else
+            {
+              $booking=$booking->first();
+            }  */ 
+            echo $user->id;
+            $boking_id=isset($request->booking_id)?$request->booking_id:'';
+            $booking=$booking->where('id',$boking_id)->first();
             
+           
            if($booking)
             {
               if($is_rfq==0)
               {
-                $user_data=User::with('profile');
+                $user_data=User::with('profile','media');
                 if($user->roles->first()->id==config('constants.ROLE_TYPE_PROVIDER_ID'))
                 {
                   $user_requested_id=$booking->requested_id;
@@ -1255,6 +1268,7 @@ class WebserviceController extends Controller
                 }
                 $age=(string)$age;
                 unset($user_data['media']);  
+                print_r($booking->id);
                 $userData=array('user_id'=>$user_data->id,
                                      'name'=>$user_data->name,
                                      'email'=>$user_data->email,
