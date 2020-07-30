@@ -281,24 +281,46 @@ class AuthController extends Controller
      * @return [string] message
      */
     public function updateProfile(Request $request){
-        $user = Auth::user();
+        $user = Auth::user(); 
+        if($user)
+        {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required',
+                'location'=>'required',
+                'latitude'=>'required',
+                'longitude'=>'required',
+                'profile_picture' => 'image'
+            ]);
 
-        $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'email' => 'required|email|unique:'.with(new User)->getTable().',email,'.$user->getKey(),
-            'profile_picture' => 'image'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['status'=>FALSE, 'message'=>$validator->errors()->first()]);
-        }
-
-        $data = $request->all();
-        $user->update($data);
-
-        $response['status'] = TRUE;  
-        $response['user'] = $user->getUserDetail();
-        $response['message'] = "Profile updated Successfully.";
+            if ($validator->fails()) {
+                return response()->json(['status'=>FALSE, 'message'=>$validator->errors()->first()]);
+            }
+            $data = $request->all();
+            if ($request->hasFile('profile_picture'))
+            {
+                    $file = $request->file('profile_picture');
+                    $customimagename  = time() . '.' . $file->getClientOriginalExtension();
+                    $user->addMedia($file)->toMediaCollection('profile_picture');
+            }
+            $user_data=array('name'=>$data['name']);   
+            $user->update($user_data);
+            $user_id=$user->id;
+            if(intval($user_id) > 0)
+            {
+                $profile_data=array('work_address'=>$data['location'],
+                                    'latitude'=>$data['latitude'],
+                                    'longitude'=>$data['longitude']);
+                $user->profiles()->update($profile_data);
+            }
+            $userDetails=$user->getUserDetail();
+            unset($userDetails['media']);
+            $response['status'] = TRUE;  
+            $response['user'] = $userDetails;//$user->getUserDetail();
+            $response['message'] = "Profile updated Successfully.";
+        }else
+        {
+                $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+        }        
         return response()->json($response);
     }
     /** 
