@@ -172,7 +172,7 @@ class AuthController extends Controller
             )->toDateTimeString();
             return response()->json($response); 
         }else{
-            return response()->json(['status'=>FALSE, 'message'=>trans('auth.failed')]); 
+            return response()->json(['status'=>FALSE, 'message'=>'Invalid credentials.']); 
         }
     }
 
