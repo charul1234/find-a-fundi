@@ -305,11 +305,13 @@ class AuthController extends Controller
             $user_data=array('name'=>$data['name']);   
             $user->update($user_data);
             $user_id=$user->id;
+            $display_seeker_reviews=isset($data['display_seeker_reviews'])?$data['display_seeker_reviews']:0;
             if(intval($user_id) > 0)
             {
                 $profile_data=array('work_address'=>$data['location'],
                                     'latitude'=>$data['latitude'],
-                                    'longitude'=>$data['longitude']);
+                                    'longitude'=>$data['longitude'],
+                                    'display_seeker_reviews'=>$display_seeker_reviews);
                 $user->profiles()->update($profile_data);
             }
             $userDetails=$user->getUserDetail();
