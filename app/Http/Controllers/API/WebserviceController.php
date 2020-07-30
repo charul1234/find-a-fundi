@@ -829,7 +829,7 @@ class WebserviceController extends Controller
      * @return [string] message
     */
     public function getJob(Request $request){
-        $user = Auth::user(); 
+        $user = Auth::user(); //echo $user->id;
         $data = $request->all(); 
         $bookingdata=$booking_data=$bookings=$bookingtype=array();
         $type=isset($request->type)?$request->type:'';
@@ -1132,14 +1132,12 @@ class WebserviceController extends Controller
             {
               $response=array('status'=>true,'bookingdata'=>$booking_data,'message'=>'record found');
             }else
-            {
-              $booking_data[$type]=$bookingtype;
+            {             
               $response=array('status'=>false,'message'=>'no record found');
             }
             
         }else
-        {
-            $booking_data[$type]=$bookingtype;
+        {            
             $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
         }        
         return response()->json($response);

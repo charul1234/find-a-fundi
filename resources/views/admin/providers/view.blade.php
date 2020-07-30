@@ -287,11 +287,24 @@
                         <tr>
                           <td> {{isset($value->title)?ucwords($value->title):''}}</td>
                           <td>{{isset($value->type)?ucwords($value->type):''}}</td>
-                          <td>@if(isset($value) && $value->getMedia('document')->count() > 0 && file_exists($value->getFirstMedia('document')->getPath()))  
-                     <!--   <img width="50" src="{{ $value->getFirstMedia('document')->getFullUrl() }}" /> -->
-                       <a download href="{{ $value->getFirstMedia('document')->getFullUrl() }}" target="_blank"><i class="fa fa-download" aria-hidden="true"></i></a>
-                    
-                    @endif</td>
+                          <td>
+                           <?php if($value->type=='certification'){ ?>
+                          @if(isset($value) && $value->getMedia('certification')->count() > 0 && file_exists($value->getFirstMedia('certification')->getPath()))                      
+                               <a download href="{{ $value->getFirstMedia('certification')->getFullUrl() }}" target="_blank"><i class="fa fa-download" aria-hidden="true"></i></a>                    
+                          @endif
+
+                          <?php }elseif ($value->type=='diploma') {?>
+                              @if(isset($value) && $value->getMedia('diploma')->count() > 0 && file_exists($value->getFirstMedia('diploma')->getPath()))                      
+                                   <a download href="{{ $value->getFirstMedia('diploma')->getFullUrl() }}" target="_blank"><i class="fa fa-download" aria-hidden="true"></i></a>                    
+                          @endif
+                           
+                          <?php }elseif ($value->type=='degree') {?>
+                           @if(isset($value) && $value->getMedia('degree')->count() > 0 && file_exists($value->getFirstMedia('degree')->getPath()))                      
+                                   <a download href="{{ $value->getFirstMedia('degree')->getFullUrl() }}" target="_blank"><i class="fa fa-download" aria-hidden="true"></i></a>                    
+                            @endif
+                                 
+                          <?php      } ?>
+                         </td>
                         </tr>     
                     <?php
                
