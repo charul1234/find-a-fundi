@@ -23,7 +23,7 @@
                     <thead>
                         <tr>                          
                           <th>Name</th>                          
-                          <th>Category Name</th>
+                          <th>Category - Subcategory Name</th>
                           <!-- <th>Image</th> -->
                           <th>Duration</th>
                           <th>Created Date/Time</th>
@@ -34,7 +34,7 @@
                     <tfoot>
                         <tr>                          
                           <th>Name</th>                          
-                          <th>Category Name</th>
+                          <th>Category - Subcategory Name</th>
                           <!-- <th>Image</th> -->
                           <th>Duration</th>
                           <th>Created Date/Time</th>

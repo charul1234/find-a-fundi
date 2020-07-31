@@ -947,7 +947,7 @@ class WebserviceController extends Controller
      * @return [string] message
     */
     public function getMyJobs(Request $request){
-        $user = Auth::user(); 
+        $user = Auth::user();
         $data = $request->all(); 
         $bookingdata=$booking_data=$bookings=$bookingtype=array();
         $type=isset($request->type)?$request->type:'';

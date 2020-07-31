@@ -13,7 +13,7 @@
         </div>
         <div class="card-body">
 
-            <div class="form-group {{$errors->has('category_id') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+           <!-- <div class="form-group {{$errors->has('category_id') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
                 <label class="col-md-3 control-label" for="category_id">Category <span style="color:red">*</span></label>
                 <div class="col-md-9">
                     {!! Form::select('category_id', $categories, old('category_id'), ['id'=>'category_id', 'class' => 'form-control', 'placeholder' => 'Select Category']) !!}
@@ -21,6 +21,30 @@
                     <strong for="category_id" class="help-block">{{ $errors->first('category_id') }}</strong>
                     @endif
                 </div>
+            </div> -->
+            <div class="form-group {{$errors->has('category_id') ? ' has-error' : ''}}">
+                    <label class="col-md-3 control-label" for="destination_id">Category <span style="color:red">*</span></label>
+                    <div class="col-md-9">
+                        {!! Form::select('category_id', $categories, old('category_id'), ['id'=>'category_id', 'class' => 'form-control', 'placeholder' => 'Select Category']) !!}
+
+                        @if($errors->has('category_id'))
+                        <p class="help-block">
+                            <strong>{{ $errors->first('category_id') }}</strong>
+                        </p>
+                        @endif
+                    </div>
+            </div>
+            <div class="form-group {{$errors->has('subcategory_id') ? ' has-error' : ''}}">
+                    <label class="col-md-3 control-label" for="subcategory_id">Sub Category <span style="color:red">*</span></label>
+                    <div class="col-md-9">
+                        {!! Form::select('subcategory_id', [], old('subcategory_id'), ['id'=>'subcategory_id', 'class' => 'form-control', 'placeholder' => 'Select Sub Category']) !!}
+
+                        @if($errors->has('subcategory_id'))
+                        <p class="help-block">
+                            <strong>{{ $errors->first('subcategory_id') }}</strong>
+                        </p>
+                        @endif
+                    </div>
             </div>
 
             <div class="form-group {{$errors->has('title') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
@@ -91,6 +115,9 @@ jQuery(document).ready(function(){
             category_id:{
                 required: true
             },
+            subcategory_id:{
+                required: true
+            },
             title:{
                 required: true
             },
@@ -107,6 +134,13 @@ jQuery(document).ready(function(){
             }
         }
     });
+    $('select[name=category_id]').change(function() {
+        var category_id = $(this).val();
+        jQuery.post("{{ route('admin.packages.getSubCategories') }}",{'category_id':category_id},function(response){
+            $('#subcategory_id').html('');
+            $('#subcategory_id').html(response.subcategories);
+        })
+    }).trigger('change');
 });
 </script>
 @endsection

@@ -276,7 +276,7 @@ class AuthController extends Controller
     }
 
     /**
-     * update user
+     * update seeker profile
      *
      * @return [string] message
      */
@@ -499,5 +499,88 @@ class AuthController extends Controller
             $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
         }        
         return response()->json($response); 
+    }
+    /**
+     * update Provider's profile 
+     *
+     * @return [string] message
+     */
+    public function updateProviderProfile(Request $request){
+        $user = Auth::user(); 
+        $role_id=config('constants.ROLE_TYPE_PROVIDER_ID');
+        $provider=User::with(['profile','roles'])->whereHas('roles', function($query) use ($role_id) {
+                $query->where('id', config('constants.ROLE_TYPE_PROVIDER_ID'));
+            })->where('id',$user->id)->first();
+        if($provider)
+        {
+              
+            $validator = Validator::make($request->all(), [
+                'name' => 'required',
+                'location'=>'required',
+                'latitude'=>'required',
+                'longitude'=>'required',
+                'radius'=>'required',
+                'profile_picture' => 'image'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['status'=>FALSE, 'message'=>$validator->errors()->first()]);
+            }
+            $data = $request->all();
+            if ($request->hasFile('profile_picture'))
+            {
+                $file = $request->file('profile_picture');
+                $customimagename  = time() . '.' . $file->getClientOriginalExtension();
+                $provider->addMedia($file)->toMediaCollection('profile_picture');
+            }
+            $user_data=array('name'=>$data['name']);   
+            $provider->update($user_data);
+            $user_id=$provider->id;
+            $radius=isset($data['radius'])?$data['radius']:'';
+            if(intval($user_id) > 0)
+            {
+                $profile_data=array('work_address'=>$data['location'],
+                                    'latitude'=>$data['latitude'],
+                                    'longitude'=>$data['longitude'],
+                                    'radius'=>$radius);
+                $provider->profiles()->update($profile_data);
+            }
+            
+            //
+            $provider_data=User::with(['profile'])->where('id',$provider->id)->first();
+            $profile_picture='';                            
+            if(isset($provider_data) && $provider_data->getMedia('profile_picture')->count() > 0 && file_exists($provider_data->getFirstMedia('profile_picture')->getPath()))
+            {
+               $profile_picture=$provider_data->getFirstMedia('profile_picture')->getFullUrl();
+            }else
+            {
+              $profile_picture= asset(config('constants.NO_IMAGE_URL'));          
+            }
+            //$userDetails=$provider->getUserDetail();
+            
+            $userDetails=array('name'=>$provider_data->name, 
+                               'email'=>$provider_data->email,
+                               'profile_picture'=>$profile_picture,
+                               'mobile_number'=>$provider_data->mobile_number,
+                               'is_active'=>$provider_data->is_active,
+                               'screen_name'=>$provider_data->screen_name,
+                               'is_verify'=>$provider_data->is_verify,
+                               'is_mobile_verify'=>$provider_data->is_mobile_verify,
+                               'is_email_verify'=>$provider_data->is_email_verify,
+                               'device_type'=>$provider_data->device_type,
+                               'device_token'=>$provider_data->device_token,
+                               'work_address'=>$provider_data->profile->work_address,
+                               'latitude'=>$provider_data->profile->latitude,
+                               'longitude'=>$provider_data->profile->longitude,
+                               'radius'=>$provider_data->profile->radius);
+            //unset($userDetails['media']);
+            $response['status'] = TRUE;  
+            $response['user'] = $userDetails;//$user->getUserDetail();
+            $response['message'] = "Profile updated Successfully.";
+        }else
+        {
+                $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
     }
 }

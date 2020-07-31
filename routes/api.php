@@ -31,6 +31,7 @@ Route::group(['namespace'=>'API'], function(){
 		    Route::post('updateProfile', 'AuthController@updateProfile');
 		    Route::post('mobileVerify', 'AuthController@mobileVerify');
 		    Route::post('emailVerify', 'AuthController@emailVerify');
+		    Route::post('updateProviderProfile', 'AuthController@updateProviderProfile');
 		    
 		});
 	});

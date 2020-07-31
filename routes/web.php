@@ -51,6 +51,7 @@ Route::group(['middleware' => ['auth']], function(){
 			]);
 			Route::post('packages/getPackages', 'PackagesController@getPackages')->name('packages.getPackages');
 			Route::get('packages/status/{package_id}', 'PackagesController@status')->name('packages.status');
+			Route::post('packages/getSubCategories', 'PackagesController@getSubCategories')->name('packages.getSubCategories');
 			/*countries*/
 			Route::resources([
 				'countries' => 'CountriesController',

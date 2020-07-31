@@ -42,8 +42,14 @@ class PackagesController extends Controller
                 $keyword = strtolower($keyword);
                 $query->whereRaw("LOWER(DATE_FORMAT(created_at,'".config('constants.MYSQL_DATETIME_FORMAT')."')) like ?", ["%$keyword%"]);
             })
+            ->editColumn('title', function ($package) {
+                return isset($package->title)?ucwords($package->title):'';
+            })
             ->editColumn('category.title', function ($package) {
-                return isset($package->category->title)?$package->category->title:'';
+                $category_title= isset($package->category->title)?ucwords($package->category->title):'';
+                $parent_category_name=Category::where(array('is_active'=>TRUE,'id'=>$package->category->parent_id))->orderBy('title','ASC')->first();
+                $parent_category_title= isset($parent_category_name->title)?ucwords($parent_category_name->title):'';
+                return $parent_category_title.' - '.$category_title;
             })
             ->filterColumn('category.title', function ($query, $keyword) {
                 $keyword = strtolower($keyword);
@@ -90,7 +96,9 @@ class PackagesController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create(){
-        $categories = Category::where('is_active',TRUE)->get()->pluck('title','id');
+        $categories = Category::where(array('is_active'=>TRUE,'parent_id'=>0))->orderBy('title','ASC')->get()->pluck('title','id')->map(function($value, $key){
+          return ucwords($value);
+        });        
         return view('admin.packages.create', compact('categories'));
     }
 
@@ -103,6 +111,7 @@ class PackagesController extends Controller
     public function store(Request $request){
         $rules = [ 
             'category_id'       => 'required', 
+            'subcategory_id'    => 'required',
             'title'             => 'required', 
             'duration'          => 'required',
             'image.*'=>[
@@ -114,7 +123,12 @@ class PackagesController extends Controller
         $validator = Validator::make($request->all(), $rules);
         if ($validator->passes()) {
             $data = $request->all();
-            $package = Package::create($data);
+            $package_data=array('category_id'=>$data['subcategory_id'],
+                                'title'=>$data['title'],
+                                'duration'=>$data['duration'],
+                                'description'=>$data['description'],
+                                'is_active'=>1);
+            $package = Package::create($package_data);
             if ($request->hasFile('image')){
                  $files = $request->file('image');
                   foreach ($files as $file) {
@@ -149,8 +163,13 @@ class PackagesController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit(Package $package){
-        $categories = Category::get()->pluck('title','id');
-        return view('admin.packages.edit',compact('package','categories'));
+        $categories = Category::where(array('is_active'=>TRUE,'parent_id'=>0))->orderBy('title','ASC')->get()->pluck('title','id')->map(function($value, $key){
+          return ucwords($value);
+        });        ;
+        $subcategory_id=$package->category_id;
+        $parent_category_id= Category::where(array('is_active'=>TRUE,'id'=>$subcategory_id))->first();
+        $parent_id=isset($parent_category_id->parent_id)?$parent_category_id->parent_id:'';
+        return view('admin.packages.edit',compact('package','categories','parent_id'));
     }
 
     /**
@@ -163,6 +182,7 @@ class PackagesController extends Controller
     public function update(Request $request, Package $package){
         $rules = [
             'category_id'       => 'required', 
+            'subcategory_id'    => 'required',
             'title'             => 'required', 
             'duration'          => 'required',
             'image.*'=>[
@@ -173,7 +193,11 @@ class PackagesController extends Controller
         $validator = Validator::make($request->all(), $rules);
         if ($validator->passes()) {
             $data = $request->all();
-            $package->update($data);
+            $package_data=array('category_id'=>$data['subcategory_id'],
+                                'title'=>$data['title'],
+                                'duration'=>$data['duration'],
+                                'description'=>$data['description']);
+            $package->update($package_data);
 
             if ($request->hasFile('image')){
                  $files = $request->file('image');
@@ -238,5 +262,32 @@ class PackagesController extends Controller
       $package->delete();
       session()->flash('danger',__('global.messages.delete'));
       return redirect()->route('admin.packages.index');
+    }
+    /**
+     * For get subcategories with category and return json
+     *
+     * @return \Illuminate\Http\Response
+    */
+    public function getSubCategories(Request $request){
+        $category_id = intval($request->input('category_id'));
+        $subcategory_id = intval($request->input('subcategory_id'));
+        $single_drop = $request->input('single_drop');
+        $subcategorieshtml ='';
+        if($single_drop==TRUE){
+            $subcategorieshtml ='<option value="">Select Sub Category</option>';
+        }
+        
+        if($category_id > 0){
+            $categories = Category::where(['is_active'=>TRUE,'parent_id'=>$category_id])->orderBy('title','ASC')->pluck('title', 'id')->map(function($value, $key){
+                  return ucwords($value);
+                });        
+            if($categories->count() > 0){
+                foreach ($categories as $id => $title) {
+                    $selected = ($subcategory_id==$id)?'selected':'';
+                    $subcategorieshtml .= '<option value="'.$id.'" '.$selected.'>'.ucwords($title).'</option>';
+                }
+            }
+        }        
+        return response()->json(['subcategories'=>$subcategorieshtml]);
     }
 }
