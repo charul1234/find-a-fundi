@@ -947,7 +947,7 @@ class WebserviceController extends Controller
      * @return [string] message
     */
     public function getMyJobs(Request $request){
-        $user = Auth::user();
+        $user = Auth::user(); echo $user->id;
         $data = $request->all(); 
         $bookingdata=$booking_data=$bookings=$bookingtype=array();
         $type=isset($request->type)?$request->type:'';
@@ -963,7 +963,7 @@ class WebserviceController extends Controller
             //echo $user->id;
             $end_limit =config('constants.DEFAULT_WEBSERVICE_PAGINATION_ENDLIMIT');
             $bookings= Booking::with(['category','user','user.profile','subcategory']);//,'booking_user'
-
+            
             
             if($type==config('constants.PAYMENT_STATUS_REQUESTED'))
             {
@@ -987,16 +987,15 @@ class WebserviceController extends Controller
             $bookings=$bookings->orderBy('datetime','desc');
             if($user->id!='')
             {
-              
-              $bookings->whereRaw("(user_id= '$user->id' OR user_id=0)");
+              //$bookings=$bookings->where('user_id',$user->id);              
+              $bookings->whereRaw("(user_id=0 OR user_id=$user->id) and (is_hourly=1 OR is_package=1 OR is_rfq=1)");
             }
-            
+            //$bookings=$bookings->where(['is_hourly'=>1,'is_package'=>1]);            
             $start_limit=(isset($request->start_limit)?$request->start_limit:0)*$end_limit;
             $bookings=$bookings->offset($start_limit)->limit($end_limit)->get();   
-
-            //print_r($bookings->booking_user);
-           if(count($bookings)>0)
-           {
+            
+            if(count($bookings)>0)
+            {
             foreach ($bookings as $key => $booking) 
              {  
               $subcategories=$categories=array();   
@@ -1521,10 +1520,6 @@ class WebserviceController extends Controller
             $booking= Booking::where('id',$request->booking_id);
             if($request->type=='is_hourly')
             {
-              /*if($request->type=='is_package')
-              {
-                  $booking=$booking->where('is_package',1);
-              }else*/
               $booking=$booking->where('is_hourly',1);
               $booking=$booking->first();
               if($booking)
@@ -1549,21 +1544,57 @@ class WebserviceController extends Controller
                     }
                  }
                  //send notification to seeker job accepted by provider
-                 $response=array('status'=>true,'data'=>$booking->id,'message'=>'Job Quoted done');
+                 $response=array('status'=>true,'message'=>'Job Quoted done');
+              }else
+              {
+                 $response=array('status'=>false,'message'=>'no record found');
+              } 
+
+            }else if($request->type=='is_package')
+            {
+              $booking=$booking->where('is_package',1);
+              $booking=$booking->first();
+              if($booking)
+              {                 
+                 $booking_data=array('requirement'=>$request->requirement,
+                                     'budget'=>$request->price,
+                                     'service_datetime'=>$request->service_datetime,
+                                     'status'=>config('constants.PAYMENT_STATUS_QUOTED'),
+                                     'is_quoted'=>1,
+                                     'user_id'=>$user->id,
+                                     'comment'=>$request->comment);
+                 $booking->update($booking_data);                 
+                 if ($request->hasFile('works_photo'))
+                 {
+                   $files = $request->file('works_photo');
+                    foreach ($files as $file) 
+                    {
+                       $customname = time() . '.' . $file->getClientOriginalExtension();
+                       $booking->addMedia($file)
+                         ->usingFileName($customname)
+                         ->toMediaCollection('booking_works_photo');
+                    }
+                 }
+                 //send notification to seeker job accepted by provider
+                 $response=array('status'=>true,'message'=>'Job Quoted done');
               }else
               {
                  $response=array('status'=>false,'message'=>'no record found');
               } 
 
             }else if($request->type=='is_rfq') 
-            {             
-              $booking=$booking->where('is_rfq',1)->first();              
-              if($booking)
-              {
-                 $bookingUser= BookingUser::where(['booking_id'=>$request->booking_id,'user_id'=>$user->id])->first();
-                 if($bookingUser)
-                 {
-                   $booking_user=array('is_rfq'=>1,
+            {  
+              $booking=$booking->where('is_rfq',1);
+              $booking=$booking->first();           
+              //$booking=$booking->where('is_rfq',1)->first();              
+              /*if($booking)
+              {*/
+                 //$bookingUser= BookingUser::where(['booking_id'=>$request->booking_id,'user_id'=>$user->id])->first();
+                 /*if($bookingUser)
+                 {*/
+                   $booking_user=array('booking_id'=>$request->booking_id,
+                                       'user_id'=>$user->id,
+                                       'is_rfq'=>1,
                                        'budget'=>$request->price,
                                        'service_datetime'=>$request->service_datetime,
                                        'requirement'=>$request->requirement,  
@@ -1571,31 +1602,25 @@ class WebserviceController extends Controller
                                        'status'=>config('constants.PAYMENT_STATUS_QUOTED'),
                                        'comment'=>$request->comment
                                        );
-                   $bookingUser->update($booking_user);
+                   $booking_userdata=BookingUser::create($booking_user);
                    if ($request->hasFile('works_photo'))
                    {
                      $files = $request->file('works_photo');
                       foreach ($files as $file) 
                       {
                          $customname = time() . '.' . $file->getClientOriginalExtension();
-                         $booking_users->addMedia($file)
+                         $booking_userdata->addMedia($file)
                            ->usingFileName($customname)
                            ->toMediaCollection('booking_works_photo');
                       }
                    } 
-                   $response=array('status'=>true,'data'=>$booking->id,'message'=>'Job Quoted done');
-                 }else
-                 {
-                   $response=array('status'=>false,'message'=>'no request found');
-                 }        
+                   $response=array('status'=>true,'message'=>'Job Quoted done');
+                // }      
                  
-              }else
+              /*}else
               {
                    $response=array('status'=>false,'message'=>'no record found');
-              } 
-            }else
-            {
-              $response=array('status'=>false,'message'=>'no record found');
+              } */
             }
             
                        

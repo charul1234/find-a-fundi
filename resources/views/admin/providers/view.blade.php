@@ -28,8 +28,34 @@
                     </div>
                     <div class="form-group">
                         <label class="col-form-label"><strong>Email :</strong> {{ isset($user->email)?$user->email:'' }}</label>
-                    </div>          
-                      <div class="row">
+                    </div>  
+
+              <div class="form-group">
+                <label class="col-form-label"><strong>Category - Subcategory:</strong>
+                  <?php
+                      if(count($user->category_user)>0)
+                        {
+                          foreach ($user->category_user as $key => $providerdata) 
+                          {
+                            if($providerdata->category->parent_id==0)
+                            {
+                              echo isset($providerdata->category->title)?$providerdata->category->title:'';
+                              echo " - "; 
+                            }
+                            if($providerdata->category->parent_id!=0)
+                            {
+                               if(isset($providerdata->category->title) && $providerdata->category->title!='')
+                               {                              
+                                  echo $subcategory_name= $providerdata->category->title; echo ",";
+                               }    
+                            }
+                           
+                         }  
+                         
+                        }  
+                  ?>      
+               </div>                        
+              <div class="row">
                     <div class="col-md-12">
                        <div class="">
         <h6 class="ml-0 font-weight-bold text-primary">Declarations</h6>
@@ -89,16 +115,20 @@
                       <div class="col-md-6">
                          <div class="form-group">
                         <label class="col-form-label"><strong>Address :</strong> <?php echo isset($user->profile->work_address)?ucwords($user->profile->work_address):'';?>   </label>
-                    </div>   
+                    </div>  
+                    <div class="form-group">
+                        <label class="col-form-label"><strong>Radius : </strong> <?php echo isset($user->profile->radius)?ucwords($user->profile->radius):'';?>   </label>
+                    </div> 
                     <div class="form-group">
                         <label class="col-form-label"><strong>DOB : </strong>{{ isset($user->profile->dob)?date(config('constants.DATE_FORMAT'),strtotime($user->profile->dob)):'' }} </label>
                     </div>
                        <div class="form-group">
-                        <label class="col-form-label"><strong>Experience Level :  </strong>{{ isset($user->profile->experience_level->title)?ucwords($user->profile->experience_level->title):'' }} </label>
+                      <!--   <label class="col-form-label"><strong>Experience Level :  </strong>{{ isset($user->profile->experience_level->title)?ucwords($user->profile->experience_level->title):'' }} </label> -->
+                       <label class="col-form-label"><strong>Year experience :  </strong>{{ isset($user->profile->year_experience)?ucwords($user->profile->year_experience):'' }} </label> 
                     </div> 
-                     <div class="form-group">
+                    <!--  <div class="form-group">
                         <label class="col-form-label"><strong>Payment Option : </strong> {{ isset($user->profile->payment_option->title)?ucwords($user->profile->payment_option->title):'' }} </label>
-                    </div> 
+                    </div>  -->
                    <!--  <div class="form-group">
                         <label class="col-form-label">Additional Work : 
                        <?php 
@@ -114,16 +144,42 @@
                     <!-- <div class="form-group">
                         <label class="col-form-label">Price : {{isset($user->profile->price)?config('constants.DEFAULT_CURRENCY_SYMBOL').ucwords($user->profile->price):''}} </label>
                     </div>  -->
-                    <div class="form-group">
-                        <label class="col-form-label"><strong>Radius : </strong> <?php echo isset($user->profile->radius)?ucwords($user->profile->radius):'';?>   </label>
-                    </div> 
+                     
                     <div class="form-group">
                         <label class="col-form-label"><strong>Passport Number :  </strong><?php echo isset($user->profile->passport_number)?ucwords($user->profile->passport_number):'';?>   </label>
                     </div> 
                      <div class="form-group">
                         <label class="col-form-label"><strong>Registered Date Time :  </strong>{{ date(config('constants.DATETIME_FORMAT'),strtotime($user->created_at)) }} </label>
                     </div>
-                      </div>
+                      <h6 class="ml-0 font-weight-bold text-primary">Social Url</h6>
+                       <div class="form-group">
+                          <label class="col-form-label"><strong>Facebook :  </strong><?php 
+                          if(isset($user->profile->facebook_url))
+                          {
+                             echo "<a href=".$user->profile->facebook_url." target='_blank'>".$user->profile->facebook_url."</a>";
+                          }
+                          ?></label>
+                       </div>
+                       <div class="form-group">
+                          <label class="col-form-label"><strong>Instagram :  </strong><?php 
+                          if(isset($user->profile->instagram_url))
+                          {
+                             echo "<a href=".$user->profile->instagram_url." target='_blank'>".$user->profile->instagram_url."</a>";
+                          }
+                          ?></label>
+                       </div>
+                       <div class="form-group">
+                          <label class="col-form-label"><strong>Twitter :  </strong><?php 
+                          if(isset($user->profile->twitter_url))
+                          {
+                             echo "<a href=".$user->profile->twitter_url." target='_blank'>".$user->profile->twitter_url."</a>";
+                          }
+
+
+                          ?></label>
+                       </div>
+                   </div>
+
                  </div>      
                 
 
@@ -185,8 +241,7 @@
                   </table>                 
               </div>  
               </div>
-              <?php  if($user->profile->is_package == TRUE){       
-   ?>
+             
             <div class="form-group">
                 <div class="ml-0">
         <h6 class="ml-0 font-weight-bold text-primary">Packages</h6>
@@ -200,7 +255,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                      <?php  
+     <?php  if($user->profile->is_package == TRUE)
+            {   ?>
+     <?php  
               if(isset($user->package_user))
                 {                  
                  foreach ($user->package_user as $key => $value) {
@@ -215,22 +272,14 @@
                  }   ?>
                  
                  <?php 
-                }   ?>  
-                    </tbody>
-                </table>
+                }   ?>    
+      <?php } ?>        
+            </tbody>
+          </table>
  </div>   
-              </div>
-            
-                <?php } ?>              
-                   
-                    
-                      </div> 
+              </div> </div><div class="col-md-6">                     
+
          
-
-                      <div class="col-md-6">                      
-
-                  <?php  if($user->profile->is_hourly == TRUE){ 
-                ?>
             <div class="form-group">
                 <div class="ml-0">
         <h6 class="ml-0 font-weight-bold text-primary">Hourly Charges</h6>
@@ -245,6 +294,7 @@
                         </tr>
                       </thead>
                       <tbody>
+    <?php  if($user->profile->is_hourly == TRUE){      ?>
               <?php 
               if(isset($user->hourly_charge))
                 { 
@@ -259,10 +309,13 @@
                     <?php                
                  }   ?>                  
                  <?php 
-                }   ?></tbody></table>
+                }   ?>
+          <?php } ?>  
+
+        </tbody></table>
               </div> </div> 
                  
-        <?php } ?>  
+        
 
              <div class="form-group">
                 <div class="ml-0">
