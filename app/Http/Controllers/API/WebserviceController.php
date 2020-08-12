@@ -970,7 +970,7 @@ class WebserviceController extends Controller
 
             if(count($bookings)>0)
             {
-              $booking_array=array();
+             $booking_array[$type]=array();
              foreach ($bookings as $key => $booking) 
              {
 
@@ -1365,12 +1365,18 @@ class WebserviceController extends Controller
                          $booking_array[$type][]=$bookingdata;
                       }
                 }
-              }
-              
+              }              
+             }
+             if(count($booking_array[$type])>0)
+             {
+               $booking_data=$booking_array;
+               $response=array('status'=>true,'bookingdata'=>$booking_data,'message'=>'record found');
+             }else
+             {
+               $booking_data=$booking_array;
+               $response=array('status'=>false,'bookingdata'=>$booking_data,'message'=>'record not found');
              }
              
-             $booking_data=$booking_array;
-             $response=array('status'=>true,'bookingdata'=>$booking_data,'message'=>'record found');
            }else{            
             $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
         } 
