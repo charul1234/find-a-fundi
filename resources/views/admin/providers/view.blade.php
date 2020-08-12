@@ -277,7 +277,52 @@
             </tbody>
           </table>
  </div>   
-              </div> </div><div class="col-md-6">                     
+              </div>
+
+<h6 class="ml-0 font-weight-bold text-primary">Works photo</h6>
+<div class="row">
+  <?php if(isset($works_photo) && !empty($works_photo))
+  {
+    $i = 1;
+    foreach ($works_photo as $key => $photo) {
+      ?>
+     <div class="col-md-2">
+      <div type="button"  data-toggle="modal" data-target="#myModal-<?php echo $i; // Displaying the increment ?>">
+          <img width="70" height="70" src="{{ $photo->getFullUrl() }}" />
+      </div>
+     </div>
+
+  
+
+<!-- The Modal -->
+<div class="modal" id="myModal-<?php echo $i; // Displaying the increment ?>">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">×</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <img width="100%" height="100%" src="{{ $photo->getFullUrl() }}" />
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+    <?php $i++; }
+  } ?>
+  
+</div>
+
+               </div><div class="col-md-6">                     
 
          
             <div class="form-group">

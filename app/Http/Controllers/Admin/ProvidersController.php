@@ -363,10 +363,11 @@ class ProvidersController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function view($id){        
-        $user = User::with('profile','profile.experience_level','profile.payment_option','package_user','hourly_charge','company')->findOrFail($id);  
+        $user = User::with('profile','profile.experience_level','profile.payment_option','package_user','hourly_charge','company')->findOrFail($id); 
+        $works_photo=$user->getMedia('works_photo');  
         $providerCompanies=Company::query()->with('media')->where(['user_id'=>$id])->get();
         $providerCertifications=Certification::query()->with('media')->where(['user_id'=>$id])->get();       
-        return view('admin.providers.view',compact('user','id','providerCompanies','providerCertifications'));
+        return view('admin.providers.view',compact('user','id','providerCompanies','providerCertifications','works_photo'));
     }
 
     

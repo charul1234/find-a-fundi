@@ -947,7 +947,7 @@ class WebserviceController extends Controller
      * @return [string] message
     */
     public function getMyJobs(Request $request){
-        $user = Auth::user(); //echo $user->id;
+        $user = Auth::user(); echo $user->id;
         $data = $request->all(); 
         $bookingdata=$booking_data=$bookings=$bookingtype=array();
         $type=isset($request->type)?$request->type:'';
@@ -1395,8 +1395,6 @@ class WebserviceController extends Controller
                 $user_data=User::with('profile')->where('id',$booking->requested_id)->first();
                }               
                
-                            
-                //unset($user_data['media']);  
                 $userData=array('user_id'=>isset($user_data->id)?$user_data->id:'',
                                      'name'=>isset($user_data->name)?$user_data->name:'',
                                      'email'=>isset($user_data->email)?$user_data->email:'',
@@ -1464,22 +1462,36 @@ class WebserviceController extends Controller
             $booking= Booking::where('id',$request->booking_id)->first();
             if($booking)
             {
-              //$booking_user = BookingUser::where(['user_id'=>$userdata->id,'booking_id'=>$booking->id])->first();
-              $booking_data=array('user_id'=>$userdata->id,
-                                   'booking_id'=>$booking->id,
-                                   'status'=>config('constants.PAYMENT_STATUS_DECLINED'),
-                                   'reason'=>$request->reason);
-              $booking->booking_user()->create($booking_data);
-              /*if($booking_user)
+              if($booking->is_hourly==1 || $booking->is_package==1)
               {
-
-                $booking_user->update($booking_data);
-              }else
+                    $booking_data=array('user_id'=>$userdata->id,
+                                        'booking_id'=>$booking->id,
+                                        'status'=>config('constants.PAYMENT_STATUS_DECLINED'),
+                                        'reason'=>$request->reason);
+                    $booking->update($booking_data);
+                    $response=array('status'=>true,'data'=>$booking->id,'message'=>'Job declined done');
+              }else if($booking->is_rfq==1)
               {
-                BookingUser::create($booking_data);
-              }  */            
-              
-              $response=array('status'=>true,'data'=>$booking->id,'message'=>'Job declined done');
+                    $booking_user= BookingUser::where(array('user_id'=>$userdata->id,'booking_id'=>$request->booking_id))->first();
+                if($booking_user)
+                {
+                    $booking_data=array('user_id'=>$userdata->id,
+                                     'booking_id'=>$booking->id,
+                                     'is_rfq'=>1,
+                                     'status'=>config('constants.PAYMENT_STATUS_DECLINED'),
+                                     'reason'=>$request->reason);
+                    $booking->booking_user()->update($booking_data);
+                }else
+                {
+                    $booking_data=array('user_id'=>$userdata->id,
+                                     'booking_id'=>$booking->id,
+                                     'is_rfq'=>1,
+                                     'status'=>config('constants.PAYMENT_STATUS_DECLINED'),
+                                     'reason'=>$request->reason);
+                    $booking->booking_user()->create($booking_data);
+                }                
+                $response=array('status'=>true,'data'=>$booking->id,'message'=>'Job declined done');
+              }              
             }else
             {
               $response=array('status'=>false,'message'=>'no record found');
@@ -1592,7 +1604,8 @@ class WebserviceController extends Controller
                  //$bookingUser= BookingUser::where(['booking_id'=>$request->booking_id,'user_id'=>$user->id])->first();
                  /*if($bookingUser)
                  {*/
-                   $booking_user=array('booking_id'=>$request->booking_id,
+                  $bookingUserData= BookingUser::where(['booking_id'=>$request->booking_id,'user_id'=>$user->id])->first();
+                  $booking_user=array('booking_id'=>$request->booking_id,
                                        'user_id'=>$user->id,
                                        'is_rfq'=>1,
                                        'budget'=>$request->price,
@@ -1602,14 +1615,22 @@ class WebserviceController extends Controller
                                        'status'=>config('constants.PAYMENT_STATUS_QUOTED'),
                                        'comment'=>$request->comment
                                        );
-                   $booking_userdata=BookingUser::create($booking_user);
-                   if ($request->hasFile('works_photo'))
+                  if($bookingUserData)
+                  {   
+                      $bookingUserData->update($booking_user);                 
+                      
+                  }else
+                  {
+                     $bookingUserData=BookingUser::create($booking_user);
+                  }
+                   
+                  if ($request->hasFile('works_photo'))
                    {
                      $files = $request->file('works_photo');
                       foreach ($files as $file) 
                       {
                          $customname = time() . '.' . $file->getClientOriginalExtension();
-                         $booking_userdata->addMedia($file)
+                         $bookingUserData->addMedia($file)
                            ->usingFileName($customname)
                            ->toMediaCollection('booking_works_photo');
                       }
