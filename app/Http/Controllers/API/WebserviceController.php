@@ -590,11 +590,13 @@ class WebserviceController extends Controller
            
             if ($request->hasFile('works_photo')){
                  $files = $request->file('works_photo');
+                  $i=0;
                   foreach ($files as $file) {
-                     $customname = time() . '.' . $file->getClientOriginalExtension();
+                     $customname = time().$i. '.' . $file->getClientOriginalExtension();
                      $user->addMedia($file)
                        ->usingFileName($customname)
                        ->toMediaCollection('works_photo');
+                       $i++;
                }
             }
             
@@ -1779,16 +1781,19 @@ class WebserviceController extends Controller
                                      'is_quoted'=>1,
                                      'user_id'=>$user->id,
                                      'comment'=>$request->comment);
-                 $booking->update($booking_data);                 
+                 $booking->update($booking_data);  
+                               
                  if ($request->hasFile('works_photo'))
                  {
                    $files = $request->file('works_photo');
+                   $i=0; 
                     foreach ($files as $file) 
                     {
-                       $customname = time() . '.' . $file->getClientOriginalExtension();
+                       $customname = time() .$i.'.' . $file->getClientOriginalExtension();
                        $booking->addMedia($file)
                          ->usingFileName($customname)
                          ->toMediaCollection('booking_works_photo');
+                       $i++;
                     }
                  }
                  //send notification to seeker job accepted by provider
@@ -1815,12 +1820,14 @@ class WebserviceController extends Controller
                  if ($request->hasFile('works_photo'))
                  {
                    $files = $request->file('works_photo');
+                    $i=0;
                     foreach ($files as $file) 
                     {
-                       $customname = time() . '.' . $file->getClientOriginalExtension();
+                       $customname = time() .$i. '.' . $file->getClientOriginalExtension();
                        $booking->addMedia($file)
                          ->usingFileName($customname)
                          ->toMediaCollection('booking_works_photo');
+                        $i++;
                     }
                  }
                  //send notification to seeker job accepted by provider
@@ -1863,12 +1870,14 @@ class WebserviceController extends Controller
                   if ($request->hasFile('works_photo'))
                    {
                      $files = $request->file('works_photo');
-                      foreach ($files as $file) 
+                     $i=0;
+                     foreach ($files as $file) 
                       {
-                         $customname = time() . '.' . $file->getClientOriginalExtension();
+                         $customname = time() .$i.'.' . $file->getClientOriginalExtension();
                          $bookingUserData->addMedia($file)
                            ->usingFileName($customname)
                            ->toMediaCollection('booking_works_photo');
+                         $i++;
                       }
                    } 
                    $response=array('status'=>true,'message'=>'Job Quoted done');
