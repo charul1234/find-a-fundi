@@ -845,18 +845,16 @@ class WebserviceController extends Controller
                 return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
             }
 
-            $end_limit =config('constants.DEFAULT_WEBSERVICE_PAGINATION_ENDLIMIT');
             $bookings= Booking::with(['category','user','user.profile','subcategory','booking_user'])->where(['requested_id'=>$user->id]);
            
             $bookings=$bookings->orderBy('datetime','desc');
             
-            $start_limit=(isset($request->page)?$request->page:0)*$end_limit;
-            $bookings=$bookings->offset($start_limit)->limit($end_limit)->get();
-
+           
+            $bookings=$bookings->get();
+            $booking_list[$type]=array();
            if(count($bookings)>0)
            {
-            $bookingrecords='';
-            $booking_list[$type]=array();
+            $bookingrecords='';            
             foreach ($bookings as $key => $booking) 
              {
               $booking_rfq=array();   
