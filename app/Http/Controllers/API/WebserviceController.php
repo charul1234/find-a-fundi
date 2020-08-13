@@ -831,9 +831,9 @@ class WebserviceController extends Controller
      * @return [string] message
     */
     public function getJob(Request $request){
-        $user = Auth::user(); //echo $user->id;
+        $user = Auth::user(); 
         $data = $request->all(); 
-        $bookingdata=$booking_data=$bookings=$bookingtype=array();
+        $booking_data=$bookings=$bookingtype=array();
         $type=isset($request->type)?$request->type:'';
         if($user)
         {          
@@ -846,23 +846,8 @@ class WebserviceController extends Controller
             }
 
             $end_limit =config('constants.DEFAULT_WEBSERVICE_PAGINATION_ENDLIMIT');
-            $bookings= Booking::with(['category','user','user.profile','subcategory'])->where(['requested_id'=>$user->id]);
-            if($type==config('constants.PAYMENT_STATUS_PENDING'))
-            { 
-              //$bookings=$bookings->where('datetime','<',date('Y-m-d H:i:s'))->where('status'=>config('constants.PAYMENT_STATUS_ACCEPTED'));
-              //$bookings=$bookings->where(array('status'=>config('constants.PAYMENT_STATUS_PENDING'),'is_quoted'=>true));
-              $bookings=$bookings->where('status',config('constants.PAYMENT_STATUS_REQUESTED'));
-            }elseif($type==config('constants.PAYMENT_STATUS_REQUESTED'))
-            {
-              //$bookings=$bookings->where('status',config('constants.PAYMENT_STATUS_REQUESTED'));
-              $bookings=$bookings->where('status',config('constants.PAYMENT_STATUS_ACCEPTED'));
-            }elseif($type==config('constants.PAYMENT_STATUS_COMPLETED'))
-            {
-              $bookings=$bookings->where('status',config('constants.PAYMENT_STATUS_COMPLETED'));
-            }else
-            {
-              $bookings=$bookings->where('datetime','=',date('Y-m-d H:i:s'));
-            }
+            $bookings= Booking::with(['category','user','user.profile','subcategory','booking_user'])->where(['requested_id'=>$user->id]);
+           
             $bookings=$bookings->orderBy('datetime','desc');
             
             $start_limit=(isset($request->page)?$request->page:0)*$end_limit;
@@ -870,8 +855,11 @@ class WebserviceController extends Controller
 
            if(count($bookings)>0)
            {
+            $bookingrecords='';
+            $booking_list[$type]=array();
             foreach ($bookings as $key => $booking) 
-             {  
+             {
+              $booking_rfq=array();   
               $subcategories=$categories=array();   
               if($booking->category!='')
               {
@@ -899,42 +887,306 @@ class WebserviceController extends Controller
               {
                   $profile_picture = asset(config('constants.NO_IMAGE_URL'));
               } 
-              
+              $booking_type='';
 
-                  $bookingtype[$type][]=array(
-                                      'booking_id'=>$booking->id,
-                                      'category_id'=>$booking->category_id,
-                                      'user_id'=>$booking->user_id,
-                                      'title'=>$booking->title,
-                                      'description'=>$booking->description,
-                                      'location'=>$booking->location,
-                                      'latitude'=>$booking->latitude,
-                                      'longitude'=>$booking->longitude,
-                                      'budget'=>$booking->budget,
-                                      'is_rfq'=>$booking->is_rfq,
-                                      'request_for_quote_budget'=>$booking->request_for_quote_budget,
-                                      'is_hourly'=>$booking->is_hourly,
-                                      'min_budget'=>$booking->min_budget,
-                                      'max_budget'=>$booking->max_budget,
-                                      'datetime'=>$booking->datetime,
-                                      'requested_id'=>$booking->requested_id,
-                                      'categories'=>$categories,
-                                      'subcategories'=>$subcategories,
-                                      'name'=>isset($booking->user->name)?$booking->user->name:'',
-                                      'email'=>isset($booking->user->email)?$booking->user->email:'',
-                                      'mobile_number'=>isset($booking->user->mobile_number)?$booking->user->mobile_number:'',
-                                      'profile_picture'=>$profile_picture
-                                      ); 
-                 
-             }
-             $booking_data=$bookingtype;
-           }
-            if(count($booking_data)>0)
+                if($booking->is_hourly)
+                {
+                  $booking_type='hourly';
+                }elseif ($booking->is_rfq) {
+                  $booking_type='rfq';
+                }elseif ($booking->is_package) {
+                  $booking_type='package';
+                }
+                if($type==config('constants.PAYMENT_STATUS_REQUESTED'))
+                {
+                  if($booking->status==config('constants.PAYMENT_STATUS_ACCEPTED') && $booking->is_rfq==0)
+                     { 
+                      $booking_rfq=array();
+                      //condition for hourly type job  
+                      $providerdata=User::with(['profile'])->where('id',$booking->user_id)->first();
+                      $provider_name=isset($providerdata->name)?$providerdata->name:'';
+                      $provider_email=isset($providerdata->email)?$providerdata->email:'';
+                      $provider_mobile_number=isset($providerdata->mobile_number)?$providerdata->mobile_number:'';
+                      if(isset($providerdata) && $providerdata->getMedia('profile_picture')->count() > 0 && file_exists($providerdata->getFirstMedia('profile_picture')->getPath()))
+                      {
+                            $provider_profile_picture=$providerdata->getFirstMedia('profile_picture')->getFullUrl();
+                      }else
+                      {
+                            $provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
+                      } 
+                       $bookingrecords=array('booking_id'=>$booking->id,
+                                          'type'=>$booking_type,
+                                          'category_id'=>$booking->category_id,
+                                          'user_id'=>$booking->user_id,
+                                          'title'=>$booking->title,
+                                          'description'=>$booking->description,
+                                          'location'=>$booking->location,
+                                          'latitude'=>$booking->latitude,
+                                          'longitude'=>$booking->longitude,
+                                          'budget'=>isset($booking->budget)?(string)$booking->budget:'',
+                                          'is_rfq'=>$booking->is_rfq,
+                                          'booking_rfq'=>$booking_rfq,
+                                          'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
+                                          'is_hourly'=>$booking->is_hourly,
+                                          'min_budget'=>isset($booking->min_budget)?(string)$booking->min_budget:'',
+                                          'max_budget'=>isset($booking->max_budget)?(string)$booking->max_budget:'',
+                                          'datetime'=>$booking->datetime,
+                                          'requested_id'=>$booking->requested_id,
+                                          'categories'=>$categories,
+                                          'subcategories'=>$subcategories,
+                                          'status'=>isset($booking->status)?$booking->status:'',
+                                          'name'=>$provider_name,
+                                          'email'=>$provider_email,
+                                          'mobile_number'=>$provider_mobile_number,
+                                          'profile_picture'=>$provider_profile_picture
+                                          );                     
+                       $booking_list[$type][]=$bookingrecords;
+                       
+                     }else if($booking->status==config('constants.PAYMENT_STATUS_REQUESTED') && $booking->is_rfq==1)
+                     {  
+                       $booking_rfq=array();            
+                       //condition for rfq type job
+                       $booking_users=BookingUser::where(array('booking_id'=>$booking->id,'status'=>config('constants.PAYMENT_STATUS_ACCEPTED')))->first();
+
+                       if(isset($booking_users))
+                       {
+                        $booking_providerdata=User::with(['profile'])->where('id',$booking_users->user_id)->first();
+                        $booking_provider_name=isset($booking_providerdata->name)?$booking_providerdata->name:'';
+                        $booking_provider_email=isset($booking_providerdata->email)?$booking_providerdata->email:'';
+                        $booking_provider_mobile_number=isset($booking_providerdata->mobile_number)?$booking_providerdata->mobile_number:'';
+                        if(isset($booking_providerdata) && $booking_providerdata->getMedia('profile_picture')->count() > 0 && file_exists($booking_providerdata->getFirstMedia('profile_picture')->getPath()))
+                        {
+                              $booking_provider_profile_picture=$booking_providerdata->getFirstMedia('profile_picture')->getFullUrl();
+                        }else
+                        {
+                              $booking_provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
+                        } 
+                         $booking_rfq=array('booking_id'=>$booking_users->booking_id,
+                                             'user_id'=>$booking_users->user_id,
+                                             'is_rfq'=>$booking_users->is_rfq,
+                                             'budget'=>$booking_users->budget,
+                                             'service_datetime'=>$booking_users->service_datetime,
+                                             'requirement'=>isset($booking_users->requirement)?$booking_users->requirement:'',
+                                             'comment'=>isset($booking_users->comment)?$booking_users->comment:'',
+                                             'is_quoted'=>$booking_users->is_quoted,
+                                             'reason'=>isset($booking_users->reason)?$booking_users->reason:'',
+                                             'status'=>$booking_users->status,
+                                             'name'=>$booking_provider_name,
+                                             'email'=>$booking_provider_email,
+                                            'mobile_number'=>$booking_provider_mobile_number,
+                                            'profile_picture'=>$booking_provider_profile_picture
+                                             );
+                         $bookingrecords=array('booking_id'=>$booking->id,
+                                          'type'=>$booking_type,
+                                          'category_id'=>$booking->category_id,
+                                          'user_id'=>$booking->user_id,
+                                          'title'=>$booking->title,
+                                          'description'=>$booking->description,
+                                          'location'=>$booking->location,
+                                          'latitude'=>$booking->latitude,
+                                          'longitude'=>$booking->longitude,
+                                          'budget'=>isset($booking->budget)?(string)$booking->budget:'',
+                                          'is_rfq'=>$booking->is_rfq,
+                                          'booking_rfq'=>$booking_rfq,
+                                          'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
+                                          'is_hourly'=>$booking->is_hourly,
+                                          'min_budget'=>isset($booking->min_budget)?(string)$booking->min_budget:'',
+                                          'max_budget'=>isset($booking->max_budget)?(string)$booking->max_budget:'',
+                                          'datetime'=>$booking->datetime,
+                                          'requested_id'=>$booking->requested_id,
+                                          'categories'=>$categories,
+                                          'subcategories'=>$subcategories,
+                                          'status'=>isset($booking->status)?$booking->status:'',
+                                          'name'=>$provider_name,
+                                          'email'=>$provider_email,
+                                          'mobile_number'=>$provider_mobile_number,
+                                          'profile_picture'=>$provider_profile_picture
+                                          );                     
+                       $booking_list[$type][]=$bookingrecords;   
+                       }
+                     }
+                }else if($type==config('constants.PAYMENT_STATUS_PENDING')) 
+                {
+                     $booking_rfq=array();     
+                     if(($booking->status==config('constants.PAYMENT_STATUS_REQUESTED') || $booking->status==config('constants.PAYMENT_STATUS_QUOTED') || $booking->status==config('constants.PAYMENT_STATUS_DECLINED')) && $booking->is_rfq==0)
+                     {  
+                        //pending jobs means jobs that have hourly with requested, quoted, declined     
+                        $providerdata=User::with(['profile'])->where('id',$booking->user_id)->first();
+                        $provider_name=isset($providerdata->name)?$providerdata->name:'';
+                        $provider_email=isset($providerdata->email)?$providerdata->email:'';
+                        $provider_mobile_number=isset($providerdata->mobile_number)?$providerdata->mobile_number:'';
+                        if(isset($providerdata) && $providerdata->getMedia('profile_picture')->count() > 0 && file_exists($providerdata->getFirstMedia('profile_picture')->getPath()))
+                        {
+                              $provider_profile_picture=$providerdata->getFirstMedia('profile_picture')->getFullUrl();
+                        }else
+                        {
+                              $provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
+                        }                
+                         $bookingrecords=array('booking_id'=>$booking->id,
+                                            'type'=>$booking_type,
+                                            'category_id'=>$booking->category_id,
+                                            'user_id'=>$booking->user_id,
+                                            'title'=>$booking->title,
+                                            'description'=>$booking->description,
+                                            'location'=>$booking->location,
+                                            'latitude'=>$booking->latitude,
+                                            'longitude'=>$booking->longitude,
+                                            'budget'=>isset($booking->budget)?(string)$booking->budget:'',
+                                            'is_rfq'=>$booking->is_rfq,
+                                            'booking_rfq'=>$booking_rfq,
+                                            'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
+                                            'is_hourly'=>$booking->is_hourly,
+                                            'min_budget'=>isset($booking->min_budget)?(string)$booking->min_budget:'',
+                                            'max_budget'=>isset($booking->max_budget)?(string)$booking->max_budget:'',
+                                            'datetime'=>$booking->datetime,
+                                            'requested_id'=>$booking->requested_id,
+                                            'categories'=>$categories,
+                                            'subcategories'=>$subcategories,
+                                            'status'=>isset($booking->status)?$booking->status:'',
+                                            'name'=>$provider_name,
+                                            'email'=>$provider_email,
+                                            'mobile_number'=>$provider_mobile_number,
+                                            'profile_picture'=>$provider_profile_picture
+                                            );                     
+                         $booking_list[$type][]=$bookingrecords;  
+                     }else if($booking->status==config('constants.PAYMENT_STATUS_REQUESTED') && $booking->is_rfq==1)
+                     {
+                       $booking_rfq=array();
+                       //condition for rfq type job                       
+                       $booking_declined=$booking->booking_user()->where(array('booking_id'=>$booking->id,'status'=>config('constants.PAYMENT_STATUS_DECLINED')))->first();
+                       if(isset($booking_declined))
+                       {
+                        $booking_providerdata=User::with(['profile'])->where('id',$booking_declined->user_id)->first();
+                        $booking_provider_name=isset($booking_providerdata->name)?$booking_providerdata->name:'';
+                        $booking_provider_email=isset($booking_providerdata->email)?$booking_providerdata->email:'';
+                        $booking_provider_mobile_number=isset($booking_providerdata->mobile_number)?$booking_providerdata->mobile_number:'';
+                        if(isset($booking_providerdata) && $booking_providerdata->getMedia('profile_picture')->count() > 0 && file_exists($booking_providerdata->getFirstMedia('profile_picture')->getPath()))
+                        {
+                              $booking_provider_profile_picture=$booking_providerdata->getFirstMedia('profile_picture')->getFullUrl();
+                        }else
+                        {
+                              $booking_provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
+                        }
+                         
+                         $booking_rfq[]=array('booking_id'=>$booking_declined->booking_id,
+                                             'user_id'=>$booking_declined->user_id,
+                                             'is_rfq'=>$booking_declined->is_rfq,
+                                             'budget'=>$booking_declined->budget,
+                                             'service_datetime'=>$booking_declined->service_datetime,
+                                             'requirement'=>isset($booking_declined->requirement)?$booking_declined->requirement:'',
+                                             'comment'=>isset($booking_declined->comment)?$booking_declined->comment:'',
+                                             'is_quoted'=>$booking_declined->is_quoted,
+                                             'reason'=>isset($booking_declined->reason)?$booking_declined->reason:'',
+                                             'status'=>$booking_declined->status,
+                                             'name'=>$booking_provider_name,
+                                             'email'=>$booking_provider_email,
+                                             'mobile_number'=>$booking_provider_mobile_number,
+                                             'profile_picture'=>$booking_provider_profile_picture);
+                            
+                       }
+                       $booking_quote=$booking->booking_user()->where(array('booking_id'=>$booking->id,'status'=>config('constants.PAYMENT_STATUS_QUOTED')))->first();
+                       if(isset($booking_quote))
+                       { 
+                         $booking_providerdata=User::with(['profile'])->where('id',$booking_quote->user_id)->first();
+                          $booking_provider_name=isset($booking_providerdata->name)?$booking_providerdata->name:'';
+                          $booking_provider_email=isset($booking_providerdata->email)?$booking_providerdata->email:'';
+                          $booking_provider_mobile_number=isset($booking_providerdata->mobile_number)?$booking_providerdata->mobile_number:'';
+                          if(isset($booking_providerdata) && $booking_providerdata->getMedia('profile_picture')->count() > 0 && file_exists($booking_providerdata->getFirstMedia('profile_picture')->getPath()))
+                          {
+                                $booking_provider_profile_picture=$booking_providerdata->getFirstMedia('profile_picture')->getFullUrl();
+                          }else
+                          {
+                                $booking_provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
+                          }                        
+                         $booking_rfq[]=array('booking_id'=>$booking_quote->booking_id,
+                                             'user_id'=>$booking_quote->user_id,
+                                             'is_rfq'=>$booking_quote->is_rfq,
+                                             'budget'=>$booking_quote->budget,
+                                             'service_datetime'=>$booking_quote->service_datetime,
+                                             'requirement'=>isset($booking_quote->requirement)?$booking_quote->requirement:'',
+                                             'comment'=>isset($booking_quote->comment)?$booking_quote->comment:'',
+                                             'is_quoted'=>$booking_quote->is_quoted,
+                                             'reason'=>isset($booking_quote->reason)?$booking_quote->reason:'',
+                                             'status'=>$booking_quote->status,
+                                             'name'=>$booking_provider_name,
+                                             'email'=>$booking_provider_email,
+                                             'mobile_number'=>$booking_provider_mobile_number,
+                                             'profile_picture'=>$booking_provider_profile_picture);         
+                       }
+                      
+                       $bookingrecords=array('booking_id'=>$booking->id,
+                                          'type'=>$booking_type,
+                                          'category_id'=>$booking->category_id,
+                                          'user_id'=>$booking->user_id,
+                                          'title'=>$booking->title,
+                                          'description'=>$booking->description,
+                                          'location'=>$booking->location,
+                                          'latitude'=>$booking->latitude,
+                                          'longitude'=>$booking->longitude,
+                                          'budget'=>isset($booking->budget)?(string)$booking->budget:'',
+                                          'is_rfq'=>$booking->is_rfq,
+                                          'booking_rfq'=>$booking_rfq,
+                                          'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
+                                          'is_hourly'=>$booking->is_hourly,
+                                          'min_budget'=>isset($booking->min_budget)?(string)$booking->min_budget:'',
+                                          'max_budget'=>isset($booking->max_budget)?(string)$booking->max_budget:'',
+                                          'datetime'=>$booking->datetime,
+                                          'requested_id'=>$booking->requested_id,
+                                          'categories'=>$categories,
+                                          'subcategories'=>$subcategories,
+                                          'status'=>isset($booking->status)?$booking->status:'',
+                                          'name'=>'',
+                                          'email'=>'',
+                                          'mobile_number'=>'',
+                                          'profile_picture'=>''
+                                          );                     
+                       $booking_list[$type][]=$bookingrecords;                       
+                       //is_rfq type jobs  
+                     }
+                }else if($type==config('constants.PAYMENT_STATUS_COMPLETED'))
+                {
+                  $booking_rfq=array();
+                  if($booking->status==config('constants.PAYMENT_STATUS_COMPLETED') && $booking->is_rfq==0)
+                  {
+                      $bookingrecords=array('booking_id'=>$booking->id,
+                                            'type'=>$booking_type,
+                                            'category_id'=>$booking->category_id,
+                                            'user_id'=>$booking->user_id,
+                                            'title'=>$booking->title,
+                                            'description'=>$booking->description,
+                                            'location'=>$booking->location,
+                                            'latitude'=>$booking->latitude,
+                                            'longitude'=>$booking->longitude,
+                                            'budget'=>isset($booking->budget)?(string)$booking->budget:'',
+                                            'is_rfq'=>$booking->is_rfq,
+                                            'booking_rfq'=>$booking_rfq,
+                                            'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
+                                            'is_hourly'=>$booking->is_hourly,
+                                            'min_budget'=>isset($booking->min_budget)?(string)$booking->min_budget:'',
+                                            'max_budget'=>isset($booking->max_budget)?(string)$booking->max_budget:'',
+                                            'datetime'=>$booking->datetime,
+                                            'requested_id'=>$booking->requested_id,
+                                            'categories'=>$categories,
+                                            'subcategories'=>$subcategories,
+                                            'status'=>isset($booking->status)?$booking->status:'',
+                                            'name'=>$provider_name,
+                                            'email'=>$provider_email,
+                                            'mobile_number'=>$provider_mobile_number,
+                                            'profile_picture'=>$provider_profile_picture
+                                            );  
+                      $booking_list[$type][]=$bookingrecords;
+                  }                    
+                }                 
+              }            
+            }
+            if(count($booking_list[$type])>0)
             {
-              $response=array('status'=>true,'bookingdata'=>$booking_data,'message'=>'record found');
+               $booking_data=$booking_list;
+               $response=array('status'=>true,'bookingdata'=>$booking_data,'message'=>'record found');
             }else
             {
-              $response=array('status'=>false,'message'=>'no record found');
+               $booking_data=$booking_list;
+               $response=array('status'=>false,'bookingdata'=>$booking_data,'message'=>'no record found');
             }
             
         }else
