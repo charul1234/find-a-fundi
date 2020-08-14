@@ -1212,15 +1212,16 @@ class WebserviceController extends Controller
             if ($validator->fails()) {
                 return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
             }
-            $end_limit =config('constants.DEFAULT_WEBSERVICE_PAGINATION_ENDLIMIT');
+            //$end_limit =config('constants.DEFAULT_WEBSERVICE_PAGINATION_ENDLIMIT');
             $bookings= Booking::with(['category','user','user.profile','subcategory','booking_user']);               
-            $start_limit=(isset($request->start_limit)?$request->start_limit:0)*$end_limit;
-            $bookings=$bookings->offset($start_limit)->limit($end_limit)->get();   
+            //$start_limit=(isset($request->start_limit)?$request->start_limit:0)*$end_limit;
+            //$bookings=$bookings->offset($start_limit)->limit($end_limit)->get();   
+            $bookings=$bookings->get();   
             
-
+            $booking_array[$type]=array();
             if(count($bookings)>0)
             {
-             $booking_array[$type]=array();
+             
              foreach ($bookings as $key => $booking) 
              {
 
