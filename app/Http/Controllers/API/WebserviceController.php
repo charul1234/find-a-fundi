@@ -826,7 +826,7 @@ class WebserviceController extends Controller
         return response()->json($response);
     }
     /**
-     * API to get all providers jobs listing 
+     * API to get all providers jobs listing seeker end 
      *
      * @return [string] message
     */
@@ -2147,6 +2147,91 @@ class WebserviceController extends Controller
             }
             
                        
+        }else
+        {
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
+      }
+    /**
+     * API to get all providers listing that have requested for booking quote 
+     *
+     * @return [string] message
+    */
+    public function getRFQProviders(Request $request){
+        $user = Auth::user(); 
+        $data = $request->all(); 
+        $booking_data=$booking_rfq_users=array();
+        $type=isset($request->type)?$request->type:'';
+        if($user)
+        {          
+            $validator = Validator::make($data, [
+                'booking_id'=>'required',
+                'type'=>'required', 
+            ]);
+            if ($validator->fails()) {
+                return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
+            }
+            $is_rfq=false;
+            if($type=='is_rfq')
+            {
+              $is_rfq=true;
+            }
+            $bookings= Booking::with(['category','user','user.profile','subcategory','booking_user'])->where(['id'=>$request->booking_id,'requested_id'=>$user->id,'is_rfq'=>$is_rfq])->first();
+            if($bookings)
+            {              
+              $booking_users=BookingUser::where(array('booking_id'=>$bookings->id,'status'=>config('constants.PAYMENT_STATUS_QUOTED')))->get();
+              if($booking_users)
+              {
+                $rating='';
+                foreach($booking_users as $booking_user)
+                {
+                    $rating=0.0;
+                    $providerdata=User::with(['profile'])->where('id',$booking_user->user_id)->first();
+                    $provider_name=isset($providerdata->name)?$providerdata->name:'';
+                    $provider_email=isset($providerdata->email)?$providerdata->email:'';
+                    $provider_mobile_number=isset($providerdata->mobile_number)?$providerdata->mobile_number:'';
+                    if(isset($providerdata) && $providerdata->getMedia('profile_picture')->count() > 0 && file_exists($providerdata->getFirstMedia('profile_picture')->getPath()))
+                    {
+                          $provider_profile_picture=$providerdata->getFirstMedia('profile_picture')->getFullUrl();
+                    }else
+                    {
+                          $provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
+                    }
+                    $booking_rfq_users[]=array('booking_id'=>$booking_user->booking_id,
+                                           'user_id'=>$booking_user->user_id,
+                                           'is_rfq'=>$booking_user->is_rfq,
+                                           'budget'=>$booking_user->budget,
+                                           'service_datetime'=>$booking_user->service_datetime,
+                                           'requirement'=>isset($booking_user->requirement)?$booking_user->requirement:'',
+                                           'comment'=>isset($booking_user->comment)?$booking_user->comment:'',
+                                           'is_quoted'=>$booking_user->is_quoted,
+                                           'reason'=>isset($booking_user->reason)?$booking_user->reason:'',
+                                           'status'=>$booking_user->status,
+                                           'name'=>$provider_name,
+                                           'email'=>$provider_email,
+                                          'mobile_number'=>$provider_mobile_number,
+                                          'profile_picture'=>$provider_profile_picture,
+                                          'rating'=>$rating
+                                           );
+                }
+              }
+              $booking_data=array('id'=>$bookings->id,
+                                  'title'=>$bookings->title,
+                                  'description'=>$bookings->description,
+                                  'location'=>$bookings->location,
+                                  'latitude'=>$bookings->latitude,
+                                  'longitude'=>$bookings->longitude,
+                                  'is_rfq'=>$bookings->is_rfq,
+                                  'booking_rfq'=>$booking_rfq_users);
+              
+              $response=array('status'=>true,'bookingdata'=>$booking_data,'message'=>'Record found.');
+            }else
+            {
+              $response=array('status'=>false,'message'=>'Record not found.');
+            }
+            
+            
         }else
         {
             $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
