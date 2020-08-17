@@ -2177,7 +2177,7 @@ class WebserviceController extends Controller
             {
               $is_rfq=true;
             }
-            $bookings= Booking::with(['category','user','user.profile','subcategory','booking_user'])->where(['id'=>$request->booking_id,'requested_id'=>$user->id,'is_rfq'=>$is_rfq])->first();
+            $bookings= Booking::with(['user','user.profile','booking_user'])->where(['id'=>$request->booking_id,'requested_id'=>$user->id,'is_rfq'=>$is_rfq])->first();
             if($bookings)
             {              
               $booking_users=BookingUser::where(array('booking_id'=>$bookings->id,'status'=>config('constants.PAYMENT_STATUS_QUOTED')))->get();
@@ -2238,6 +2238,124 @@ class WebserviceController extends Controller
         }        
         return response()->json($response);
       }
-     
+     /**
+     * API to get booking details
+     *
+     * @return [string] message
+    */
+    public function getBookingDetail(Request $request){
+        $user = Auth::user(); 
+        $data = $request->all(); 
+        $booking_data=array();
+        $type=isset($request->type)?$request->type:'';
+        if($user)
+        {          
+            $validator = Validator::make($data, [
+                'booking_id'=>'required',
+                'type'=>'required', 
+                'user_id'=>'required',
+            ]);
+            if ($validator->fails()) {
+                return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
+            }
+             $is_hourly=false;
+             $is_rfq=false;
+             if($type=='is_hourly')
+             {
+                $booking= Booking::with(['user','user.profile','booking_user'])->where(['id'=>$request->booking_id,'requested_id'=>$user->id,'is_hourly'=>true,'user_id'=>$request->user_id])->first();
+                if($booking)
+                {
+                    $rating=0.0;
+                    $provider_name=isset($booking->user->name)?$booking->user->name:'';
+                    $provider_email=isset($booking->user->email)?$booking->user->email:'';
+                    $provider_mobile_number=isset($booking->user->mobile_number)?$booking->user->mobile_number:'';
+                    if(isset($booking->user) && $booking->user->getMedia('profile_picture')->count() > 0 && file_exists($booking->user->getFirstMedia('profile_picture')->getPath()))
+                    {
+                          $provider_profile_picture=$booking->user->getFirstMedia('profile_picture')->getFullUrl();
+                    }else
+                    {
+                          $provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
+                    }
+                    $booking_data=array('id'=>$booking->id,
+                                        'title'=>$booking->title,
+                                        'description'=>$booking->description,
+                                        'location'=>$booking->location,
+                                        'latitude'=>$booking->latitude,
+                                        'longitude'=>$booking->longitude,
+                                        'is_hourly'=>isset($booking->is_hourly)?$booking->is_hourly:'',
+                                        'is_rfq'=>isset($booking->is_rfq)?$booking->is_rfq:'',
+                                        'budget'=>isset($booking->budget)?$booking->budget:'',
+                                        'estimated_hours'=>isset($booking->estimated_hours)?(string)$booking->estimated_hours:'',
+                                        'min_budget'=>isset($booking->min_budget)?(string)$booking->min_budget:'',
+                                        'max_budget'=>isset($booking->max_budget)?(string)$booking->max_budget:'',
+                                        'datetime'=>isset($booking->datetime)?$booking->datetime:'',
+                                        'service_datetime'=>isset($booking->service_datetime)?$booking->service_datetime:'',
+                                        'requirement'=>isset($booking->requirement)?$booking->requirement:'',
+                                        'status'=>$booking->status,
+                                        'name'=>$provider_name,
+                                        'email'=>$provider_email,
+                                        'mobile_number'=>$provider_mobile_number,
+                                        'profile_picture'=>$provider_profile_picture,
+                                        'rating'=>$rating
+                                        );
+                    $response=array('status'=>true,'booking'=>$booking_data,'message'=>'Record found.');
+                }else
+                {
+                    $response=array('status'=>false,'message'=>'Record not found.');
+                }  
+             }else if($type=='is_rfq')
+             {
+              $booking= Booking::with(['user','user.profile','booking_user'])->where(['id'=>$request->booking_id,'requested_id'=>$user->id,'is_rfq'=>true])->first();
+              if($booking)
+                {                   
+                   $booking_user=BookingUser::where(array('booking_id'=>$booking->id,'status'=>config('constants.PAYMENT_STATUS_QUOTED'),'user_id'=>$request->user_id))->first();
+                    $rating=0.0;
+                    $providerdata=User::with(['profile'])->where('id',$request->user_id)->first();
+                    $provider_name=isset($providerdata->name)?$providerdata->name:'';
+                    $provider_email=isset($providerdata->email)?$providerdata->email:'';
+                    $provider_mobile_number=isset($providerdata->mobile_number)?$providerdata->mobile_number:'';
+                    if(isset($providerdata) && $providerdata->getMedia('profile_picture')->count() > 0 && file_exists($providerdata->getFirstMedia('profile_picture')->getPath()))
+                    {
+                          $provider_profile_picture=$providerdata->getFirstMedia('profile_picture')->getFullUrl();
+                    }else
+                    {
+                          $provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
+                    }
+                   $booking_data=array('id'=>$booking->id,
+                                        'title'=>$booking->title,
+                                        'description'=>$booking->description,
+                                        'location'=>$booking->location,
+                                        'latitude'=>$booking->latitude,
+                                        'longitude'=>$booking->longitude,
+                                        'is_hourly'=>isset($booking->is_hourly)?$booking->is_hourly:'',
+                                        'is_rfq'=>isset($booking->is_rfq)?$booking->is_rfq:'',
+                                        'budget'=>isset($booking_user->budget)?$booking_user->budget:'',
+                                        'estimated_hours'=>isset($booking->estimated_hours)?(string)$booking->estimated_hours:'',
+                                        'min_budget'=>isset($booking->min_budget)?(string)$booking->min_budget:'',
+                                        'max_budget'=>isset($booking->max_budget)?(string)$booking->max_budget:'',
+                                        'datetime'=>isset($booking->datetime)?$booking->datetime:'',
+                                        'service_datetime'=>isset($booking_user->service_datetime)?$booking_user->service_datetime:'',
+                                        'requirement'=>isset($booking_user->requirement)?$booking_user->requirement:'',
+                                        'status'=>isset($booking_user->status)?$booking_user->status:'',
+                                        'name'=>$provider_name,
+                                        'email'=>$provider_email,
+                                        'mobile_number'=>$provider_mobile_number,
+                                        'profile_picture'=>$provider_profile_picture,
+                                        'rating'=>$rating
+                                        );
+                   $response=array('status'=>true,'booking'=>$booking_data,'message'=>'Record found.');
+                }else
+                {
+                   $response=array('status'=>false,'message'=>'Record not found.');
+                }
+             }
+            
+                      
+        }else
+        {
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
+      }
 
 }
