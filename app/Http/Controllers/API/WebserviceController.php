@@ -2246,14 +2246,13 @@ class WebserviceController extends Controller
     public function getBookingDetail(Request $request){
         $user = Auth::user(); 
         $data = $request->all(); 
-        $booking_data=array();
+        $booking_data=$userdata=array();
         $type=isset($request->type)?$request->type:'';
         if($user)
         {          
             $validator = Validator::make($data, [
                 'booking_id'=>'required',
                 'type'=>'required', 
-                'user_id'=>'required',
             ]);
             if ($validator->fails()) {
                 return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
@@ -2261,7 +2260,7 @@ class WebserviceController extends Controller
              
              if($type=='is_hourly')
              {
-                $booking= Booking::with(['user','user.profile','booking_user'])->where(['id'=>$request->booking_id,'requested_id'=>$user->id,'is_hourly'=>true,'user_id'=>$request->user_id])->first();
+                $booking= Booking::where(['id'=>$request->booking_id,'requested_id'=>$user->id,'is_hourly'=>true])->first();
                 if($booking)
                 {
                     $rating=0.0;
@@ -2275,6 +2274,11 @@ class WebserviceController extends Controller
                     {
                           $provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
                     }
+                        $userdata=array('name'=>$provider_name,
+                                        'email'=>$provider_email,
+                                        'mobile_number'=>$provider_mobile_number,
+                                        'profile_picture'=>$provider_profile_picture,
+                                        'rating'=>$rating);
                     $booking_data=array('id'=>$booking->id,
                                         'title'=>$booking->title,
                                         'description'=>$booking->description,
@@ -2291,12 +2295,7 @@ class WebserviceController extends Controller
                                         'service_datetime'=>isset($booking->service_datetime)?$booking->service_datetime:'',
                                         'requirement'=>isset($booking->requirement)?$booking->requirement:'',
                                         'status'=>$booking->status,
-                                        'name'=>$provider_name,
-                                        'email'=>$provider_email,
-                                        'mobile_number'=>$provider_mobile_number,
-                                        'profile_picture'=>$provider_profile_picture,
-                                        'rating'=>$rating
-                                        );
+                                        'userdata'=>$userdata);
                     $response=array('status'=>true,'booking'=>$booking_data,'message'=>'Record found.');
                 }else
                 {
@@ -2307,7 +2306,13 @@ class WebserviceController extends Controller
               $booking= Booking::with(['user','user.profile','booking_user'])->where(['id'=>$request->booking_id,'requested_id'=>$user->id,'is_rfq'=>true])->first();
               if($booking)
                 {                   
-                   $booking_user=BookingUser::where(array('booking_id'=>$booking->id,'status'=>config('constants.PAYMENT_STATUS_QUOTED'),'user_id'=>$request->user_id))->first();
+                   $booking_user=BookingUser::where(array('booking_id'=>$booking->id,'status'=>config('constants.PAYMENT_STATUS_QUOTED')));
+                   if($request->user_id)
+                   {
+                    $booking_user=$booking_user->where('user_id',$request->user_id);
+                   }
+                    $booking_user=$booking_user->first();
+
                     $rating=0.0;
                     $providerdata=User::with(['profile'])->where('id',$request->user_id)->first();
                     $provider_name=isset($providerdata->name)?$providerdata->name:'';
@@ -2320,6 +2325,11 @@ class WebserviceController extends Controller
                     {
                           $provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
                     }
+                       $userdata=array( 'name'=>$provider_name,
+                                        'email'=>$provider_email,
+                                        'mobile_number'=>$provider_mobile_number,
+                                        'profile_picture'=>$provider_profile_picture,
+                                        'rating'=>$rating);
                    $booking_data=array('id'=>$booking->id,
                                         'title'=>$booking->title,
                                         'description'=>$booking->description,
@@ -2335,12 +2345,8 @@ class WebserviceController extends Controller
                                         'datetime'=>isset($booking->datetime)?$booking->datetime:'',
                                         'service_datetime'=>isset($booking_user->service_datetime)?$booking_user->service_datetime:'',
                                         'requirement'=>isset($booking_user->requirement)?$booking_user->requirement:'',
-                                        'status'=>isset($booking_user->status)?$booking_user->status:'',
-                                        'name'=>$provider_name,
-                                        'email'=>$provider_email,
-                                        'mobile_number'=>$provider_mobile_number,
-                                        'profile_picture'=>$provider_profile_picture,
-                                        'rating'=>$rating
+                                        'status'=>isset($booking->status)?$booking->status:'',
+                                        'userdata'=>$userdata
                                         );
                    $response=array('status'=>true,'booking'=>$booking_data,'message'=>'Record found.');
                 }else
