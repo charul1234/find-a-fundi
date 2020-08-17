@@ -2258,8 +2258,7 @@ class WebserviceController extends Controller
             if ($validator->fails()) {
                 return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
             }
-             $is_hourly=false;
-             $is_rfq=false;
+             
              if($type=='is_hourly')
              {
                 $booking= Booking::with(['user','user.profile','booking_user'])->where(['id'=>$request->booking_id,'requested_id'=>$user->id,'is_hourly'=>true,'user_id'=>$request->user_id])->first();
