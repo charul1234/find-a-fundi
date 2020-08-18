@@ -22,6 +22,7 @@ use App\Profile;
 use App\Certification;
 use App\BookingUser;
 use App\Transaction;
+use App\Faq;
 
 class WebserviceController extends Controller
 {
@@ -2532,5 +2533,39 @@ class WebserviceController extends Controller
         }        
         return response()->json($response);
       }
-
+    /**
+     * API to get user seeker FAQ
+     *
+     * @return [string] message
+     */
+    public function getFAQ(Request $request){
+        $user = Auth::user(); 
+        $data = $request->all(); 
+        $faqlist=array();
+        $role_id =  config('constants.ROLE_TYPE_SEEKER_ID');
+        $seeker = User::with(['roles'])->whereHas('roles', function($query) use ($role_id){
+              $query->where('id', $role_id);
+        });
+        $seeker=$seeker->where(['id'=>$user->id])->first();
+        if($seeker)
+        { 
+          $lists=Faq::where('is_active',true)->get();
+          if(count($lists)>0)
+          {
+            foreach ($lists as $key => $list) {
+              $faqlist[]=array('title'=>$list->title,
+                               'description'=>$list->description,
+                               'is_active'=>$list->is_active);
+            }
+            $response=array('status'=>true,'faqlist'=>$faqlist,'message'=>'Record found.');
+          }else
+          {
+            $response=array('status'=>false,'message'=>'Record not found.');
+          }          
+        }else
+        {
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
+   }
 }
