@@ -21,6 +21,7 @@ use App\CategoryUser;
 use App\Profile;
 use App\Certification;
 use App\BookingUser;
+use App\Transaction;
 
 class WebserviceController extends Controller
 {
@@ -1616,6 +1617,88 @@ class WebserviceController extends Controller
                          $booking_array[$type][]=$bookingdata;
                       }
                 }
+              }else if($type==config('constants.PAYMENT_STATUS_ACCEPTED')){
+                  if($booking->status==config('constants.PAYMENT_STATUS_ACCEPTED') && $booking->is_rfq==0){
+                      $providerdata=User::with(['profile'])->where('id',$booking->user_id)->first();
+                      $provider_name=isset($providerdata->name)?$providerdata->name:'';
+                      $provider_email=isset($providerdata->email)?$providerdata->email:'';
+                      $provider_mobile_number=isset($providerdata->mobile_number)?$providerdata->mobile_number:'';
+                      if(isset($providerdata) && $providerdata->getMedia('profile_picture')->count() > 0 && file_exists($providerdata->getFirstMedia('profile_picture')->getPath()))
+                      {
+                            $provider_profile_picture=$providerdata->getFirstMedia('profile_picture')->getFullUrl();
+                      }else
+                      {
+                            $provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
+                      }
+                    //$booking_array[$type][]=$booking;
+                    $bookingdata=array('booking_id'=>$booking->id,
+                                          'type'=>$booking_type,
+                                          'category_id'=>$booking->category_id,
+                                          'user_id'=>$booking->user_id,
+                                          'title'=>$booking->title,
+                                          'description'=>$booking->description,
+                                          'location'=>$booking->location,
+                                          'latitude'=>$booking->latitude,
+                                          'longitude'=>$booking->longitude,
+                                          'budget'=>isset($booking->budget)?(string)$booking->budget:'',
+                                          'is_rfq'=>$booking->is_rfq,
+                                          'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
+                                          'is_hourly'=>$booking->is_hourly,
+                                          'min_budget'=>isset($booking->min_budget)?(string)$booking->min_budget:'',
+                                          'max_budget'=>isset($booking->max_budget)?(string)$booking->max_budget:'',
+                                          'datetime'=>$booking->datetime,
+                                          'requested_id'=>$booking->requested_id,
+                                          'categories'=>$categories,
+                                          'subcategories'=>$subcategories,
+                                          'name'=>$provider_name,
+                                          'email'=>$provider_email,
+                                          'mobile_number'=>$provider_mobile_number,
+                                          'profile_picture'=>$provider_profile_picture
+                                          ); 
+                      $booking_array[$type][]=$bookingdata;
+                }else if($booking->status==config('constants.PAYMENT_STATUS_REQUESTED') && $booking->is_rfq==1){ 
+                 $booking_users=BookingUser::where(array('booking_id'=>$booking->id,'user_id'=>$userdata->id,'status'=>config('constants.PAYMENT_STATUS_ACCEPTED')))->first();
+                      if(isset($booking_users)){
+                        $providerdata=User::with(['profile'])->where('id',$booking_users->user_id)->first();
+                        $provider_name=isset($providerdata->name)?$providerdata->name:'';
+                        $provider_email=isset($providerdata->email)?$providerdata->email:'';
+                        $provider_mobile_number=isset($providerdata->mobile_number)?$providerdata->mobile_number:'';
+                        if(isset($providerdata) && $providerdata->getMedia('profile_picture')->count() > 0 && file_exists($providerdata->getFirstMedia('profile_picture')->getPath()))
+                        {
+                              $provider_profile_picture=$providerdata->getFirstMedia('profile_picture')->getFullUrl();
+                        }else
+                        {
+                              $provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
+                        }
+                        //$booking_array[$type][]=$booking;
+                        $bookingdata=array('booking_id'=>$booking->id,
+                                          'type'=>$booking_type,
+                                          'category_id'=>$booking->category_id,
+                                          'user_id'=>$booking->user_id,
+                                          'title'=>$booking->title,
+                                          'description'=>$booking->description,
+                                          'location'=>$booking->location,
+                                          'latitude'=>$booking->latitude,
+                                          'longitude'=>$booking->longitude,
+                                          'budget'=>isset($booking->budget)?(string)$booking->budget:'',
+                                          'is_rfq'=>$booking->is_rfq,
+                                          'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
+                                          'is_hourly'=>$booking->is_hourly,
+                                          'min_budget'=>isset($booking->min_budget)?(string)$booking->min_budget:'',
+                                          'max_budget'=>isset($booking->max_budget)?(string)$booking->max_budget:'',
+                                          'datetime'=>$booking->datetime,
+                                          'requested_id'=>$booking->requested_id,
+                                          'categories'=>$categories,
+                                          'subcategories'=>$subcategories,
+                                          'status'=>$booking->status,
+                                          'name'=>$provider_name,
+                                          'email'=>$provider_email,
+                                          'mobile_number'=>$provider_mobile_number,
+                                          'profile_picture'=>$provider_profile_picture
+                                          ); 
+                         $booking_array[$type][]=$bookingdata;
+                      }
+                }
               }              
              }
              if(count($booking_array[$type])>0)
@@ -2356,6 +2439,93 @@ class WebserviceController extends Controller
              }
             
                       
+        }else
+        {
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
+      }
+      /**
+     * API to make payment
+     *
+     * @return [string] message
+    */
+    public function makePayment(Request $request){
+        $user = Auth::user(); 
+        $data = $request->all(); 
+        $payment_data=array();
+
+        if($user)
+        {          
+            $validator = Validator::make($data, [
+                'booking_id'=>'required',
+                'user_id'=>'required', 
+                'transaction_type'=>'required',
+                'trans_id'=>'required',
+                'trans_time'=>'nullable',
+                'trans_amount'=>'required',
+                'business_shortcode'=>'nullable',
+                'bill_ref_number'=>'required',
+                'invoice_number'=>'nullable',
+                'third_party_trans_id'=>'nullable',
+                'msisdn'=>'required',
+                'first_name'=>'required',
+                'middle_name'=>'nullable',
+                'last_name'=>'nullable',
+                'org_account_balance'=>'nullable',
+                'status'=>'required',
+                'payment_mode'=>'required',
+            ]);
+            if ($validator->fails()) {
+                return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
+            }
+            $booking=Booking::where(array('id'=>$request->booking_id,'requested_id'=>$user->id))->first(); 
+            if($booking)
+            {
+              $data['payment_by']=$user->id;
+              if($booking->is_hourly==1)
+              {
+                $transaction = Transaction::create($data);              
+                $payment_data=array('user_id'=>$request->user_id,
+                                  'booking_id'=>$request->booking_id,
+                                  'booking_name'=>$booking->title,
+                                  'transaction_type'=>isset($request->transaction_type)?$request->transaction_type:'',
+                                  'trans_id'=>isset($request->trans_id)?$request->trans_id:'',
+                                  'trans_time'=>isset($request->trans_time)?$request->trans_time:'',
+                                  'trans_amount'=>isset($request->trans_amount)?$request->trans_amount:'',
+                                  'invoice_number'=>isset($request->invoice_number)?$request->invoice_number:'',
+                                  'first_name'=>isset($request->first_name)?$request->first_name:'',
+                                  'status'=>isset($request->status)?$request->status:'',
+                                  'payment_mode'=>isset($request->payment_mode)?$request->payment_mode:'');
+                 $booking->update(array('status'=>config('constants.PAYMENT_STATUS_ACCEPTED')));
+                 $response=array('status'=>true,'payment'=>$payment_data,'message'=>'Payment successfully done.');
+              }else if($booking->is_rfq==1)
+              {
+                $booking_user=BookingUser::where(array('booking_id'=>$booking->id,'user_id'=>$request->user_id))->first();
+                if($booking_user)
+                {
+                   $transaction = Transaction::create($data);
+                   $booking_user->update(array('status'=>config('constants.PAYMENT_STATUS_ACCEPTED')));
+                   $payment_data=array('user_id'=>$request->user_id,
+                                    'booking_id'=>$request->booking_id,
+                                    'booking_name'=>$booking->title,
+                                    'transaction_type'=>isset($request->transaction_type)?$request->transaction_type:'',
+                                    'trans_id'=>isset($request->trans_id)?$request->trans_id:'',
+                                    'trans_time'=>isset($request->trans_time)?$request->trans_time:'',
+                                    'trans_amount'=>isset($request->trans_amount)?$request->trans_amount:'',
+                                    'invoice_number'=>isset($request->invoice_number)?$request->invoice_number:'',
+                                    'first_name'=>isset($request->first_name)?$request->first_name:'',
+                                    'status'=>isset($request->status)?$request->status:'',
+                                    'payment_mode'=>isset($request->payment_mode)?$request->payment_mode:'');
+                   $response=array('status'=>true,'payment'=>$payment_data,'message'=>'Payment successfully done.');
+                }                 
+              }   
+            }else
+            {
+              $response=array('status'=>false,'message'=>'Record not found.');
+            }
+
+            
         }else
         {
             $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
