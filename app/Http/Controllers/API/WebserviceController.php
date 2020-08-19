@@ -23,6 +23,7 @@ use App\Certification;
 use App\BookingUser;
 use App\Transaction;
 use App\Faq;
+use App\Review;
 
 class WebserviceController extends Controller
 {
@@ -2568,4 +2569,58 @@ class WebserviceController extends Controller
         }        
         return response()->json($response);
    }
+   /**
+     * API to save seeker rating for provider
+     *
+     * @return [string] message
+     */
+    public function addRating(Request $request){
+        $user = Auth::user(); 
+        $data = $request->all(); 
+        $role_id =  config('constants.ROLE_TYPE_SEEKER_ID');
+        $review_data=array();
+        $seeker = User::with(['roles'])->whereHas('roles', function($query) use ($role_id){
+              $query->where('id', $role_id);
+        });
+        $seeker=$seeker->where(['id'=>$user->id])->first();
+        if($seeker)
+        { 
+             $validator = Validator::make($data, [
+                'user_id'=>'required', 
+                'rating'=>'required',
+                'text'=>'nullable'
+            ]);
+            if ($validator->fails()) {
+                return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
+            }
+            $review=Review::where(array('user_id'=>$request->user_id,'added_by'=>$user->id))->first();
+            $data['added_by']=$user->id;
+            $review_show_on_profile=0;
+            if($request->review_show_on_profile)
+            {
+              $review_show_on_profile=true;
+            }
+            if($review)
+            {
+              $response=array('status'=>false,'message'=>'you already given review on this provider.');
+            }else
+            {
+               $review = Review::create($data);
+               $review_data=array('user_id'=>$request->user_id,
+                                  'rating'=>$request->rating,
+                                  'text'=>isset($request->text)?$request->text:'');
+               if($review_show_on_profile==true)
+               {
+                  $profile = Profile::where(array('user_id'=>$request->user_id))->first();
+                  $profile_data=array('display_seeker_reviews'=>$review_show_on_profile);
+                  $profile->update($profile_data);                
+               }
+               $response=array('status'=>true,'review'=>$review_data,'message'=>'you have successfully given review, Thank you.');
+            }           
+        }else
+        {
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
+      }
 }
