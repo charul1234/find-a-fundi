@@ -31,5 +31,8 @@
 		'PAYMENT_STATUS_COMPLETED' => 'completed',
 		'PAYMENT_STATUS_DECLINED' => 'declined',
 		'PAYMENT_STATUS_PENDING' => 'pending',
+		'JOB_STATUS_NOT_STARTED' => 'not started',
+		'JOB_STATUS_STARTED' => 'started',
+		'JOB_STATUS_COMPLETED' => 'completed',
 	];
 ?>

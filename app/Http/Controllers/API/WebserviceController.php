@@ -24,6 +24,7 @@ use App\BookingUser;
 use App\Transaction;
 use App\Faq;
 use App\Review;
+use App\Schedule;
 
 class WebserviceController extends Controller
 {
@@ -2617,6 +2618,61 @@ class WebserviceController extends Controller
                }
                $response=array('status'=>true,'review'=>$review_data,'message'=>'you have successfully given review, Thank you.');
             }           
+        }else
+        {
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
+      }
+      /**
+     * API to add Jobs Schedule with provider login
+     *
+     * @return [string] message
+     */
+    public function addJobsSchedule(Request $request){
+        $user = Auth::user(); 
+        $data = $request->all(); 
+        $role_id =  config('constants.ROLE_TYPE_PROVIDER_ID');
+        $schedules=array();
+        $provider = User::with(['roles'])->whereHas('roles', function($query) use ($role_id){
+              $query->where('id', $role_id);
+        });
+        $provider=$provider->where(['id'=>$user->id])->first();
+        if($provider)
+        { 
+             $validator = Validator::make($data, [
+                'booking_id'=>'required', 
+                'schedules'=>'required'
+            ]);
+            if ($validator->fails()) {
+                return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
+            }
+            $schedules_data=Schedule::where(['booking_id'=>$request->booking_id,'user_id'=>$provider->id])->get();
+            if(count($schedules_data)>0)
+            {
+               Schedule::where(['booking_id'=>$request->booking_id,'user_id'=>$provider->id])->delete();
+               $schedules_data=json_decode(stripslashes($request->schedules));
+              if(!empty($schedules_data))
+              {               
+                foreach ($schedules_data as $key => $schedule) 
+                { 
+                   $fill_data=array('booking_id'=>$request->booking_id,'user_id'=>$provider->id,'date'=>$schedule->date,'start_time'=>$schedule->start_time,'end_time'=>$schedule->end_time,'service_title'=>$schedule->service_title,'requirements'=>$schedule->requirements,'price'=>$schedule->price,'status'=>$schedule->status);
+                   Schedule::create($fill_data);   
+                }
+              }
+            }else
+            {
+              $schedules_data=json_decode(stripslashes($request->schedules));
+              if(!empty($schedules_data))
+              {               
+                foreach ($schedules_data as $key => $schedule) 
+                { 
+                   $fill_data=array('booking_id'=>$request->booking_id,'user_id'=>$provider->id,'date'=>$schedule->date,'start_time'=>$schedule->start_time,'end_time'=>$schedule->end_time,'service_title'=>$schedule->service_title,'requirements'=>$schedule->requirements,'price'=>$schedule->price,'status'=>$schedule->status);              
+                   Schedule::create($fill_data);   
+                }
+              }
+            }            
+            $response=array('status'=>true,'message'=>'Schedules added.');
         }else
         {
             $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
