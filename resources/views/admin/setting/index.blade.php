@@ -171,6 +171,17 @@
                 </div>
                     </div>
                 </div>
+                <div class="col-6">
+                  <div class="form-group {{$errors->has('cancellation_time') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                        <label class="col-md-12" for="cancellation_time">{{__('global.setting.cancellation_time') }} in ( {{__('global.setting.minutes') }} )<span style="color:red"></span></label>
+                         <div class="col-md-12">
+                            {!! Form::text('cancellation_time', old('cancellation_time',getSetting('cancellation_time')), ['class' => 'form-control', 'placeholder' => __('global.setting.cancellation_time')]) !!}
+                            @if($errors->has('cancellation_time'))
+                            <strong for="cancellation_time" class="help-block">{{ $errors->first('cancellation_time') }}</strong>
+                            @endif
+                        </div>
+                    </div>
+                </div>
             </div>
         </div> 
         <div class="card-footer">
@@ -203,6 +214,10 @@ jQuery(document).ready(function(){
             commision_rate: {
                 number: true,
                 required: true                
+            },
+            cancellation_time: {
+                number: true,
+                required: false                
             }
         }
     });

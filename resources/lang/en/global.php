@@ -37,5 +37,7 @@ return [
         'footer_logo'=>'Footer Logo',
         'favicon'=>'Favicon',
         'commision_rate'=>'Commision Rate',
+        'cancellation_time'=>'Cancellation time',
+        'minutes'=>'Minutes',
     ],
 ];
