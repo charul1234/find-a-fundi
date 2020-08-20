@@ -6,5 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Faq extends Model
 {
-    //
+     /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'title','description','is_active','created_by'
+    ];
 }

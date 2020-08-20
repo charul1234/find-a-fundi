@@ -80,6 +80,12 @@ Route::group(['middleware' => ['auth']], function(){
 			Route::post('seekers/getUsers', 'SeekersController@getUsers')->name('seekers.getUsers');
 			Route::get('seekers/status/{user_id}', 'SeekersController@status')->name('seekers.status');
 			Route::get('seekers/view/{user_id}', 'SeekersController@view')->name('seekers.view');	
+			/*faqs*/
+			Route::resources([
+				'faqs' => 'FaqsController',
+			]);
+			Route::post('faqs/getFaqs', 'FaqsController@getFaqs')->name('faqs.getFaqs');
+			Route::get('faqs/status/{faq_id}', 'FaqsController@status')->name('faqs.status');
 		});
 	});
 });
