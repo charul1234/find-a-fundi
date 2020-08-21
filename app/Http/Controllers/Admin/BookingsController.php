@@ -52,6 +52,16 @@ class BookingsController extends Controller
                 $keyword = strtolower($keyword);
                 $query->whereRaw("LOWER(DATE_FORMAT(created_at,'".config('constants.MYSQL_DATETIME_FORMAT')."')) like ?", ["%$keyword%"]);
             })
+            ->editColumn('description', function ($booking) {
+                $description='';
+                if (strlen($booking->description) > 80) {
+                    $description=substr($booking->description,0,80).'...';
+                }else
+                {
+                    $description=$booking->description;
+                }
+                return $description;
+            })
             ->editColumn('title', function ($booking) {
                 return isset($booking->title)?ucwords($booking->title):'';
             })
