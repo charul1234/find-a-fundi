@@ -86,6 +86,13 @@ Route::group(['middleware' => ['auth']], function(){
 			]);
 			Route::post('faqs/getFaqs', 'FaqsController@getFaqs')->name('faqs.getFaqs');
 			Route::get('faqs/status/{faq_id}', 'FaqsController@status')->name('faqs.status');
+			/*bookings*/
+			Route::resources([
+				'bookings' => 'BookingsController',
+			]);
+			Route::post('bookings/getBookings', 'BookingsController@getBookings')->name('bookings.getBookings');
+			Route::get('bookings/status/{booking_id}', 'BookingsController@status')->name('bookings.status');
+			Route::get('bookings/view/{user_id}', 'BookingsController@view')->name('bookings.view');	
 		});
 	});
 });

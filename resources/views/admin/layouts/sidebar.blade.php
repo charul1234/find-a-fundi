@@ -58,6 +58,14 @@
     </li>
   @endcan
 
+  @can('admin.bookings.index')
+  <li class="nav-item">
+    <a class="nav-link" href="{{ route('admin.bookings.index') }}">
+      <i class="fas fa-fw fa fa-bookmark"></i>
+      <span>Bookings</span></a>
+    </li>
+  @endcan
+
   @can('admin.faqs.index')
   <li class="nav-item">
     <a class="nav-link" href="{{ route('admin.faqs.index') }}">
