@@ -286,7 +286,7 @@
     $i = 1;
     foreach ($works_photo as $key => $photo) {
       ?>
-     <div class="col-md-2">
+     <div class="col-md-2 mb-4">
       <div type="button"  data-toggle="modal" data-target="#myModal-<?php echo $i; // Displaying the increment ?>">
           <img width="70" height="70" src="{{ $photo->getFullUrl() }}" />
       </div>

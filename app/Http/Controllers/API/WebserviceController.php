@@ -2133,9 +2133,9 @@ class WebserviceController extends Controller
                     foreach ($files as $file) 
                     {
                        $customname = time() .$i.'.' . $file->getClientOriginalExtension();
-                       $booking->addMedia($file)
+                       $userdata->addMedia($file)
                          ->usingFileName($customname)
-                         ->toMediaCollection('booking_works_photo');
+                         ->toMediaCollection('works_photo');
                        $i++;
                     }
                  }
@@ -2167,9 +2167,9 @@ class WebserviceController extends Controller
                     foreach ($files as $file) 
                     {
                        $customname = time() .$i. '.' . $file->getClientOriginalExtension();
-                       $booking->addMedia($file)
+                       $userdata->addMedia($file)
                          ->usingFileName($customname)
-                         ->toMediaCollection('booking_works_photo');
+                         ->toMediaCollection('works_photo');
                         $i++;
                     }
                  }
@@ -2217,9 +2217,12 @@ class WebserviceController extends Controller
                      foreach ($files as $file) 
                       {
                          $customname = time() .$i.'.' . $file->getClientOriginalExtension();
-                         $bookingUserData->addMedia($file)
+                         /*$bookingUserData->addMedia($file)
                            ->usingFileName($customname)
-                           ->toMediaCollection('booking_works_photo');
+                           ->toMediaCollection('booking_works_photo');*/
+                           $userdata->addMedia($file)
+                           ->usingFileName($customname)
+                           ->toMediaCollection('works_photo');
                          $i++;
                       }
                    } 
