@@ -780,7 +780,9 @@ class WebserviceController extends Controller
             $start_limit=(isset($request->start_limit)?$request->start_limit:0)*$end_limit;
             $providers=$providers->offset($start_limit)->limit($end_limit)->get();
             $providersdata=[];
-            foreach ($providers as $key => $provider) {              
+            
+            foreach ($providers as $key => $provider) {        
+            $rating=0.0;      
               if(isset($provider) && $provider->getMedia('profile_picture')->count() > 0 && file_exists($provider->getFirstMedia('profile_picture')->getPath()))
               {
                  $provider['profile_picture']=$provider->getFirstMedia('profile_picture')->getFullUrl();
@@ -788,6 +790,7 @@ class WebserviceController extends Controller
               {
                  $provider['profile_picture']= asset(config('constants.NO_IMAGE_URL'));
               }
+
               
                   
                $Kilometer_distance=  $this->distance($provider->profile->latitude,$provider->profile->longitude , $latitude,$longitude , "K");
@@ -795,9 +798,19 @@ class WebserviceController extends Controller
                $Kilometer_distance=round($Kilometer_distance, 2);
                //$address =$provider->user->profile->work_address;
                //$address."-".$Kilometer_distance."-".$radius."-u".$provider->user->profile->user_id."-radi".(floatval($provider->user->profile->radius)); echo "<br/>";
-               $rating=0.0;
+              if($provider->profile->display_seeker_reviews==true)
+              {
+                $provider_review=Review::where(array('user_id'=>$provider->id))->get();
+                if(count($provider_review)>0)
+                {
+                  $no_of_count=count($provider_review); 
+                  $provider_rating=$provider_review->sum('rating');
+                  $rating = $provider_rating / $no_of_count;
+                  $rating=(round($rating,2));
+                }
+              }               
                
-               if($provider->profile->radius!='null' && $provider->profile->radius!='')
+              if($provider->profile->radius!='null' && $provider->profile->radius!='')
                {
                if($radius>=$Kilometer_distance)
                 {
@@ -812,7 +825,7 @@ class WebserviceController extends Controller
                                           'rating'=>$rating
                                           );              
                 }
-               }              
+              }           
             }            
 
             
@@ -2272,7 +2285,7 @@ class WebserviceController extends Controller
               $booking_users=BookingUser::where(array('booking_id'=>$bookings->id,'status'=>config('constants.PAYMENT_STATUS_QUOTED')))->get();
               if($booking_users)
               {
-                $rating='';
+                //$rating='';
                 foreach($booking_users as $booking_user)
                 {
                     $rating=0.0;
@@ -2286,6 +2299,17 @@ class WebserviceController extends Controller
                     }else
                     {
                           $provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
+                    }
+                    if($providerdata->profile->display_seeker_reviews==true)
+                    {
+                      $provider_review=Review::where(array('user_id'=>$providerdata->profile->user_id))->get();
+                      if(count($provider_review)>0)
+                      {
+                        $no_of_count=count($provider_review); 
+                        $provider_rating=$provider_review->sum('rating');
+                        $rating = $provider_rating / $no_of_count;
+                        $rating=(round($rating,2));
+                      }
                     }
                     $booking_rfq_users[]=array('booking_id'=>$booking_user->booking_id,
                                            'user_id'=>$booking_user->user_id,
@@ -2363,6 +2387,15 @@ class WebserviceController extends Controller
                     {
                           $provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
                     }
+
+                    $provider_review=Review::where(array('user_id'=>$booking->user->id))->get();
+                    if(count($provider_review)>0)
+                    {
+                      $no_of_count=count($provider_review); 
+                      $provider_rating=$provider_review->sum('rating');
+                      $rating = $provider_rating / $no_of_count;
+                      $rating=(round($rating,2));
+                    }
                         $userdata=array('name'=>$provider_name,
                                         'email'=>$provider_email,
                                         'mobile_number'=>$provider_mobile_number,
@@ -2407,12 +2440,22 @@ class WebserviceController extends Controller
                     $provider_name=isset($providerdata->name)?$providerdata->name:'';
                     $provider_email=isset($providerdata->email)?$providerdata->email:'';
                     $provider_mobile_number=isset($providerdata->mobile_number)?$providerdata->mobile_number:'';
+                    $provider_id=isset($providerdata->id)?$providerdata->id:'';
                     if(isset($providerdata) && $providerdata->getMedia('profile_picture')->count() > 0 && file_exists($providerdata->getFirstMedia('profile_picture')->getPath()))
                     {
                           $provider_profile_picture=$providerdata->getFirstMedia('profile_picture')->getFullUrl();
                     }else
                     {
                           $provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
+                    }
+                    //print_r($booking_user);
+                    $provider_review=Review::where(array('user_id'=>$provider_id))->get();
+                    if(count($provider_review)>0)
+                    {
+                      $no_of_count=count($provider_review); 
+                      $provider_rating=$provider_review->sum('rating');
+                      $rating = $provider_rating / $no_of_count;
+                      $rating=(round($rating,2));
                     }
                        $userdata=array( 'name'=>$provider_name,
                                         'email'=>$provider_email,
