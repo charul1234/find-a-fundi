@@ -365,17 +365,7 @@ class WebserviceController extends Controller
                                       'image_path'=>$works_photo->getFullUrl());
             }
           }
-          /*$certificate_conduct = $provider->getMedia('certificate_conduct');
-          $provider['certificate_conduct']=''; 
-          $provider['certificate_conduct_name']='';
-
           
-          if(isset($provider) && $provider->getMedia('certificate_conduct')->count() > 0 && file_exists($provider->getFirstMedia('certificate_conduct')->getPath()))
-          {           
-            $provider['certificate_conduct']=$provider->getFirstMedia('certificate_conduct')->getFullUrl();
-            $provider['certificate_conduct_name']=$provider->getFirstMedia('certificate_conduct')->name;
-          } */
-          //print_r($provider->certification);
           $certification_img='';
           if(count($provider->certification))
           {
@@ -427,6 +417,19 @@ class WebserviceController extends Controller
 
             $age = (date('Y') - date('Y',strtotime($provider->profile->dob)));          
           }
+          /*rating*/
+          if($provider->profile->display_seeker_reviews==true)
+          {
+            $provider_review=Review::where(array('user_id'=>$user_id))->get();
+            if(count($provider_review)>0)
+            {
+              $no_of_count=count($provider_review); 
+              $provider_rating=$provider_review->sum('rating');
+              $rating = $provider_rating / $no_of_count;
+              $rating=(round($rating,2));
+            }
+          }          
+          /*rating*/
           $provider['age']=(string)$age;
           $provider['rating']=$rating;
           unset($provider['media']);
