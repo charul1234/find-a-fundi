@@ -960,9 +960,20 @@ class WebserviceController extends Controller
                                           );                     
                        $booking_list[$type][]=$bookingrecords;
                        
-                     }else if($booking->status==config('constants.PAYMENT_STATUS_REQUESTED') && $booking->is_rfq==1)
+                     }else if($booking->status==config('constants.PAYMENT_STATUS_ACCEPTED') && $booking->is_rfq==1)
                      {  
-                       $booking_rfq=array();            
+                       $booking_rfq=array();     
+                       $providerdata=User::with(['profile'])->where('id',$booking->user_id)->first();
+                       $provider_name=isset($providerdata->name)?$providerdata->name:'';
+                       $provider_email=isset($providerdata->email)?$providerdata->email:'';
+                       $provider_mobile_number=isset($providerdata->mobile_number)?$providerdata->mobile_number:'';      
+                       if(isset($providerdata) && $providerdata->getMedia('profile_picture')->count() > 0 && file_exists($providerdata->getFirstMedia('profile_picture')->getPath()))
+                      {
+                            $provider_profile_picture=$providerdata->getFirstMedia('profile_picture')->getFullUrl();
+                      }else
+                      {
+                            $provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
+                      }  
                        //condition for rfq type job
                        $booking_users=BookingUser::where(array('booking_id'=>$booking->id,'status'=>config('constants.PAYMENT_STATUS_ACCEPTED')))->first();
 
@@ -2556,6 +2567,8 @@ class WebserviceController extends Controller
                 $booking_user=BookingUser::where(array('booking_id'=>$booking->id,'user_id'=>$request->user_id))->first();
                 if($booking_user)
                 {
+                   $booking->update(array('status'=>config('constants.PAYMENT_STATUS_ACCEPTED')));
+                   //$booking->update(array('status'=>config('constants.PAYMENT_STATUS_ACCEPTED')));
                    $transaction = Transaction::create($data);
                    $booking_user->update(array('status'=>config('constants.PAYMENT_STATUS_ACCEPTED')));
                    $payment_data=array('user_id'=>$request->user_id,
@@ -2570,16 +2583,17 @@ class WebserviceController extends Controller
                                     'status'=>isset($request->status)?$request->status:'',
                                     'payment_mode'=>isset($request->payment_mode)?$request->payment_mode:'');
                    $response=array('status'=>true,'payment'=>$payment_data,'message'=>'Payment successfully done.');
-                }                 
-              }   
+                }else
+                { 
+                  $response=array('status'=>false,'message'=>'Record not found.');
+                }  
+              }  
             }else
             {
               $response=array('status'=>false,'message'=>'Record not found.');
             }
-
-            
         }else
-        {
+        { 
             $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
         }        
         return response()->json($response);
