@@ -1577,7 +1577,7 @@ class WebserviceController extends Controller
                 }
                }                 
               }else if($type==config('constants.PAYMENT_STATUS_COMPLETED')){
-                if($booking->status==config('constants.PAYMENT_STATUS_COMPLETED') && $booking->is_rfq==0){
+                if($booking->status==config('constants.PAYMENT_STATUS_COMPLETED') && $booking->is_rfq==0 && ($booking->user_id==$userdata->id)) {
                       $providerdata=User::with(['profile'])->where('id',$userdata->id)->first();
                       $provider_name=isset($providerdata->name)?$providerdata->name:'';
                       $provider_email=isset($providerdata->email)?$providerdata->email:'';
@@ -1615,7 +1615,7 @@ class WebserviceController extends Controller
                                           'profile_picture'=>$provider_profile_picture
                                           ); 
                       $booking_array[$type][]=$bookingdata;
-                }else if($booking->status==config('constants.PAYMENT_STATUS_REQUESTED') && $booking->is_rfq==1){ 
+                }else if($booking->status==config('constants.PAYMENT_STATUS_COMPLETED') && $booking->is_rfq==1){ 
                       $booking_users=BookingUser::where(array('booking_id'=>$booking->id,'user_id'=>$userdata->id,'status'=>config('constants.PAYMENT_STATUS_COMPLETED')))->first();
                       if(isset($booking_users)){
                         //$booking_array[$type][]=$booking;
@@ -1648,7 +1648,7 @@ class WebserviceController extends Controller
                       }
                 }
               }else if($type==config('constants.PAYMENT_STATUS_ACCEPTED')){
-                  if($booking->status==config('constants.PAYMENT_STATUS_ACCEPTED') && $booking->is_rfq==0){
+                  if($booking->status==config('constants.PAYMENT_STATUS_ACCEPTED') && $booking->is_rfq==0  && ($booking->user_id==$userdata->id)){
                       $providerdata=User::with(['profile'])->where('id',$booking->user_id)->first();
                       $provider_name=isset($providerdata->name)?$providerdata->name:'';
                       $provider_email=isset($providerdata->email)?$providerdata->email:'';
@@ -1686,7 +1686,7 @@ class WebserviceController extends Controller
                                           'profile_picture'=>$provider_profile_picture
                                           ); 
                       $booking_array[$type][]=$bookingdata;
-                }else if($booking->status==config('constants.PAYMENT_STATUS_REQUESTED') && $booking->is_rfq==1){ 
+                }else if($booking->status==config('constants.PAYMENT_STATUS_ACCEPTED') && $booking->is_rfq==1){ 
                  $booking_users=BookingUser::where(array('booking_id'=>$booking->id,'user_id'=>$userdata->id,'status'=>config('constants.PAYMENT_STATUS_ACCEPTED')))->first();
                       if(isset($booking_users)){
                         $providerdata=User::with(['profile'])->where('id',$booking_users->user_id)->first();
@@ -1739,8 +1739,7 @@ class WebserviceController extends Controller
              {
                $booking_data=$booking_array;
                $response=array('status'=>false,'bookingdata'=>$booking_data,'message'=>'record not found');
-             }
-             
+             }             
            }else{            
             $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
         } 
