@@ -2839,4 +2839,80 @@ class WebserviceController extends Controller
         return response()->json($response);
 
       }
+    /**
+     * API to get PackageUser detail of provider
+     *
+     * @return [string] message
+     */
+    public function getPackageUserdetail(Request $request){
+        $user = Auth::user(); 
+        $data = $request->all(); 
+        $role_id =  config('constants.ROLE_TYPE_SEEKER_ID');
+        $review_data=array();
+        $subcategory_id=isset($request->subcategory_id)?$request->subcategory_id:'';
+        $package_id=isset($request->package_id)?$request->package_id:'';
+        
+        $user_id=isset($request->user_id)?$request->user_id:'';
+        $seeker = User::with(['roles'])->whereHas('roles', function($query) use ($role_id){
+              $query->where('id', $role_id);
+        });
+        $seeker=$seeker->where(['id'=>$user->id])->first();
+        $user_package_data=array();        
+       
+        if($seeker)
+        {
+            $user_package= PackageUser::with(['user','user.profile','user.media','package'=>function($query) use ($subcategory_id) {              
+              $query->where('category_id',$subcategory_id);  
+              $query->where('is_active',true);             
+            }])->where(array('package_id'=>$package_id,'user_id'=>$user_id));            
+
+            $user_package=$user_package->first(); 
+            $age='';
+            $profile_picture='';    
+            $rating=0.0;     
+            if($user_package)
+            {                               
+                  if(isset($user_package->user) && $user_package->user->getMedia('profile_picture')->count() > 0 && file_exists($user_package->user->getFirstMedia('profile_picture')->getPath()))
+                  {
+                    $profile_picture=$user_package->user->getFirstMedia('profile_picture')->getFullUrl();
+                  }                    
+                    $provider_review=Review::where(array('user_id'=>$user_id))->get();
+                    if(count($provider_review)>0)
+                    {
+                      $no_of_count=count($provider_review); 
+                      $provider_rating=$provider_review->sum('rating');
+                      $rating = $provider_rating / $no_of_count;
+                      $rating=(round($rating,2));
+                    }    
+                    if(isset($user_package->user->profile->dob) && $user_package->user->profile->dob!='')
+                    {
+                      $age = (date('Y') - date('Y',strtotime($user_package->user->profile->dob)));
+                    }              
+                            
+                    $user_package_data[]=array('id'=>isset($user_package->user->id)?$user_package->user->id:'',
+                                         'name'=>isset($user_package->user->name)?$user_package->user->name:'',
+                                         'email'=>isset($user_package->user->email)?$user_package->user->email:'',
+                                         'package_name'=>isset($user_package->package->title)?$user_package->package->title:'',
+                                         'package_description'=>isset($user_package->package->description)?$user_package->package->description:'',
+                                         'package_price'=>isset($user_package->price)?$user_package->price:'',
+                                         'mobile_number'=>isset($user_package->user->mobile_number)?$user_package->user->mobile_number:'',
+                                         'is_verify'=>isset($user_package->user->is_verify)?$user_package->user->is_verify:'',
+                                         'profile_picture'=>$profile_picture,
+                                         'dob'=>isset($user_package->user->profile->dob)?$user_package->user->profile->dob:'',
+                                         'work_address'=>isset($user_package->user->profile->work_address)?$user_package->user->profile->work_address:'',
+                                         'radius'=>isset($user_package->user->profile->radius)?$user_package->user->profile->radius:'',
+                                         'year_experience'=>isset($user_package->user->profile->year_experience)?$user_package->user->profile->year_experience:'',
+                                         'rating'=>$rating,
+                                         'age'=>$age);                
+              
+                $response=array('status'=>true,'data'=>$user_package_data,'message'=>'Record found.');
+            }else{
+                $response=array('status'=>false,'message'=>'no record found.');
+            }             
+        }else
+        {
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);  
+    }
 }
