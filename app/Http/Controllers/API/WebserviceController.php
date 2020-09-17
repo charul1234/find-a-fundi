@@ -2787,7 +2787,6 @@ class WebserviceController extends Controller
               $packages->whereHas('user', function($query) use ($security_check) {    
               $query->where('is_verify',$security_check);            
               });
-              echo $security_check;
             }
 
 
