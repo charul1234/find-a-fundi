@@ -2797,31 +2797,37 @@ class WebserviceController extends Controller
             {
               foreach ($packages as $key => $package) 
               {
-                $profile_picture='';    
-                $rating=0.0;                  
-                if(isset($package->user) && $package->user->getMedia('profile_picture')->count() > 0 && file_exists($package->user->getFirstMedia('profile_picture')->getPath()))
+                $provider_id=isset($package->user->id)?$package->user->id:0;    
+                if($provider_id>0)
                 {
-                  $profile_picture=$package->user->getFirstMedia('profile_picture')->getFullUrl();
-                }  
-                $provider_review=Review::where(array('user_id'=>$package->user->id))->get();
-                if(count($provider_review)>0)
-                {
-                  $no_of_count=count($provider_review); 
-                  $provider_rating=$provider_review->sum('rating');
-                  $rating = $provider_rating / $no_of_count;
-                  $rating=(round($rating,2));
+                  $profile_picture='';    
+                  $rating=0.0;                                
+                  if(isset($package->user) && $package->user->getMedia('profile_picture')->count() > 0 && file_exists($package->user->getFirstMedia('profile_picture')->getPath()))
+                  {
+                    $profile_picture=$package->user->getFirstMedia('profile_picture')->getFullUrl();
+                  }                    
+                    $provider_review=Review::where(array('user_id'=>$provider_id))->get();
+                    if(count($provider_review)>0)
+                    {
+                      $no_of_count=count($provider_review); 
+                      $provider_rating=$provider_review->sum('rating');
+                      $rating = $provider_rating / $no_of_count;
+                      $rating=(round($rating,2));
+                    }
+                  
+                  
+                   $package_data[]=array('id'=>isset($package->user->id)?$package->user->id:'',
+                                         'name'=>isset($package->user->name)?$package->user->name:'',
+                                         'email'=>isset($package->user->email)?$package->user->email:'',
+                                         'package_price'=>isset($package->price)?$package->price:'',
+                                         'mobile_number'=>isset($package->user->mobile_number)?$package->user->mobile_number:'',
+                                         'is_verify'=>isset($package->user->is_verify)?$package->user->is_verify:'',
+                                         'profile_picture'=>$profile_picture,
+                                         'dob'=>isset($package->user->profile->dob)?$package->user->profile->dob:'',
+                                         'radius'=>isset($package->user->profile->radius)?$package->user->profile->radius:'',
+                                         'year_experience'=>isset($package->user->profile->year_experience)?$package->user->profile->year_experience:'',
+                                         'rating'=>$rating);
                 }
-                 $package_data[]=array('id'=>$package->user->id,
-                                       'name'=>$package->user->name,
-                                       'email'=>$package->user->email,
-                                       'package_price'=>$package->price,
-                                       'mobile_number'=>$package->user->mobile_number,
-                                       'is_verify'=>$package->user->is_verify,
-                                       'profile_picture'=>$profile_picture,
-                                       'dob'=>$package->user->profile->dob,
-                                       'radius'=>$package->user->profile->radius,
-                                       'year_experience'=>$package->user->profile->year_experience,
-                                       'rating'=>$rating);
                }
                 $response=array('status'=>true,'data'=>$package_data,'message'=>'Record found.');
             }else{
