@@ -187,7 +187,7 @@ class WebserviceController extends Controller
             $keywords=isset($keywords)?$keywords:'';
             if($keywords!= ''){
                 $packages->where('title', 'LIKE', '%' . $keywords . '%'); 
-                $packages->orWhere('description', 'LIKE', '%' . $keywords . '%');            
+                //$packages->orWhere('description', 'LIKE', '%' . $keywords . '%');            
             }
             /*$sortby = $request->input('sortby');
             $sortby=isset($sortby)?$sortby:'';
