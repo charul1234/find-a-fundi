@@ -2741,4 +2741,97 @@ class WebserviceController extends Controller
         }        
         return response()->json($response);
       }
+    /**
+     * API to get PackagesUser of provider
+     *
+     * @return [string] message
+     */
+    public function getPackagesUser(Request $request){
+        $user = Auth::user(); 
+        $data = $request->all(); 
+        $role_id =  config('constants.ROLE_TYPE_SEEKER_ID');
+        $review_data=array();
+        $subcategory_id=isset($request->subcategory_id)?$request->subcategory_id:'';
+        $package_id=isset($request->package_id)?$request->package_id:'';
+        $experience=isset($request->experience)?$request->experience:'';
+        $min_price=isset($request->min_price)?$request->min_price:'';
+        $max_price=isset($request->max_price)?$request->max_price:'';
+        $security_check=isset($request->security_check)?$request->security_check:'';
+        $seeker = User::with(['roles'])->whereHas('roles', function($query) use ($role_id){
+              $query->where('id', $role_id);
+        });
+        $seeker=$seeker->where(['id'=>$user->id])->first();
+        $package_data=array();
+        
+       
+        if($seeker)
+        {
+            $packages= PackageUser::with(['user','user.profile','user.media','package'=>function($query) use ($subcategory_id) {              
+              $query->where('category_id',$subcategory_id);  
+              $query->where('is_active',true);             
+            }])->where('package_id',$package_id);
+            if($experience)
+            {
+              $packages->whereHas('user.profile', function($query) use ($experience) {    
+              $query->where('year_experience',$experience);            
+              });
+            }
+            if($min_price || $max_price)
+            {
+              $packages->where('price', '>=', $min_price )
+                 ->where('price', '<=', $max_price ); 
+            }
+            if($security_check)
+            {
+
+              $packages->whereHas('user', function($query) use ($security_check) {    
+              $query->where('is_verify',$security_check);            
+              });
+              echo $security_check;
+            }
+
+
+
+            $packages=$packages->get(); 
+            if(count($packages)>0)
+            {
+              foreach ($packages as $key => $package) 
+              {
+                $profile_picture='';    
+                $rating=0.0;                  
+                if(isset($package->user) && $package->user->getMedia('profile_picture')->count() > 0 && file_exists($package->user->getFirstMedia('profile_picture')->getPath()))
+                {
+                  $profile_picture=$package->user->getFirstMedia('profile_picture')->getFullUrl();
+                }  
+                $provider_review=Review::where(array('user_id'=>$package->user->id))->get();
+                if(count($provider_review)>0)
+                {
+                  $no_of_count=count($provider_review); 
+                  $provider_rating=$provider_review->sum('rating');
+                  $rating = $provider_rating / $no_of_count;
+                  $rating=(round($rating,2));
+                }
+                 $package_data[]=array('id'=>$package->user->id,
+                                       'name'=>$package->user->name,
+                                       'email'=>$package->user->email,
+                                       'package_price'=>$package->price,
+                                       'mobile_number'=>$package->user->mobile_number,
+                                       'is_verify'=>$package->user->is_verify,
+                                       'profile_picture'=>$profile_picture,
+                                       'dob'=>$package->user->profile->dob,
+                                       'radius'=>$package->user->profile->radius,
+                                       'year_experience'=>$package->user->profile->year_experience,
+                                       'rating'=>$rating);
+               }
+                $response=array('status'=>true,'data'=>$package_data,'message'=>'Record found.');
+            }else{
+                $response=array('status'=>false,'message'=>'no record found.');
+            }             
+        }else
+        {
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
+
+      }
 }

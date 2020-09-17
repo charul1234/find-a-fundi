@@ -24,4 +24,11 @@ class PackageUser extends Model
     {
         return $this->belongsTo(Package::class,'package_id');
     }
+    /**
+     * Get the user information that belong to this user_id.
+    */
+    public function user()
+    {
+        return $this->belongsTo(User::class,'user_id');
+    }
 }
