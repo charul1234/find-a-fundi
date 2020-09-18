@@ -2746,7 +2746,7 @@ class WebserviceController extends Controller
      *
      * @return [string] message
      */
-    public function getPackagesUser(Request $request){
+    public function getProviderByPackage(Request $request){
         $user = Auth::user(); 
         $data = $request->all(); 
         $role_id =  config('constants.ROLE_TYPE_SEEKER_ID');

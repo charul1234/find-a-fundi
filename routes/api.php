@@ -68,7 +68,7 @@ Route::group(['namespace'=>'API'], function(){
 		 Route::post('getFAQ', 'WebserviceController@getFAQ');
 		 Route::post('addRating', 'WebserviceController@addRating');
 		 Route::post('addJobsSchedule', 'WebserviceController@addJobsSchedule');
-		 Route::post('getPackagesUser', 'WebserviceController@getPackagesUser');
+		 Route::post('getProviderByPackage', 'WebserviceController@getProviderByPackage');
 		 Route::post('getPackageUserdetail', 'WebserviceController@getPackageUserdetail');
 	});
 
