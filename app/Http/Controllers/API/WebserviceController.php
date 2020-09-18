@@ -311,7 +311,7 @@ class WebserviceController extends Controller
             }*/
             //need to send request or notification to all providers user that are belong to Lat long address.               
 
-            $response=array('status'=>true,'booking'=>$booking->id,'message'=>'Send request saved successfully.');
+            $response=array('status'=>true,'booking'=>$booking->id,'message'=>'Request Sent successfully');
         }else
         {
                 $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
