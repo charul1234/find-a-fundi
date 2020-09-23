@@ -2846,4 +2846,60 @@ class WebserviceController extends Controller
         return response()->json($response);
 
       }    
+    /**
+     * API to add package booking
+     *
+     * @return [string] message
+    */
+    public function bookingPackage(Request $request){
+
+        $user = Auth::user(); 
+        $data = $request->all(); 
+        if($user)
+        {
+            $rules = [  
+                'user_id'=>'required', 
+                'package_id'=>'required',  
+                'date'=>'required',
+                'time'=>'required',
+                'location'=>'required',
+                'latitude'=>'required',
+                'longitude'=>'required',
+                'category_id'=>'required',                 
+                'subcategory_id'=>'required',
+                'budget'=>'required',
+                'quantity'=>'required',                 
+                'total_package_amount'=>'required',       
+            ]; 
+            $validator = Validator::make($data, $rules);
+
+            if ($validator->fails()) {
+                return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
+            }
+            $data['datetime']=$data['date'].' '.$data['time'];
+            $data['requested_id']=isset($user->id)?$user->id:0;
+            $data['status']='requested';
+            $data['is_package']=true;
+            $booking = Booking::create($data);
+            $subcategories=isset($data['subcategory_id'])?$data['subcategory_id']:'';
+            if($subcategories!='')
+            {
+              $subcategories=explode(',',$subcategories);
+              if(count($subcategories)>0)
+              {
+                foreach ($subcategories as $key => $subcategory) 
+                {
+                    BookingSubcategory::create(array('booking_id'=>$booking->id,
+                                                     'category_id'=>$subcategory));
+                }
+              }
+            }                          
+
+            $response=array('status'=>true,'booking'=>$booking->id,'message'=>'Package request sent successfully');
+        }else
+        {
+                $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
+    }  
 }

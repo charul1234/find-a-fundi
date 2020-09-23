@@ -15,7 +15,7 @@ class Booking extends Model implements HasMedia
      * @var array
      */
     protected $fillable = [
-        'category_id', 'user_id', 'title','description','location','latitude','longitude','budget','is_rfq','request_for_quote_budget','is_hourly','estimated_hours','min_budget','max_budget','is_package','quantity','datetime','service_datetime','requirement','status','reason','requested_id','is_quoted'
+        'category_id', 'user_id', 'title','description','location','latitude','longitude','budget','is_rfq','request_for_quote_budget','is_hourly','estimated_hours','min_budget','max_budget','is_package','quantity','datetime','service_datetime','requirement','status','reason','requested_id','is_quoted','package_id','total_package_amount'
 
     ];
     public function registerMediaCollections(){
