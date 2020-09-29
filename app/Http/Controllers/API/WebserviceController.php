@@ -872,6 +872,7 @@ class WebserviceController extends Controller
            
             $bookings=$bookings->get();
             $booking_list[$type]=array();
+            $works_photo_Images=array(); 
            if(count($bookings)>0)
            {
             $bookingrecords='';            
@@ -921,7 +922,7 @@ class WebserviceController extends Controller
                      { 
                       $booking_rfq=array();
                       //condition for hourly type job  
-                      $providerdata=User::with(['profile'])->where('id',$booking->user_id)->first();
+                      $providerdata=User::with(['profile','media'])->where('id',$booking->user_id)->first();
                       $provider_name=isset($providerdata->name)?$providerdata->name:'';
                       $provider_email=isset($providerdata->email)?$providerdata->email:'';
                       $provider_mobile_number=isset($providerdata->mobile_number)?$providerdata->mobile_number:'';
@@ -932,7 +933,16 @@ class WebserviceController extends Controller
                       {
                             $provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
                       } 
-                       $bookingrecords=array('booking_id'=>$booking->id,
+                      if (isset($providerdata) && ($providerdata->getMedia('works_photo')->count() > 0)) 
+                       {
+                        foreach ($providerdata->getMedia('works_photo') as $key => $works_photo) {
+                           $works_photo_Images[]=array('id'=>$works_photo->id,
+                                                  'name'=>$works_photo->name,
+                                                  'file_name'=>$works_photo->file_name,
+                                                  'image_path'=>$works_photo->getFullUrl());
+                        }
+                       } 
+                      $bookingrecords=array('booking_id'=>$booking->id,
                                           'type'=>$booking_type,
                                           'category_id'=>$booking->category_id,
                                           'user_id'=>$booking->user_id,
@@ -942,6 +952,7 @@ class WebserviceController extends Controller
                                           'latitude'=>$booking->latitude,
                                           'longitude'=>$booking->longitude,
                                           'budget'=>isset($booking->budget)?(string)$booking->budget:'',
+                                          'is_package'=>$booking->is_package,
                                           'is_rfq'=>$booking->is_rfq,
                                           'booking_rfq'=>$booking_rfq,
                                           'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
@@ -956,7 +967,8 @@ class WebserviceController extends Controller
                                           'name'=>$provider_name,
                                           'email'=>$provider_email,
                                           'mobile_number'=>$provider_mobile_number,
-                                          'profile_picture'=>$provider_profile_picture
+                                          'profile_picture'=>$provider_profile_picture,
+                                          'works_photo'=>$works_photo_Images
                                           );                     
                        $booking_list[$type][]=$bookingrecords;
                        
@@ -979,7 +991,7 @@ class WebserviceController extends Controller
 
                        if(isset($booking_users))
                        {
-                        $booking_providerdata=User::with(['profile'])->where('id',$booking_users->user_id)->first();
+                        $booking_providerdata=User::with(['profile','media'])->where('id',$booking_users->user_id)->first();
                         $booking_provider_name=isset($booking_providerdata->name)?$booking_providerdata->name:'';
                         $booking_provider_email=isset($booking_providerdata->email)?$booking_providerdata->email:'';
                         $booking_provider_mobile_number=isset($booking_providerdata->mobile_number)?$booking_providerdata->mobile_number:'';
@@ -990,6 +1002,15 @@ class WebserviceController extends Controller
                         {
                               $booking_provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
                         } 
+                        if (isset($booking_providerdata) && ($booking_providerdata->getMedia('works_photo')->count() > 0)) 
+                         {
+                          foreach ($booking_providerdata->getMedia('works_photo') as $key => $works_photo) {
+                             $works_photo_Images[]=array('id'=>$works_photo->id,
+                                                    'name'=>$works_photo->name,
+                                                    'file_name'=>$works_photo->file_name,
+                                                    'image_path'=>$works_photo->getFullUrl());
+                          }
+                         } 
                          $booking_rfq=array('booking_id'=>$booking_users->booking_id,
                                              'user_id'=>$booking_users->user_id,
                                              'is_rfq'=>$booking_users->is_rfq,
@@ -1015,6 +1036,7 @@ class WebserviceController extends Controller
                                           'latitude'=>$booking->latitude,
                                           'longitude'=>$booking->longitude,
                                           'budget'=>isset($booking->budget)?(string)$booking->budget:'',
+                                          'is_package'=>$booking->is_package,
                                           'is_rfq'=>$booking->is_rfq,
                                           'booking_rfq'=>$booking_rfq,
                                           'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
@@ -1029,7 +1051,8 @@ class WebserviceController extends Controller
                                           'name'=>$provider_name,
                                           'email'=>$provider_email,
                                           'mobile_number'=>$provider_mobile_number,
-                                          'profile_picture'=>$provider_profile_picture
+                                          'profile_picture'=>$provider_profile_picture,
+                                          'works_photo'=>$works_photo_Images
                                           );                     
                        $booking_list[$type][]=$bookingrecords;   
                        }
@@ -1040,7 +1063,7 @@ class WebserviceController extends Controller
                      if(($booking->status==config('constants.PAYMENT_STATUS_REQUESTED') || $booking->status==config('constants.PAYMENT_STATUS_QUOTED') || $booking->status==config('constants.PAYMENT_STATUS_DECLINED')) && $booking->is_rfq==0)
                      {  
                         //pending jobs means jobs that have hourly with requested, quoted, declined     
-                        $providerdata=User::with(['profile'])->where('id',$booking->user_id)->first();
+                        $providerdata=User::with(['profile','media'])->where('id',$booking->user_id)->first();
                         $provider_name=isset($providerdata->name)?$providerdata->name:'';
                         $provider_email=isset($providerdata->email)?$providerdata->email:'';
                         $provider_mobile_number=isset($providerdata->mobile_number)?$providerdata->mobile_number:'';
@@ -1050,7 +1073,16 @@ class WebserviceController extends Controller
                         }else
                         {
                               $provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
-                        }                
+                        }    
+                        if (isset($providerdata) && ($providerdata->getMedia('works_photo')->count() > 0)) 
+                        {
+                          foreach ($providerdata->getMedia('works_photo') as $key => $works_photo) {
+                             $works_photo_Images[]=array('id'=>$works_photo->id,
+                                                    'name'=>$works_photo->name,
+                                                    'file_name'=>$works_photo->file_name,
+                                                    'image_path'=>$works_photo->getFullUrl());
+                          }
+                        }             
                          $bookingrecords=array('booking_id'=>$booking->id,
                                             'type'=>$booking_type,
                                             'category_id'=>$booking->category_id,
@@ -1061,6 +1093,7 @@ class WebserviceController extends Controller
                                             'latitude'=>$booking->latitude,
                                             'longitude'=>$booking->longitude,
                                             'budget'=>isset($booking->budget)?(string)$booking->budget:'',
+                                            'is_package'=>$booking->is_package,
                                             'is_rfq'=>$booking->is_rfq,
                                             'booking_rfq'=>$booking_rfq,
                                             'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
@@ -1075,7 +1108,8 @@ class WebserviceController extends Controller
                                             'name'=>$provider_name,
                                             'email'=>$provider_email,
                                             'mobile_number'=>$provider_mobile_number,
-                                            'profile_picture'=>$provider_profile_picture
+                                            'profile_picture'=>$provider_profile_picture,
+                                            'works_photo'=>$works_photo_Images
                                             );                     
                          $booking_list[$type][]=$bookingrecords;  
                      }else if($booking->status==config('constants.PAYMENT_STATUS_REQUESTED') && $booking->is_rfq==1)
@@ -1096,6 +1130,7 @@ class WebserviceController extends Controller
                         {
                               $booking_provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
                         }
+                        
                          
                          $booking_rfq[]=array('booking_id'=>$booking_declined->booking_id,
                                              'user_id'=>$booking_declined->user_id,
@@ -1126,7 +1161,16 @@ class WebserviceController extends Controller
                           }else
                           {
                                 $booking_provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
-                          }                        
+                          } 
+                         if (isset($booking_providerdata) && ($booking_providerdata->getMedia('works_photo')->count() > 0)) 
+                         {
+                          foreach ($booking_providerdata->getMedia('works_photo') as $key => $works_photo) {
+                             $works_photo_Images[]=array('id'=>$works_photo->id,
+                                                    'name'=>$works_photo->name,
+                                                    'file_name'=>$works_photo->file_name,
+                                                    'image_path'=>$works_photo->getFullUrl());
+                          }
+                         }                       
                          $booking_rfq[]=array('booking_id'=>$booking_quote->booking_id,
                                              'user_id'=>$booking_quote->user_id,
                                              'is_rfq'=>$booking_quote->is_rfq,
@@ -1153,6 +1197,7 @@ class WebserviceController extends Controller
                                           'latitude'=>$booking->latitude,
                                           'longitude'=>$booking->longitude,
                                           'budget'=>isset($booking->budget)?(string)$booking->budget:'',
+                                          'is_package'=>$booking->is_package,
                                           'is_rfq'=>$booking->is_rfq,
                                           'booking_rfq'=>$booking_rfq,
                                           'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
@@ -1167,7 +1212,8 @@ class WebserviceController extends Controller
                                           'name'=>'',
                                           'email'=>'',
                                           'mobile_number'=>'',
-                                          'profile_picture'=>''
+                                          'profile_picture'=>'',
+                                          'works_photo'=>$works_photo_Images
                                           );                     
                        $booking_list[$type][]=$bookingrecords;                       
                        //is_rfq type jobs  
@@ -1187,6 +1233,7 @@ class WebserviceController extends Controller
                                             'latitude'=>$booking->latitude,
                                             'longitude'=>$booking->longitude,
                                             'budget'=>isset($booking->budget)?(string)$booking->budget:'',
+                                            'is_package'=>$booking->is_package,
                                             'is_rfq'=>$booking->is_rfq,
                                             'booking_rfq'=>$booking_rfq,
                                             'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
