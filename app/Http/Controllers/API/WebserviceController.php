@@ -873,6 +873,8 @@ class WebserviceController extends Controller
             $bookings=$bookings->get();
             $booking_list[$type]=array();
             $works_photo_Images=array(); 
+            $age=""; 
+            $rating=0.0;
            if(count($bookings)>0)
            {
             $bookingrecords='';            
@@ -923,6 +925,7 @@ class WebserviceController extends Controller
                       $booking_rfq=array();
                       //condition for hourly type job  
                       $providerdata=User::with(['profile','media'])->where('id',$booking->user_id)->first();
+
                       $provider_name=isset($providerdata->name)?$providerdata->name:'';
                       $provider_email=isset($providerdata->email)?$providerdata->email:'';
                       $provider_mobile_number=isset($providerdata->mobile_number)?$providerdata->mobile_number:'';
@@ -942,6 +945,22 @@ class WebserviceController extends Controller
                                                   'image_path'=>$works_photo->getFullUrl());
                         }
                        } 
+                       if(isset($providerdata->profile->dob) && $providerdata->profile->dob!='')
+                      {
+
+                        $age = (date('Y') - date('Y',strtotime($providerdata->profile->dob)));          
+                      } 
+                      if($providerdata->profile->display_seeker_reviews==true)
+                      {
+                        $provider_review=Review::where(array('user_id'=>$providerdata->profile->user_id))->get();
+                        if(count($provider_review)>0)
+                        {
+                          $no_of_count=count($provider_review); 
+                          $provider_rating=$provider_review->sum('rating');
+                          $rating = $provider_rating / $no_of_count;
+                          $rating=(round($rating,2));
+                        }
+                      }
                       $bookingrecords=array('booking_id'=>$booking->id,
                                           'type'=>$booking_type,
                                           'category_id'=>$booking->category_id,
@@ -969,7 +988,9 @@ class WebserviceController extends Controller
                                           'email'=>$provider_email,
                                           'mobile_number'=>$provider_mobile_number,
                                           'profile_picture'=>$provider_profile_picture,
-                                          'works_photo'=>$works_photo_Images
+                                          'works_photo'=>$works_photo_Images,
+                                          'age'=>(string)$age,
+                                          'rating'=>$rating
                                           );                     
                        $booking_list[$type][]=$bookingrecords;
                        
@@ -1012,6 +1033,22 @@ class WebserviceController extends Controller
                                                     'image_path'=>$works_photo->getFullUrl());
                           }
                          } 
+                         if(isset($booking_providerdata->profile->dob) && $booking_providerdata->profile->dob!='')
+                        {
+
+                          $age = (date('Y') - date('Y',strtotime($booking_providerdata->profile->dob)));          
+                        } 
+                        if($booking_providerdata->profile->display_seeker_reviews==true)
+                        {
+                          $provider_review=Review::where(array('user_id'=>$booking_providerdata->profile->user_id))->get();
+                          if(count($provider_review)>0)
+                          {
+                            $no_of_count=count($provider_review); 
+                            $provider_rating=$provider_review->sum('rating');
+                            $rating = $provider_rating / $no_of_count;
+                            $rating=(round($rating,2));
+                          }
+                        }
                          $booking_rfq=array('booking_id'=>$booking_users->booking_id,
                                              'user_id'=>$booking_users->user_id,
                                              'is_rfq'=>$booking_users->is_rfq,
@@ -1054,7 +1091,9 @@ class WebserviceController extends Controller
                                           'email'=>$provider_email,
                                           'mobile_number'=>$provider_mobile_number,
                                           'profile_picture'=>$provider_profile_picture,
-                                          'works_photo'=>$works_photo_Images
+                                          'works_photo'=>$works_photo_Images,
+                                          'age'=>(string)$age,
+                                          'rating'=>$rating
                                           );                     
                        $booking_list[$type][]=$bookingrecords;   
                        }
@@ -1065,7 +1104,23 @@ class WebserviceController extends Controller
                      if(($booking->status==config('constants.PAYMENT_STATUS_REQUESTED') || $booking->status==config('constants.PAYMENT_STATUS_QUOTED') || $booking->status==config('constants.PAYMENT_STATUS_DECLINED')) && $booking->is_rfq==0)
                      {  
                         //pending jobs means jobs that have hourly with requested, quoted, declined     
-                        $providerdata=User::with(['profile','media'])->where('id',$booking->user_id)->first();
+                        $providerdata=User::with(['profile','media'])->where('id',$booking->user_id)->first();                         
+                         if(isset($providerdata->profile->dob) && $providerdata->profile->dob!='')
+                        {
+
+                          $age = (date('Y') - date('Y',strtotime($providerdata->profile->dob)));          
+                        } 
+                        if($providerdata->profile->display_seeker_reviews==true)
+                        {
+                          $provider_review=Review::where(array('user_id'=>$providerdata->profile->user_id))->get();
+                          if(count($provider_review)>0)
+                          {
+                            $no_of_count=count($provider_review); 
+                            $provider_rating=$provider_review->sum('rating');
+                            $rating = $provider_rating / $no_of_count;
+                            $rating=(round($rating,2));
+                          }
+                        }
                         $provider_name=isset($providerdata->name)?$providerdata->name:'';
                         $provider_email=isset($providerdata->email)?$providerdata->email:'';
                         $provider_mobile_number=isset($providerdata->mobile_number)?$providerdata->mobile_number:'';
@@ -1112,7 +1167,9 @@ class WebserviceController extends Controller
                                             'email'=>$provider_email,
                                             'mobile_number'=>$provider_mobile_number,
                                             'profile_picture'=>$provider_profile_picture,
-                                            'works_photo'=>$works_photo_Images
+                                            'works_photo'=>$works_photo_Images,
+                                            'age'=>(string)$age,
+                                            'rating'=>$rating
                                             );                     
                          $booking_list[$type][]=$bookingrecords;  
                      }else if($booking->status==config('constants.PAYMENT_STATUS_REQUESTED') && $booking->is_rfq==1)
@@ -1173,7 +1230,23 @@ class WebserviceController extends Controller
                                                     'file_name'=>$works_photo->file_name,
                                                     'image_path'=>$works_photo->getFullUrl());
                           }
-                         }                       
+                         }    
+                         if(isset($booking_providerdata->profile->dob) && $booking_providerdata->profile->dob!='')
+                          {
+
+                            $age = (date('Y') - date('Y',strtotime($booking_providerdata->profile->dob)));          
+                          } 
+                          if($booking_providerdata->profile->display_seeker_reviews==true)
+                          {
+                            $provider_review=Review::where(array('user_id'=>$booking_providerdata->profile->user_id))->get();
+                            if(count($provider_review)>0)
+                            {
+                              $no_of_count=count($provider_review); 
+                              $provider_rating=$provider_review->sum('rating');
+                              $rating = $provider_rating / $no_of_count;
+                              $rating=(round($rating,2));
+                            }
+                          }                   
                          $booking_rfq[]=array('booking_id'=>$booking_quote->booking_id,
                                              'user_id'=>$booking_quote->user_id,
                                              'is_rfq'=>$booking_quote->is_rfq,
@@ -1189,6 +1262,7 @@ class WebserviceController extends Controller
                                              'mobile_number'=>$booking_provider_mobile_number,
                                              'profile_picture'=>$booking_provider_profile_picture);         
                        }
+
                       
                        $bookingrecords=array('booking_id'=>$booking->id,
                                           'type'=>$booking_type,
@@ -1217,7 +1291,9 @@ class WebserviceController extends Controller
                                           'email'=>'',
                                           'mobile_number'=>'',
                                           'profile_picture'=>'',
-                                          'works_photo'=>$works_photo_Images
+                                          'works_photo'=>$works_photo_Images,
+                                          'age'=>(string)$age,
+                                          'rating'=>$rating
                                           );                     
                        $booking_list[$type][]=$bookingrecords;                       
                        //is_rfq type jobs  
@@ -1253,7 +1329,9 @@ class WebserviceController extends Controller
                                             'name'=>$provider_name,
                                             'email'=>$provider_email,
                                             'mobile_number'=>$provider_mobile_number,
-                                            'profile_picture'=>$provider_profile_picture
+                                            'profile_picture'=>$provider_profile_picture,
+                                            'age'=>(string)$age,
+                                            'rating'=>$rating
                                             );  
                       $booking_list[$type][]=$bookingrecords;
                   }                    
