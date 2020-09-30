@@ -3155,7 +3155,7 @@ class WebserviceController extends Controller
         {
             $rules = [  
                 'schedule_id'=>'required', 
-                'booking_id'=>'required'
+                'booking_id'=>'required',
                 'user_id'=>'required'
             ]; 
             $validator = Validator::make($data, $rules);
