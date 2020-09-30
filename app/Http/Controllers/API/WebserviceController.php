@@ -3032,4 +3032,115 @@ class WebserviceController extends Controller
         }        
         return response()->json($response);
     }  
+    function getProviderScheduleList(Request $request)
+    {
+        $user = Auth::user(); 
+        $data = $request->all(); 
+        $faqlist=array();
+        $role_id =  config('constants.ROLE_TYPE_SEEKER_ID');
+        $seeker = User::with(['roles'])->whereHas('roles', function($query) use ($role_id){
+              $query->where('id', $role_id);
+        });
+        $seeker=$seeker->where(['id'=>$user->id])->first();        
+        //$schedules_data=Schedule::where(['booking_id'=>$request->booking_id,'user_id'=>$provider->id])->get();
+        //print_r($seeker);
+        //echo $seeker->id;
+        if($seeker)
+        {
+            $rules = [  
+                'booking_id'=>'required', 
+                'user_id'=>'required'
+            ]; 
+            $validator = Validator::make($data, $rules);
+
+            if ($validator->fails()) {
+                return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
+            }
+            $type=isset($request->type)?$request->type:'';
+            $user_id=isset($request->user_id)?$request->user_id:'';
+            
+            $bookings= Booking::with(['schedule'])->whereHas('schedule', function($query) use ($user_id) {    
+                $query->where('user_id',$user_id);            
+               })->where(['requested_id'=>$seeker->id,'id'=>$request->booking_id]);  
+            
+            $bookings=$bookings->first();
+            
+            $booking_data=$booking_schedule=array();
+            $age=$provider_profile_picture='';
+            $rating=0.0;  
+            if($bookings)
+            {
+              if(count($bookings->schedule)>0)
+              {
+                foreach ($bookings->schedule as $key => $schedule) 
+                { 
+                  $booking_schedule[]=array('booking_id'=>$schedule->booking_id,
+                                          'user_id'=>$schedule->user_id,
+                                          'date'=>$schedule->date,
+                                          'start_time'=>$schedule->start_time,
+                                          'end_time'=>$schedule->end_time,
+                                          'service_title'=>$schedule->service_title,
+                                          'requirements'=>$schedule->requirements,
+                                          'price'=>$schedule->price,
+                                          'is_complete'=>$schedule->is_complete);
+                }
+              }  
+              $providerdata=User::with(['profile','media'])->where('id',$user_id)->first();
+               if(isset($providerdata) && $providerdata->getMedia('profile_picture')->count() > 0 && file_exists($providerdata->getFirstMedia('profile_picture')->getPath()))
+              {
+                $provider_profile_picture=$providerdata->getFirstMedia('profile_picture')->getFullUrl();
+              }  
+              if(isset($providerdata->profile->dob) && $providerdata->profile->dob!='')
+              {
+
+                $age = (date('Y') - date('Y',strtotime($providerdata->profile->dob)));          
+              }
+              /*rating*/
+              if($providerdata->profile->display_seeker_reviews==true)
+              {
+                $provider_review=Review::where(array('user_id'=>$user_id))->get();
+                if(count($provider_review)>0)
+                {
+                  $no_of_count=count($provider_review); 
+                  $provider_rating=$provider_review->sum('rating');
+                  $rating = $provider_rating / $no_of_count;
+                  $rating=(round($rating,2));
+                }
+              }          
+              /*rating*/
+              $booking_data=array('id'=>$bookings->id,
+                                  'title'=>$bookings->title,
+                                  'description'=>$bookings->description,
+                                  'schedules'=>$booking_schedule,
+                                  'budget'=>$bookings->budget,
+                                  'request_for_quote_budget'=>$bookings->request_for_quote_budget,
+                                  'is_rfq'=>$bookings->is_rfq,
+                                  'is_hourly'=>$bookings->is_hourly,
+                                  'min_budget'=>$bookings->min_budget,
+                                  'max_budget'=>$bookings->max_budget,
+                                  'is_package'=>$bookings->is_package,
+                                  'quantity'=>$bookings->quantity,
+                                  'datetime'=>$bookings->datetime,
+                                  'requirement'=>$bookings->requirement,
+                                  'total_package_amount'=>$bookings->total_package_amount,
+                                  'name'=>isset($providerdata->name)?$providerdata->name:'',
+                                  'email'=>isset($providerdata->email)?$providerdata->email:'',
+                                  'age'=>(string)$age,
+                                  'rating'=>$rating,
+                                  'profile_picture'=>$provider_profile_picture
+                                  );
+              $response=array('status'=>true,'booking'=>$booking_data,'message'=>'Schedules available.');
+
+            }else
+            {
+              $response=array('status'=>false,'message'=>'schedule not available.');
+            }
+
+            
+        }else
+        {
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
+   }
 }

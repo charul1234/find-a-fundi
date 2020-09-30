@@ -52,4 +52,11 @@ class Booking extends Model implements HasMedia
     {
         return $this->hasMany(BookingUser::class,'booking_id','id');
     }
+    /**
+     * Get the schedules information that belong to this user_id.
+    */
+    public function schedule()
+    {
+        return $this->hasMany(Schedule::class,'booking_id','id');
+    }
 }
