@@ -2839,8 +2839,8 @@ class WebserviceController extends Controller
             if ($validator->fails()) {
                 return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
             }
-            $schedules_data=Schedule::where(['booking_id'=>$request->booking_id,'user_id'=>$provider->id])->get();
-            if(count($schedules_data)>0)
+            //$schedules_data=Schedule::where(['booking_id'=>$request->booking_id,'user_id'=>$provider->id])->get();
+            /*if(count($schedules_data)>0)
             {
                Schedule::where(['booking_id'=>$request->booking_id,'user_id'=>$provider->id])->delete();
                $schedules_data=json_decode(stripslashes($request->schedules));
@@ -2848,22 +2848,22 @@ class WebserviceController extends Controller
               {               
                 foreach ($schedules_data as $key => $schedule) 
                 { 
-                   $fill_data=array('booking_id'=>$request->booking_id,'user_id'=>$provider->id,'date'=>$schedule->date,'start_time'=>$schedule->start_time,'end_time'=>$schedule->end_time,'service_title'=>$schedule->service_title,'requirements'=>$schedule->requirements,'price'=>$schedule->price,'status'=>$schedule->status);
+                   $fill_data=array('booking_id'=>$request->booking_id,'user_id'=>$provider->id,'date'=>$schedule->date,'start_time'=>$schedule->start_time,'end_time'=>$schedule->end_time,'service_title'=>$schedule->service_title,'requirements'=>$schedule->requirements,'price'=>$schedule->price,'is_complete'=>0);
                    Schedule::create($fill_data);   
                 }
               }
             }else
-            {
+            {*/
               $schedules_data=json_decode(stripslashes($request->schedules));
               if(!empty($schedules_data))
               {               
                 foreach ($schedules_data as $key => $schedule) 
                 { 
-                   $fill_data=array('booking_id'=>$request->booking_id,'user_id'=>$provider->id,'date'=>$schedule->date,'start_time'=>$schedule->start_time,'end_time'=>$schedule->end_time,'service_title'=>$schedule->service_title,'requirements'=>$schedule->requirements,'price'=>$schedule->price,'status'=>$schedule->status);              
+                   $fill_data=array('booking_id'=>$request->booking_id,'user_id'=>$provider->id,'date'=>$schedule->date,'start_time'=>$schedule->start_time,'end_time'=>$schedule->end_time,'service_title'=>$schedule->service_title,'requirements'=>$schedule->requirements,'price'=>$schedule->price,'is_complete'=>0);              
                    Schedule::create($fill_data);   
                 }
               }
-            }            
+           // }            
             $response=array('status'=>true,'message'=>'Schedules added.');
         }else
         {
