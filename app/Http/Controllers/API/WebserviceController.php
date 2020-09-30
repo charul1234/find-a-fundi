@@ -3156,7 +3156,8 @@ class WebserviceController extends Controller
             $rules = [  
                 'schedule_id'=>'required', 
                 'booking_id'=>'required',
-                'user_id'=>'required'
+                'user_id'=>'required',
+                'is_complete'=>'required'
             ]; 
             $validator = Validator::make($data, $rules);
 
@@ -3164,14 +3165,18 @@ class WebserviceController extends Controller
                 return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
             }
 
-            $schedule = Schedule::where(array('id'=>$request->schedule_id,'booking_id'=>$request->booking_id,'user_id'=>$request->user_id));
-            print_r($schedule);
-            /*if(intval($user_id) > 0)
+            $schedule = Schedule::where(array('id'=>$request->schedule_id,'booking_id'=>$request->booking_id,'user_id'=>$request->user_id))->first();    
+
+            if($schedule)
             {
-                $profile_data=array('is_hourly'=>$data['is_hourly'],'is_package'=>$data['is_package'],'is_rfq'=>$is_rfq);
-                $profile->update($profile_data);
-            }*/
-            $response=array('status'=>true,'message'=>'schedule updated');
+                $schedule_data=array('is_complete'=>$request->is_complete);
+                $schedule->update($schedule_data);
+                $response=array('status'=>true,'message'=>'schedule updated');
+            }else
+            {
+                $response=array('status'=>false,'message'=>'schedule not found.');
+            }
+            
         }else
         {
             $response=array('status'=>false,'message'=>'Oops! Invalid credential.');

@@ -12,6 +12,6 @@ class Schedule extends Model
      * @var array
     */
     protected $fillable = [
-        'booking_id','user_id','date','start_time','end_time','service_title','requirements','price','status','is_verify','verified_by'
+        'booking_id','user_id','date','start_time','end_time','service_title','requirements','price','status','is_verify','is_complete','verified_by'
     ];
 }
