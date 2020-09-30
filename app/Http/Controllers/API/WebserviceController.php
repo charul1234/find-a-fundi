@@ -3041,10 +3041,7 @@ class WebserviceController extends Controller
         $seeker = User::with(['roles'])->whereHas('roles', function($query) use ($role_id){
               $query->where('id', $role_id);
         });
-        $seeker=$seeker->where(['id'=>$user->id])->first();        
-        //$schedules_data=Schedule::where(['booking_id'=>$request->booking_id,'user_id'=>$provider->id])->get();
-        //print_r($seeker);
-        //echo $seeker->id;
+        $seeker=$seeker->where(['id'=>$user->id])->first();             
         if($seeker)
         {
             $rules = [  
@@ -3074,7 +3071,8 @@ class WebserviceController extends Controller
               {
                 foreach ($bookings->schedule as $key => $schedule) 
                 { 
-                  $booking_schedule[]=array('booking_id'=>$schedule->booking_id,
+                  $booking_schedule[]=array('id'=>$schedule->id,
+                                          'booking_id'=>$schedule->booking_id,
                                           'user_id'=>$schedule->user_id,
                                           'date'=>$schedule->date,
                                           'start_time'=>$schedule->start_time,
@@ -3143,4 +3141,41 @@ class WebserviceController extends Controller
         }        
         return response()->json($response);
    }
+   function updateProvidersSchedule(Request $request)
+    {
+        $user = Auth::user(); 
+        $data = $request->all(); 
+        $faqlist=array();
+        $role_id =  config('constants.ROLE_TYPE_SEEKER_ID');
+        $seeker = User::with(['roles'])->whereHas('roles', function($query) use ($role_id){
+              $query->where('id', $role_id);
+        });
+        $seeker=$seeker->where(['id'=>$user->id])->first();  
+        if($seeker)
+        {
+            $rules = [  
+                'schedule_id'=>'required', 
+                'booking_id'=>'required'
+                'user_id'=>'required'
+            ]; 
+            $validator = Validator::make($data, $rules);
+
+            if ($validator->fails()) {
+                return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
+            }
+
+            $schedule = Schedule::where(array('id'=>$request->schedule_id,'booking_id'=>$request->booking_id,'user_id'=>$request->user_id));
+            print_r($schedule);
+            /*if(intval($user_id) > 0)
+            {
+                $profile_data=array('is_hourly'=>$data['is_hourly'],'is_package'=>$data['is_package'],'is_rfq'=>$is_rfq);
+                $profile->update($profile_data);
+            }*/
+            $response=array('status'=>true,'message'=>'schedule updated');
+        }else
+        {
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
+    }
 }
