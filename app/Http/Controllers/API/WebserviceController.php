@@ -3298,7 +3298,7 @@ class WebserviceController extends Controller
             {
                 if($type=='is_package')
                 {
-                   echo $type; echo "p";
+                  $response=array('status'=>false,'message'=>'not worked');
 
                 }else if($type=='is_hourly')
                 {
