@@ -8,11 +8,19 @@
     <!-- Content Row -->
     <div class="card shadow mb-4">
 {!! Form::open(['method' => 'POST','files'=>true,'route' => ['admin.providers.update',$user->id],'class' => 'form-horizontal','id' => 'frmUser']) !!}
-            @method('PUT')
+        @method('PUT') 
         <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold text-primary">Edit Provider</h6>
         </div>
         <div class="card-body">
+        <div class="col-md-12 form-group">
+                  <label for="is_verify">{{ Form::checkbox('is_verify', '1', old('is_verify',isset($user->is_verify)?$user->is_verify:0),['id'=>'is_verify']) }}</label>
+                  <label for="is_verify"> Verify Provider Account </label>
+                   
+        </div>
+          <div class="card">
+          <div class="card-header">Personal Information</div>
+            <div class="card-body"><!-- <h5 class="card-title ml-2">Personal Information</h5> -->
             <div class="form-group {{$errors->has('name') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
                 <label class="col-md-3 control-label" for="name">Name <span style="color:red">*</span></label>
                  <div class="col-md-9">
@@ -22,7 +30,16 @@
                     @endif
                 </div>
             </div>
-            <div class="form-group {{$errors->has('email') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+             <div class="form-group {{$errors->has('mobile_number') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-3 control-label" for="mobile_number">Mobile Number <span style="color:red">*</span></label>
+                <div class="col-md-9">
+                    {!! Form::text('mobile_number',old('mobile_number',$user->mobile_number), ['class' => 'form-control', 'placeholder' => 'Mobile Number']) !!}
+                    @if($errors->has('mobile_number'))
+                    <strong for="mobile_number" class="help-block">{{ $errors->first('mobile_number') }}</strong>
+                    @endif
+                </div>
+            </div>
+             <div class="form-group {{$errors->has('email') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
                 <label class="col-md-3 control-label" for="email">Email <span style="color:red">*</span></label>
                 <div class="col-md-9">
                     {!! Form::text('email',old('email',$user->email), ['class' => 'form-control autoFillOff', 'placeholder' => 'Email']) !!}
@@ -61,17 +78,33 @@
                     </div>
                 </div>
             </div>
+            @if(isset($user) && $user->getMedia('certificate_conduct')->count() > 0 && file_exists($user->getFirstMedia('certificate_conduct')->getPath()))
+        @php $image_required = false; @endphp
+    <div class="col-md-1 form-group">
+        <img width="100%" src="{{ $user->getFirstMedia('certificate_conduct')->getFullUrl() }}" />
+    </div>
+    @endif
 
-            <div class="form-group {{$errors->has('mobile_number') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-3 control-label" for="mobile_number">Mobile Number <span style="color:red">*</span></label>
-                <div class="col-md-9">
-                    {!! Form::text('mobile_number',old('mobile_number',$user->mobile_number), ['class' => 'form-control', 'placeholder' => 'Mobile Number']) !!}
-                    @if($errors->has('mobile_number'))
-                    <strong for="mobile_number" class="help-block">{{ $errors->first('mobile_number') }}</strong>
+    <div class="form-group {{$errors->has('certificate_conduct') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+        <label class="col-md-3 control-label" for="title">Upload Certificate of conduct </label>
+        <div class="col-md-9">
+             {{ Form::file('certificate_conduct') }}
+            @if($errors->has('certificate_conduct'))
+            <strong for="profile_picture" class="help-block">{{ $errors->first('certificate_conduct') }}</strong>
+            @endif
+        </div>
+    </div>
+            <div class="form-group {{$errors->has('experience_level') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-9 control-label" for="section">Year of Experience <span style="color:red">*</span></label>
+                 <div class="col-md-9"> 
+                    {!! Form::select('experience_level', $experience_levels, old('experience_level',isset($user->profile->experience_level_id)?$user->profile->experience_level_id:''), ['id'=>'experience_level', 'class' => 'form-control', 'placeholder' => 'Year of Experience']) !!}
+                    @if($errors->has('experience_level'))
+                    <p class="help-block">
+                        <strong>{{ $errors->first('experience_level') }}</strong>
+                    </p>
                     @endif
                 </div>
             </div>
-
             <div class="form-group {{$errors->has('address') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
                 <label class="col-md-3 control-label" for="address">Address <span style="color:red">*</span></label>
                 <div class="col-md-9">
@@ -81,26 +114,34 @@
                     @endif
                 </div>
             </div>
-
-            <div class="form-group {{$errors->has('latitude') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-3 control-label" for="latitude">Latitude </label>
-                <div class="col-md-9">
+<div class="row">
+<div class="col-md-4">
+ <div class="form-group {{$errors->has('latitude') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-12 control-label" for="latitude">Latitude </label>
+                <div class="col-md-12">
                     {!! Form::text('latitude',old('latitude',isset($user->profile->latitude)?$user->profile->latitude:''), ['class' => 'form-control', 'placeholder' => 'Latitude']) !!}
                     @if($errors->has('latitude'))
                     <strong for="latitude" class="help-block">{{ $errors->first('latitude') }}</strong>
                     @endif
                 </div>
             </div>
-
-            <div class="form-group {{$errors->has('longitude') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-3 control-label" for="longitude">Longitude </label>
-                <div class="col-md-9">
+</div>
+<div class="col-md-4">
+ <div class="form-group {{$errors->has('longitude') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-12 control-label" for="longitude">Longitude </label>
+                <div class="col-md-12">
                     {!! Form::text('longitude',old('longitude',isset($user->profile->longitude)?$user->profile->longitude:''), ['class' => 'form-control', 'placeholder' => 'Longitude']) !!}
                     @if($errors->has('longitude'))
                     <strong for="longitude" class="help-block">{{ $errors->first('longitude') }}</strong>
                     @endif
                 </div>
             </div>
+</div>
+</div>
+
+
+           
+           
 
             @php $image_required = true; @endphp
                 @if(isset($user) && $user->getMedia('profile_picture')->count() > 0 && file_exists($user->getFirstMedia('profile_picture')->getPath()))
@@ -119,22 +160,138 @@
                     @endif
                 </div>
             </div>
-             <div class="form-group {{$errors->has('company_name') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+
+
+
+        </div> 
+          </div>
+            
+             <div class="card mt-3">  <div class="card-header">Evidence of Expertise</div>
+    <div class="card-body">
+
+                <label class="col-md-3 control-label" for="remarks">Reviews </label> 
+                <div class="col-md-9">  </div>
+
+               
+                 <div class="col-md-9 mb-3">
+<div class="row">
+  <?php if(isset($works_photo) && !empty($works_photo))
+  {
+    $i = 1;
+    foreach ($works_photo as $key => $photo) {
+      ?>
+     <div class="col-md-1 mr-4">
+      <div type="button"  data-toggle="modal" data-target="#myModal-<?php echo $i; // Displaying the increment ?>">
+          <img width="70" height="70" src="{{ $photo->getFullUrl() }}" />
+      </div>
+     </div>
+
+  
+
+<!-- The Modal -->
+<div class="modal" id="myModal-<?php echo $i; // Displaying the increment ?>">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">×</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <img width="100%" height="100%" src="{{ $photo->getFullUrl() }}" />
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+    <?php $i++; }
+  } ?>
+  
+</div>
+                 </div> 
+ 
+ <div class="row">
+<div class="col-md-3"><div class="form-group {{$errors->has('facebook_url') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-12 control-label" for="facebook_url">Facebook url </label>
+                <div class="col-md-12">
+                    {!! Form::text('facebook_url',old('facebook_url',isset($user->profile->facebook_url)?$user->profile->facebook_url:''), ['class' => 'form-control', 'placeholder' => 'Facebook url ']) !!}
+                    @if($errors->has('facebook_url'))
+                    <strong for="facebook_url" class="help-block">{{ $errors->first('facebook_url') }}</strong>
+                    @endif
+                </div>
+            </div></div>
+<div class="col-md-3"> <div class="form-group {{$errors->has('instagram_url') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-12 control-label" for="instagram_url">Instagram url </label>
+                <div class="col-md-12">
+                    {!! Form::text('instagram_url',old('instagram_url',isset($user->profile->instagram_url)?$user->profile->instagram_url:''), ['class' => 'form-control', 'placeholder' => 'Instagram url']) !!}
+                    @if($errors->has('instagram_url'))
+                    <strong for="instagram_url" class="help-block">{{ $errors->first('instagram_url') }}</strong>
+                    @endif
+                </div>
+            </div></div>
+<div class="col-md-3"> <div class="form-group {{$errors->has('twitter_url') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-12 control-label" for="twitter_url">Twitter url </label>
+                <div class="col-md-12">
+                    {!! Form::text('twitter_url',old('twitter_url',isset($user->profile->twitter_url)?$user->profile->twitter_url:''), ['class' => 'form-control', 'placeholder' => 'Twitter url']) !!}
+                    @if($errors->has('twitter_url'))
+                    <strong for="twitter_url" class="help-block">{{ $errors->first('twitter_url') }}</strong>
+                    @endif
+                </div> 
+            </div></div>
+ </div>
+
+           
+            
+    </div>
+ </div>
+           
+  <div class="card mt-3">
+    <div class="card-header">Declaration</div>
+    <div class="card-body">
+  <div class="col-md-12 form-group">
+      <label for="fundi_is_middlemen">{{ Form::checkbox('fundi_is_middlemen', '1', old('fundi_is_middlemen',isset($user->profile->fundi_is_middlemen)?$user->profile->fundi_is_middlemen:''),['id'=>'fundi_is_middlemen']) }}</label>
+                        <label for="is_default">I am not middlemen. </label>
+                   
+                      
+            </div>
+              <div class="col-md-12 form-group">
+      <label for="fundi_have_tools">{{ Form::checkbox('fundi_have_tools', '1', old('fundi_have_tools',isset($user->profile->fundi_have_tools)?$user->profile->fundi_have_tools:''),['id'=>'fundi_have_tools']) }}</label>
+                        <label for="is_default">I have all the required tools to do their job.  </label>
+            </div>
+               <div class="col-md-12 form-group">
+      <label for="fundi_have_tools">{{ Form::checkbox('fundi_have_smartphone', '1', old('fundi_have_smartphone',isset($user->profile->fundi_have_smartphone)?$user->profile->fundi_have_smartphone:''),['id'=>'fundi_have_smartphone']) }}</label>
+                        <label for="is_default">I have a smartphone.  </label>
+            </div>
+    </div>
+  </div>
+      <div class="card mt-3">
+    <div class="card-header">  {{Form::checkbox('security_check',1,old('security_check',isset($user->profile->security_check)?$user->profile->security_check:0), ['id'=>'security_check'])}}
+                        {{ __('Security check') }} </div>
+    <div class="card-body">
+<div  id="security_container">
+<div class="form-group {{$errors->has('company_name') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
                 <?php  $company_name=isset($providerCompany->name)?$providerCompany->name:''; 
                        $remarks=isset($providerCompany->remarks)?$providerCompany->remarks:'';
                        $document_number=isset($providerCompany->document_number)?$providerCompany->document_number:'';
                        $is_payment_received=isset($providerCompany->is_payment_received)?$providerCompany->is_payment_received:'';?>
-                 <h6 class="col-md-3 font-weight-bold text-primary">Security Company</h6>
-                <label class="col-md-3 control-label" for="company_name">Name of company <span style="color:red">*</span></label>
+                
+                <label class="col-md-3 control-label" for="company_name">Company Name <span style="color:red">*</span></label>
                 <div class="col-md-9">
-                    {!! Form::text('company_name',old('company_name',$company_name), ['class' => 'form-control', 'placeholder' => 'Name of company ']) !!}
+                    {!! Form::text('company_name',old('company_name',$company_name), ['class' => 'form-control', 'placeholder' => 'Company Name']) !!}
                     @if($errors->has('company_name'))
                     <strong for="company_name" class="help-block">{{ $errors->first('company_name') }}</strong>
                     @endif
                 </div>               
             </div>
-            <div class="form-group {{$errors->has('company_logo') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-3 control-label" for="company_logo">Company logo <span style="color:red">*</span></label>
+<div class="form-group {{$errors->has('company_logo') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-3 control-label" for="company_logo">Upload logo<span style="color:red">*</span></label>
                 <div class="col-md-9">
                     {{ Form::file('company_logo') }}
                     @if($errors->has('company_logo'))
@@ -155,17 +312,8 @@
                     @endif
                 </div>               
             </div>
-            <div class="form-group {{$errors->has('remarks') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-3 control-label" for="remarks">Remarks <span style="color:red">*</span></label>
-                <div class="col-md-9">
-                    {!! Form::textarea('remarks',old('remarks',$remarks), ['class' => 'form-control', 'placeholder' => 'Remarks','rows'=>'2']) !!}
-                    @if($errors->has('remarks'))
-                    <strong for="address" class="help-block">{{ $errors->first('remarks') }}</strong>
-                    @endif
-                </div>
-            </div>
-            <div class="form-group {{$errors->has('document_image') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-3 control-label" for="document_image">Document Image <span style="color:red">*</span></label>
+ <div class="form-group {{$errors->has('document_image') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-3 control-label" for="document_image">Upload Document<span style="color:red">*</span></label>
                 <div class="col-md-9">
                     {{ Form::file('document_image') }}
                     @if($errors->has('document_image'))
@@ -186,7 +334,7 @@
                     @endif
                 </div>               
             </div>
-             <div class="form-group {{$errors->has('document_number') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+            <div class="form-group {{$errors->has('document_number') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
                 <label class="col-md-3 control-label" for="document_number">Document Number <span style="color:red">*</span></label>
                 <div class="col-md-9">
                     {!! Form::text('document_number',old('document_number',$document_number), ['class' => 'form-control', 'placeholder' => 'Document Number']) !!}
@@ -195,16 +343,55 @@
                     @endif
                 </div>               
             </div>
-            <div class="col-md-12 form-group">
-                        <label for="is_default">Payment Received </label>
-                         <div class="clearfix"></div>
-                        <label for="is_payment_received">{{ Form::checkbox('is_payment_received', '1', old('is_payment_received',$is_payment_received),['id'=>'is_payment_received']) }}</label>
+        <div class="row">
+ <div class="form-group col-md-6  {{$errors->has('remarks') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-3 control-label" for="remarks">Remarks <span style="color:red">*</span></label>
+                <div class="col-md-9">
+                    {!! Form::textarea('remarks',old('remarks',$remarks), ['class' => 'form-control', 'placeholder' => 'Remarks','rows'=>'2']) !!}
+                    @if($errors->has('remarks'))
+                    <strong for="address" class="help-block">{{ $errors->first('remarks') }}</strong>
+                    @endif
+                </div>
             </div>
-            <div class="col-md-12 form-group">
-                        <label for="is_verify">Verify </label>
-                         <div class="clearfix"></div>
-                        <label for="is_verify">{{ Form::checkbox('is_verify', '1', old('is_verify',isset($user->is_verify)?$user->is_verify:0),['id'=>'is_verify']) }}</label>
-            </div>
+             <div class="col-md-6 form-group mt-5">
+              <label for="is_default"></label>   
+                          <label for="is_payment_received">{{ Form::checkbox('is_payment_received', '1', old('is_payment_received',$is_payment_received),['id'=>'is_payment_received']) }}</label>
+                        <label for="is_default">Payment Received </label>                        
+                       
+            </div> 
+        </div>
+        
+
+        
+                
+</div>
+    </div>  
+    </div>    
+
+          <div class="card mt-3">
+    <div class="card-header">Certification</div>
+    <div class="card-body">
+       <div class="col-md-9">
+       <div class="row">
+   <div class="col-md-6">
+   gsg
+   </div>
+   <div class="col-md-6">
+   fgsgs
+   </div>
+
+
+       </div>
+       </div>
+    </div>
+    </div>        
+             
+            
+           
+           
+             
+           
+         
            
         </div> 
         <div class="card-footer">
@@ -224,6 +411,9 @@ jQuery(document).ready(function(){
     jQuery('#reset_password').change(function(){
         resetPassword();
     }).trigger('change');
+    jQuery('#security_check').change(function(){
+        securityChecked();
+    }).trigger('change');
 
     jQuery('#frmUser').validate({
         rules: {
@@ -237,6 +427,9 @@ jQuery(document).ready(function(){
             mobile_number: {
                 required: true,
                 number:true
+            },
+            experience_level: {
+               required: true
             },
             address: {
                 required: true
@@ -267,27 +460,66 @@ jQuery(document).ready(function(){
                 equalTo: "#password"
             },
             company_name: {
-                required: true
+                 required: function(){
+                    if(jQuery('#frmUser #security_check').prop('checked')==false){
+                        return false;
+                    }else{
+                        return true;
+                    }
+                }
             },
             @if($company_logo_required==true)            
             company_logo: {
-                required: true
+                  required: function(){
+                    if(jQuery('#frmUser #security_check').prop('checked')==false){
+                        return false;
+                    }else{
+                        return true;
+                    }
+                }
             },
             @endif
             remarks: {
-                required: true
+                 required: function(){
+                    if(jQuery('#frmUser #security_check').prop('checked')==false){
+                        return false;
+                    }else{
+                        return true;
+                    }
+                }
             },
             @if($document_image_required==true)            
             document_image: {
-                required: true
+                  required: function(){
+                    if(jQuery('#frmUser #security_check').prop('checked')==false){
+                        return false;
+                    }else{
+                        return true;
+                    }
+                }
             },
             @endif
             document_number: {
-                required: true
+                  required: function(){
+                    if(jQuery('#frmUser #security_check').prop('checked')==false){
+                        return false;
+                    }else{
+                        return true;
+                    }
+                }
             }
         }
     });
 });
+
+function securityChecked(){
+    jQuery('#security_container').slideDown("slow");
+    jQuery('#security_container').hide();
+    //alert( jQuery('#security_container').val());
+    if(jQuery('#security_check').prop('checked')==true){
+        jQuery('#security_container').show();
+    }
+}
 function resetPassword(){
     jQuery('#password_container').hide();
     if(jQuery('#reset_password').prop('checked')==true){

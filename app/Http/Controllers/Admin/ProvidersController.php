@@ -185,9 +185,13 @@ class ProvidersController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit($id){        
-        $user = User::with('profile')->findOrFail($id);  
+        $user = User::with('profile','media')->findOrFail($id);
+        $experience_levels=ExperienceLevel::get()->pluck('title', 'id')->map(function($value, $key){
+            return ucwords($value);
+        });;  
+        $works_photo=$user->getMedia('works_photo');  
         $providerCompany=Company::query()->with('media')->where(['user_id'=>$id])->first();   
-        return view('admin.providers.edit',compact('user','providerCompany'));
+        return view('admin.providers.edit',compact('user','providerCompany','experience_levels','works_photo'));
     }
 
     /**
@@ -198,6 +202,8 @@ class ProvidersController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id){
+     
+
         $user = User::findOrFail($id);
         $media_max_size = config('medialibrary.max_file_size') / 1024; 
         $rules = [
@@ -205,41 +211,53 @@ class ProvidersController extends Controller
             'email'             => 'required|email|unique:'.with(new User)->getTable().',email,'.$user->getKey(),
             'profile_picture'   => 'image',
             'mobile_number'     => 'required|numeric|unique:'.with(new User)->getTable().',mobile_number,'.$user->getKey(),
+            'experience_level'  => 'required',
             'address'           => 'required',
             'latitude'          => 'nullable',
-            'longitude'         => 'nullable',
-            'company_name'         => 'required',
-            'company_logo'=>[
-                        'image',
-                        'mimes:jpeg,jpg,png',
-                        'max:'.$media_max_size,
-                     ], 
-            'remarks'=>'required',
-            'document_image'=>[
-                        'image',
-                        'mimes:jpeg,jpg,png',
-                        'max:'.$media_max_size,
-                     ], 
-            'document_number'         => 'required',
+            'longitude'         => 'nullable'            
         ];
         $company=Company::where(['user_id'=>$id])->first(); 
-        if (isset($company) && ($company->getMedia('company_logo')->count()==0 || ($company->getMedia('company_logo')->count() >0 && !file_exists($company->getFirstMedia('company_logo')->getPath())))) {
-            $rules['company_logo'] = [
-                'required',             
-                'file',
-                'image'
-            ];
-        }
-        if (isset($company) && ($company->getMedia('document_image')->count()==0 || ($company->getMedia('document_image')->count() >0 && !file_exists($company->getFirstMedia('document_image')->getPath())))) {
-            $rules['document_image'] = [
-                'required',             
-                'file',
-                'image'
-            ];
-        }
+        
        
         if (isset($request->reset_password) && $request->reset_password==TRUE) {
             $rules['password'] = 'required|confirmed';
+        }
+        if (isset($request->security_check) && $request->security_check==TRUE) {
+            //  $rules1 = [
+            $rules['company_name']        = 'required';
+            $rules['company_logo']        = [
+                        'image',
+                        'mimes:jpeg,jpg,png',
+                        'max:'.$media_max_size,
+                     ];
+            $rules['company_logo']=[
+                        'image',
+                        'mimes:jpeg,jpg,png',
+                        'max:'.$media_max_size,
+                     ];
+            $rules['remarks']        = 'required';
+            $rules['document_image'] =[
+                        'image',
+                        'mimes:jpeg,jpg,png',
+                        'max:'.$media_max_size,
+                     ];
+            $rules['document_number']        = 'required';           
+            
+
+            if (isset($company) && ($company->getMedia('company_logo')->count()==0 || ($company->getMedia('company_logo')->count() >0 && !file_exists($company->getFirstMedia('company_logo')->getPath())))) {
+                $rules['company_logo'] = [
+                    'required',             
+                    'file',
+                    'image'
+                ];
+            }
+            if (isset($company) && ($company->getMedia('document_image')->count()==0 || ($company->getMedia('document_image')->count() >0 && !file_exists($company->getFirstMedia('document_image')->getPath())))) {
+                $rules['document_image'] = [
+                    'required',             
+                    'file',
+                    'image'
+                ];
+            }
         }
 
         $validator = Validator::make($request->all(), $rules);
@@ -262,9 +280,13 @@ class ProvidersController extends Controller
             } 
             $user_id=$user->id;
             $profile = Profile::where(array('user_id'=>$user_id));
+            $fundi_is_middlemen=isset($request->fundi_is_middlemen)?$request->fundi_is_middlemen:0;
+            $fundi_have_tools=isset($request->fundi_have_tools)?$request->fundi_have_tools:0;
+            $fundi_have_smartphone=isset($request->fundi_have_smartphone)?$request->fundi_have_smartphone:0;
+            $security_check=isset($request->security_check)?$request->security_check:0;
             if(intval($user_id) > 0)
             {
-                $profile_data=array('work_address'=>$request->address ,'latitude'=>$request->latitude,'longitude'=>$request->longitude);
+                $profile_data=array('work_address'=>$request->address ,'latitude'=>$request->latitude,'longitude'=>$request->longitude,'experience_level_id'=>$request->experience_level,'facebook_url'=>$request->facebook_url,'twitter_url'=>$request->twitter_url,'instagram_url'=>$request->instagram_url,'fundi_is_middlemen'=>$fundi_is_middlemen,'fundi_have_tools'=>$fundi_have_tools,'fundi_have_smartphone'=>$fundi_have_smartphone,'security_check'=>$security_check);
                 $profile->update($profile_data);
             }
             //company data
@@ -293,6 +315,14 @@ class ProvidersController extends Controller
                  $company->addMedia($request->file('company_logo'))
                    ->usingFileName($customname)               
                    ->toMediaCollection('company_logo');
+            } 
+            
+            if ($request->hasFile('certificate_conduct')){
+                 $file = $request->file('certificate_conduct');
+                 $customname = time() . '.' . $file->getClientOriginalExtension();
+                 $user->addMedia($request->file('certificate_conduct'))
+                   ->usingFileName($customname)               
+                   ->toMediaCollection('certificate_conduct');
             } 
             if ($request->hasFile('document_image')){
                  $file = $request->file('document_image');
