@@ -1420,7 +1420,7 @@ class WebserviceController extends Controller
                                           'profile_picture'=>'',
                                           'works_photo'=>$works_photo_Images,
                                           'age'=>(string)$age,
-                                          'rating'=>$rating
+                                          'rating'=>$rating 
                                           );                     
                        $booking_list[$type][]=$bookingrecords;  
                       
