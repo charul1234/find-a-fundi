@@ -191,7 +191,12 @@ class ProvidersController extends Controller
         });;  
         $works_photo=$user->getMedia('works_photo');  
         $providerCompany=Company::query()->with('media')->where(['user_id'=>$id])->first();   
-        return view('admin.providers.edit',compact('user','providerCompany','experience_levels','works_photo'));
+        $providerdegree=Certification::query()->with('media')->where(['user_id'=>$id,'type'=>'degree'])->first();  
+        $providerdiploma=Certification::query()->with('media')->where(['user_id'=>$id,'type'=>'diploma'])->first(); 
+        $providercertification=Certification::query()->with('media')->where(['user_id'=>$id,'type'=>'certification'])->first(); 
+
+
+        return view('admin.providers.edit',compact('user','providerCompany','experience_levels','providerdegree','works_photo','providerdiploma','providercertification'));
     }
 
     /**
@@ -217,6 +222,9 @@ class ProvidersController extends Controller
             'longitude'         => 'nullable'            
         ];
         $company=Company::where(['user_id'=>$id])->first(); 
+        $certification_img=Certification::where(['user_id'=>$id,'type'=>'certification'])->first();
+        $diploma_img=Certification::where(['user_id'=>$id,'type'=>'diploma'])->first();
+        $degree_img=Certification::where(['user_id'=>$id,'type'=>'degree'])->first();
         
        
         if (isset($request->reset_password) && $request->reset_password==TRUE) {
@@ -308,7 +316,44 @@ class ProvidersController extends Controller
             {
                  $company = Company::create($company_data);
             }
+            $degree_title=isset($request->degree_title)?$request->degree_title:'';
+            $diploma_title=isset($request->diploma_title)?$request->diploma_title:'';
+            $certification_title=isset($request->certification_title)?$request->certification_title:'';
             
+            if($certification_img)
+              {
+                $certification_data=array('title'=>$certification_title);
+                $certification_img->update($certification_data);
+               
+              }else
+              {
+                 $certification_img=Certification::create(array('title'=>$certification_title,'type'=>'certification','user_id'=>$id));
+              }
+              if($degree_img)
+              {
+                $degree_data=array('title'=>$degree_title);
+                $degree_img->update($degree_data);
+               
+              }else
+              {
+                 $degree_img=Certification::create(array('title'=>$degree_title,'type'=>'degree','user_id'=>$id));
+              }
+              if($diploma_img)
+              {
+                $diploma_data=array('title'=>$diploma_title);
+                $diploma_img->update($diploma_data);
+               
+              }else
+              {
+                 $diploma_img=Certification::create(array('title'=>$degree_title,'type'=>'diploma','user_id'=>$id));
+              }
+            
+            
+            //$degree_img->update($degree_data);
+            
+           // $diploma_img->update($diploma_data);
+
+
             if ($request->hasFile('company_logo')){
                  $file = $request->file('company_logo');
                  $customname = time() . '.' . $file->getClientOriginalExtension();
@@ -332,6 +377,27 @@ class ProvidersController extends Controller
                    ->toMediaCollection('document_image');
             } 
             //company end data
+            if ($request->hasFile('certification')){
+                 $file = $request->file('certification');
+                 $customname = time() . '.' . $file->getClientOriginalExtension();
+                 $certification_img->addMedia($request->file('certification'))
+                   ->usingFileName($customname)               
+                   ->toMediaCollection('certification');
+            } 
+            if ($request->hasFile('degree')){
+                 $file = $request->file('degree');
+                 $customname = time() . '.' . $file->getClientOriginalExtension();
+                 $degree_img->addMedia($request->file('degree'))
+                   ->usingFileName($customname)               
+                   ->toMediaCollection('degree');
+            } 
+            if ($request->hasFile('diploma')){
+                 $file = $request->file('diploma');
+                 $customname = time() . '.' . $file->getClientOriginalExtension();
+                 $diploma_img->addMedia($request->file('diploma'))
+                   ->usingFileName($customname)               
+                   ->toMediaCollection('diploma');
+            } 
 
             $request->session()->flash('success',__('global.messages.update'));
             return redirect()->route('admin.providers.index');

@@ -19,6 +19,13 @@ class Certification  extends Model implements HasMedia
     ];
     public function registerMediaCollections(){
         $this->addMediaCollection('document')
-        ->singleFile();     
+        ->singleFile();  
+        $this->addMediaCollection('degree')
+        ->singleFile(); 
+         $this->addMediaCollection('certification')
+        ->singleFile(); 
+         $this->addMediaCollection('diploma')
+        ->singleFile(); 
+
     } 
 }

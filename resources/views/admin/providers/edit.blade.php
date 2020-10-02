@@ -371,20 +371,99 @@
           <div class="card mt-3">
     <div class="card-header">Certification</div>
     <div class="card-body">
-       <div class="col-md-9">
        <div class="row">
    <div class="col-md-6">
-   
+      <div class="form-group {{$errors->has('degree_title') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-12 control-label" for="degree_title">Degree </label>
+                <div class="col-md-9">
+                    {!! Form::text('degree_title',old('degree_title',isset($providerdegree->title)?$providerdegree->title:''), ['class' => 'form-control', 'placeholder' => '']) !!}
+                    @if($errors->has('degree_title'))
+                    <strong for="document_number" class="help-block">{{ $errors->first('degree_title') }}</strong>
+                    @endif
+                </div>               
+            </div>
    </div>
-   <div class="col-md-6">
-   
+   <div class="col-md-6 row">
+     <div class="col-md-6">
+           {{ Form::file('degree') }}
+</div>
+     <div class="col-md-6">
+                    @if($errors->has('degree'))
+                    <strong for="degree" class="help-block">{{ $errors->first('degree') }}</strong>
+                    @endif                  
+                    @if(isset($providerdegree) && $providerdegree->getMedia('degree')->count() > 0 && file_exists($providerdegree->getFirstMedia('degree')->getPath()))  
+                    <div class="row  col-md-6">                     
+                    <div class="col-md-1  form-group">
+                        <a download href="{{ $providerdegree->getFirstMedia('degree')->getFullUrl() }}" target="_blank"><i class="fa fa-download" aria-hidden="true"></i></a>
+                    </div>
+                        </div>  
+                    @endif
+                    </div>
    </div>
-
-
+ <div class="col-md-6">
+      <div class="form-group {{$errors->has('diploma_title') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-12 control-label" for="diploma_title">Diploma</label>
+                <div class="col-md-9">
+                    {!! Form::text('diploma_title',old('diploma_title',isset($providerdiploma->title)?$providerdiploma->title:''), ['class' => 'form-control', 'placeholder' => '']) !!}
+                    @if($errors->has('diploma_title'))
+                    <strong for="diploma_title" class="help-block">{{ $errors->first('diploma_title') }}</strong>
+                    @endif
+                </div>               
+            </div>
+   </div>
+    <div class="col-md-6 row">
+       <div class="col-md-6">
+           {{ Form::file('diploma') }}
+           </div>
+     <div class="col-md-6">
+                    @if($errors->has('diploma'))
+                    <strong for="diploma" class="help-block">{{ $errors->first('diploma') }}</strong>
+                    @endif                  
+                    @if(isset($providerdiploma) && $providerdiploma->getMedia('diploma')->count() > 0 && file_exists($providerdiploma->getFirstMedia('diploma')->getPath()))              
+                     
+                        <div class="row  col-md-6">
+                          
+                    <div class="col-md-1  form-group">
+                        <a download href="{{ $providerdiploma->getFirstMedia('diploma')->getFullUrl() }}" target="_blank"><i class="fa fa-download" aria-hidden="true"></i></a>
+                    </div>
+                        </div>  
+                    @endif
+                     </div>
+   </div>
+    <div class="col-md-6">
+      <div class="form-group {{$errors->has('certification_title') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-12 control-label" for="certification_title">Certification</label>
+                <div class="col-md-9">
+                    {!! Form::text('certification_title',old('certification_title',isset($providercertification->title)?$providercertification->title:''), ['class' => 'form-control', 'placeholder' => '']) !!}
+                    @if($errors->has('certification_title'))
+                    <strong for="certification_title" class="help-block">{{ $errors->first('certification_title') }}</strong>
+                    @endif
+                </div>               
+            </div>
+   </div>
+      <div class="col-md-6 row">
+          <div class="col-md-6">
+           {{ Form::file('certification') }}
+           </div>
+     <div class="col-md-6">
+                    @if($errors->has('certification'))
+                    <strong for="diploma" class="help-block">{{ $errors->first('certification') }}</strong>
+                    @endif                  
+                    @if(isset($providercertification) && $providercertification->getMedia('certification')->count() > 0 && file_exists($providercertification->getFirstMedia('certification')->getPath()))              
+                     
+                      <div class="row  col-md-6">  
+                           
+                    <div class="col-md-1 form-group">
+                        <a download href="{{ $providercertification->getFirstMedia('certification')->getFullUrl() }}" target="_blank"><i class="fa fa-download" aria-hidden="true"></i></a>
+                    </div>
+                        </div>  
+                    @endif
+                    </div>
+   </div>
        </div>
        </div>
     </div>
-    </div>        
+      
              
             
            
