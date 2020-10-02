@@ -1212,6 +1212,7 @@ class WebserviceController extends Controller
                        if(isset($booking_quote))
                        { 
                          $booking_providerdata=User::with(['profile'])->where('id',$booking_quote->user_id)->first();
+
                           $booking_provider_name=isset($booking_providerdata->name)?$booking_providerdata->name:'';
                           $booking_provider_email=isset($booking_providerdata->email)?$booking_providerdata->email:'';
                           $booking_provider_mobile_number=isset($booking_providerdata->mobile_number)?$booking_providerdata->mobile_number:'';
@@ -1287,10 +1288,10 @@ class WebserviceController extends Controller
                                           'categories'=>$categories,
                                           'subcategories'=>$subcategories,
                                           'status'=>isset($booking->status)?$booking->status:'',
-                                          'name'=>'',
-                                          'email'=>'',
-                                          'mobile_number'=>'',
-                                          'profile_picture'=>'',
+                                          'name'=>isset($booking_provider_name)?$booking_provider_name:'',
+                                          'email'=>isset($booking_provider_email)?$booking_provider_email:'',
+                                          'mobile_number'=>isset($booking_provider_mobile_number)?$booking_provider_mobile_number:'',
+                                          'profile_picture'=>isset($booking_provider_profile_picture)?$booking_provider_profile_picture:'',
                                           'works_photo'=>$works_photo_Images,
                                           'age'=>(string)$age,
                                           'rating'=>$rating
@@ -1364,6 +1365,9 @@ class WebserviceController extends Controller
                   }else if($booking->status==config('constants.PAYMENT_STATUS_COMPLETED') && $booking->is_rfq==1)
                   {
                     $booking_user=$booking->booking_user()->where(array('booking_id'=>$booking->id,'status'=>config('constants.PAYMENT_STATUS_COMPLETED')))->first();
+
+                    if($booking_user)
+                    {
                      $booking_providerdata=User::with(['profile'])->where('id',$booking_user->user_id)->first();
                         $booking_provider_name=isset($booking_providerdata->name)?$booking_providerdata->name:'';
                         $booking_provider_email=isset($booking_providerdata->email)?$booking_providerdata->email:'';
@@ -1375,6 +1379,22 @@ class WebserviceController extends Controller
                         {
                               $booking_provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
                         }
+                         if(isset($booking_providerdata->profile->dob) && $booking_providerdata->profile->dob!='')
+                          {
+
+                            $age = (date('Y') - date('Y',strtotime($booking_providerdata->profile->dob)));          
+                          } 
+                          if($booking_providerdata->profile->display_seeker_reviews==true)
+                          {
+                            $provider_review=Review::where(array('user_id'=>$booking_providerdata->profile->user_id))->get();
+                            if(count($provider_review)>0)
+                            {
+                              $no_of_count=count($provider_review); 
+                              $provider_rating=$provider_review->sum('rating');
+                              $rating = $provider_rating / $no_of_count;
+                              $rating=(round($rating,2));
+                            }
+                          } 
                         
                          
                          $booking_rfq[]=array('booking_id'=>$booking_user->booking_id,
@@ -1414,16 +1434,16 @@ class WebserviceController extends Controller
                                           'categories'=>$categories,
                                           'subcategories'=>$subcategories,
                                           'status'=>isset($booking->status)?$booking->status:'',
-                                          'name'=>'',
-                                          'email'=>'',
-                                          'mobile_number'=>'',
-                                          'profile_picture'=>'',
+                                          'name'=>$booking_provider_name,
+                                          'email'=>$booking_provider_email,
+                                          'mobile_number'=>$booking_provider_mobile_number,
+                                          'profile_picture'=>$booking_provider_profile_picture,
                                           'works_photo'=>$works_photo_Images,
                                           'age'=>(string)$age,
                                           'rating'=>$rating 
                                           );                     
                        $booking_list[$type][]=$bookingrecords;  
-                      
+                      }
 
                   }                    
                 }                 
@@ -3293,7 +3313,7 @@ class WebserviceController extends Controller
             }
             $type=isset($request->type)?$request->type:'';
             $check_transaction = Transaction::where(array('booking_id'=>$request->booking_id,'user_id'=>$request->user_id,'status'=>config('constants.PAYMENT_STATUS_SUCCESS')))->first();   
-            print_r($check_transaction);
+            //print_r($check_transaction);
             if($check_transaction)
             {
                 if($type=='is_package')
@@ -3323,8 +3343,7 @@ class WebserviceController extends Controller
                    } 
                 }else if($type=='is_rfq')
                 {
-
-                  $schedules = Schedule::where(array('booking_id'=>$request->booking_id,'user_id'=>$request->user_id))->get();                 
+                   $schedules = Schedule::where(array('booking_id'=>$request->booking_id,'user_id'=>$request->user_id))->get();                 
                    if(count($schedules)>0)
                    {
                      foreach ($schedules as $key => $schedule) 
