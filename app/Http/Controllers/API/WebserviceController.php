@@ -3329,13 +3329,20 @@ class WebserviceController extends Controller
             }
             $type=isset($request->type)?$request->type:'';
             $check_transaction = Transaction::where(array('booking_id'=>$request->booking_id,'user_id'=>$request->user_id,'status'=>config('constants.PAYMENT_STATUS_SUCCESS')))->first();   
-            //print_r($check_transaction);
             if($check_transaction)
             {
                 if($type=='is_package')
                 {
-                  $response=array('status'=>false,'message'=>'not worked');
-
+                   $booking = Booking::where(array('id'=>$request->booking_id,'user_id'=>$request->user_id))->first(); 
+                   if($booking)
+                   {
+                      $booking_data=array('status'=>config('constants.PAYMENT_STATUS_COMPLETED'));
+                      $booking->update($booking_data);
+                      $response=array('status'=>true,'message'=>'Job Updated.');
+                   }else
+                   {
+                      $response=array('status'=>false,'message'=>'something went wrong!');
+                   } 
                 }else if($type=='is_hourly')
                 {
                    $schedules = Schedule::where(array('booking_id'=>$request->booking_id,'user_id'=>$request->user_id))->get();                 
