@@ -2827,7 +2827,23 @@ class WebserviceController extends Controller
                 { 
                   $response=array('status'=>false,'message'=>'Record not found.');
                 }  
-              }  
+              }else if($booking->is_package==1)
+              {                
+                $transaction = Transaction::create($data);       
+                $payment_data=array('user_id'=>$request->user_id,
+                                  'booking_id'=>$request->booking_id,
+                                  'booking_name'=>$booking->title,
+                                  'transaction_type'=>isset($request->transaction_type)?$request->transaction_type:'',
+                                  'trans_id'=>isset($request->trans_id)?$request->trans_id:'',
+                                  'trans_time'=>isset($request->trans_time)?$request->trans_time:'',
+                                  'trans_amount'=>isset($request->trans_amount)?$request->trans_amount:'',
+                                  'invoice_number'=>isset($request->invoice_number)?$request->invoice_number:'',
+                                  'first_name'=>isset($request->first_name)?$request->first_name:'',
+                                  'status'=>isset($request->status)?$request->status:'',
+                                  'payment_mode'=>isset($request->payment_mode)?$request->payment_mode:'');
+                 $booking->update(array('status'=>config('constants.PAYMENT_STATUS_ACCEPTED')));
+                 $response=array('status'=>true,'payment'=>$payment_data,'message'=>'Payment successfully done.');
+              } 
             }else
             {
               $response=array('status'=>false,'message'=>'Record not found.');
