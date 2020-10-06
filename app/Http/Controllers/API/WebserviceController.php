@@ -2718,7 +2718,7 @@ class WebserviceController extends Controller
                   $package_duration=isset($booking_package->duration)?$booking_package->duration:'';
                   $package_description=isset($booking_package->description)?$booking_package->description:'';
                   $quantity=isset($booking->quantity)?$booking->quantity:'';
-                  $total_package_amount=isset($booking->total_package_amount)?$booking->total_package_amount:'';
+                  $total_package_amount=isset($booking->total_package_amount)?(string)$booking->total_package_amount:'';
                 }
 
                 $user_data=User::with('profile','media');
