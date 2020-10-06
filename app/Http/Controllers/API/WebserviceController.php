@@ -1740,6 +1740,8 @@ class WebserviceController extends Controller
         $data = $request->all(); 
         $bookingdata=$booking_data=$bookings=$bookingtype=$booking_package_data=array();
         $type=isset($request->type)?$request->type:'';
+        $package_id=$package_title=$package_duration=$package_description=$quantity=$total_package_amount='';
+
         if($userdata)
         {          
             $validator = Validator::make($data, [
@@ -1839,9 +1841,12 @@ class WebserviceController extends Controller
                                           'email'=>$provider_email,
                                           'mobile_number'=>$provider_mobile_number,
                                           'profile_picture'=>$provider_profile_picture,
-                                          'booking_package'=>$booking_package_data,
-                                          'quantity'=>isset($booking->quantity)?$booking->quantity:'',
-                                          'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:'',
+                                          'package_id'=>$package_id,
+                                          'package_title'=>$package_title,
+                                          'package_duration'=>$package_duration,
+                                          'package_description'=>$package_description,
+                                          'quantity'=>$quantity,
+                                          'total_package_amount'=>$total_package_amount
                                           ); 
                       $booking_array[$type][]=$bookingdata;
                 }else if($booking->status=='declined' && $booking->is_package==1 && ($booking->user_id==$userdata->id)){
@@ -1856,15 +1861,17 @@ class WebserviceController extends Controller
                       {
                             $provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
                       }
-                      $booking_package=Package::where('id',$booking->package_id)->first();
-                      if($booking_package)
+                      if($booking->is_package==1)
                       {
-                      $booking_package_data[]=array('package_id'=>isset($booking_package->id)?$booking_package->id:'',
-                                                  'title'=>isset($booking_package->title)?$booking_package->title:'',
-                                                  'duration'=>isset($booking_package->duration)?$booking_package->duration:'',
-                                                  'description'=>isset($booking_package->description)?$booking_package->description:'');
-                      }
-                    //$booking_array[$type][]=$booking;
+                        $booking_package=Package::where('id',$booking->package_id)->first();
+                        $package_id=isset($booking_package->id)?$booking_package->id:'';
+                        $package_title=isset($booking_package->title)?$booking_package->title:'';
+                        $package_duration=isset($booking_package->duration)?$booking_package->duration:'';
+                        $package_description=isset($booking_package->description)?$booking_package->description:'';
+                        $quantity=isset($booking->quantity)?$booking->quantity:'';
+                        $total_package_amount=isset($booking->total_package_amount)?(string)$booking->total_package_amount:'';
+                      }                    
+                     //$booking_array[$type][]=$booking;
                      $bookingdata=array('booking_id'=>$booking->id,
                                           'type'=>$booking_type,
                                           'category_id'=>$booking->category_id,
@@ -1890,9 +1897,12 @@ class WebserviceController extends Controller
                                           'email'=>$provider_email,
                                           'mobile_number'=>$provider_mobile_number,
                                           'profile_picture'=>$provider_profile_picture,
-                                          'booking_package'=>$booking_package_data,
-                                          'quantity'=>isset($booking->quantity)?$booking->quantity:'',
-                                          'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:'',
+                                          'package_id'=>$package_id,
+                                          'package_title'=>$package_title,
+                                          'package_duration'=>$package_duration,
+                                          'package_description'=>$package_description,
+                                          'quantity'=>$quantity,
+                                          'total_package_amount'=>$total_package_amount
                                           ); 
                       $booking_array[$type][]=$bookingdata;
                 }else if($booking->status==config('constants.PAYMENT_STATUS_REQUESTED')  && $booking->is_rfq==1){ 
@@ -1935,9 +1945,12 @@ class WebserviceController extends Controller
                                           'email'=>$provider_email,
                                           'mobile_number'=>$provider_mobile_number,
                                           'profile_picture'=>$provider_profile_picture,
-                                          'booking_package'=>$booking_package_data,
-                                          'quantity'=>isset($booking->quantity)?$booking->quantity:'',
-                                          'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:'',
+                                          'package_id'=>$package_id,
+                                          'package_title'=>$package_title,
+                                          'package_duration'=>$package_duration,
+                                          'package_description'=>$package_description,
+                                          'quantity'=>$quantity,
+                                          'total_package_amount'=>$total_package_amount
                                           ); 
                       $booking_array[$type][]=$bookingdata;
                       }
@@ -1982,9 +1995,12 @@ class WebserviceController extends Controller
                                           'email'=>$provider_email,
                                           'mobile_number'=>$provider_mobile_number,
                                           'profile_picture'=>$provider_profile_picture,
-                                          'booking_package'=>$booking_package_data,
-                                          'quantity'=>isset($booking->quantity)?$booking->quantity:'',
-                                          'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:'',
+                                          'package_id'=>$package_id,
+                                          'package_title'=>$package_title,
+                                          'package_duration'=>$package_duration,
+                                          'package_description'=>$package_description,
+                                          'quantity'=>$quantity,
+                                          'total_package_amount'=>$total_package_amount
                                           ); 
                       $booking_array[$type][]=$bookingdata;
                 }else if($booking->status==config('constants.PAYMENT_STATUS_QUOTED') && $booking->is_package==1  && ($booking->user_id==$userdata->id)) {
@@ -2000,13 +2016,15 @@ class WebserviceController extends Controller
                       {
                             $provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
                       }
-                      $booking_package=Package::where('id',$booking->package_id)->first();
-                      if($booking_package)
+                      if($booking->is_package==1)
                       {
-                      $booking_package_data[]=array('package_id'=>isset($booking_package->id)?$booking_package->id:'',
-                                                  'title'=>isset($booking_package->title)?$booking_package->title:'',
-                                                  'duration'=>isset($booking_package->duration)?$booking_package->duration:'',
-                                                  'description'=>isset($booking_package->description)?$booking_package->description:'');
+                        $booking_package=Package::where('id',$booking->package_id)->first();
+                        $package_id=isset($booking_package->id)?$booking_package->id:'';
+                        $package_title=isset($booking_package->title)?$booking_package->title:'';
+                        $package_duration=isset($booking_package->duration)?$booking_package->duration:'';
+                        $package_description=isset($booking_package->description)?$booking_package->description:'';
+                        $quantity=isset($booking->quantity)?$booking->quantity:'';
+                        $total_package_amount=isset($booking->total_package_amount)?(string)$booking->total_package_amount:'';
                       }
                   $bookingdata=array('booking_id'=>$booking->id,
                                           'type'=>$booking_type,
@@ -2033,9 +2051,12 @@ class WebserviceController extends Controller
                                           'email'=>$provider_email,
                                           'mobile_number'=>$provider_mobile_number,
                                           'profile_picture'=>$provider_profile_picture,
-                                          'booking_package'=>$booking_package_data,
-                                          'quantity'=>isset($booking->quantity)?$booking->quantity:'',
-                                          'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:'',
+                                          'package_id'=>$package_id,
+                                          'package_title'=>$package_title,
+                                          'package_duration'=>$package_duration,
+                                          'package_description'=>$package_description,
+                                          'quantity'=>$quantity,
+                                          'total_package_amount'=>$total_package_amount
                                           ); 
                       $booking_array[$type][]=$bookingdata;
                 }else if($booking->status==config('constants.PAYMENT_STATUS_REQUESTED') && $booking->is_rfq==1){ 
@@ -2078,9 +2099,12 @@ class WebserviceController extends Controller
                                           'email'=>$provider_email,
                                           'mobile_number'=>$provider_mobile_number,
                                           'profile_picture'=>$provider_profile_picture,
-                                          'booking_package'=>$booking_package_data,
-                                          'quantity'=>isset($booking->quantity)?$booking->quantity:'',
-                                          'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:'',
+                                          'package_id'=>$package_id,
+                                          'package_title'=>$package_title,
+                                          'package_duration'=>$package_duration,
+                                          'package_description'=>$package_description,
+                                          'quantity'=>$quantity,
+                                          'total_package_amount'=>$total_package_amount
                                           ); 
                       $booking_array[$type][]=$bookingdata;
                       }
@@ -2126,9 +2150,12 @@ class WebserviceController extends Controller
                                           'email'=>$provider_email,
                                           'mobile_number'=>$provider_mobile_number,
                                           'profile_picture'=>$provider_profile_picture,
-                                          'booking_package'=>$booking_package_data,
-                                          'quantity'=>isset($booking->quantity)?$booking->quantity:'',
-                                          'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:'',
+                                          'package_id'=>$package_id,
+                                          'package_title'=>$package_title,
+                                          'package_duration'=>$package_duration,
+                                          'package_description'=>$package_description,
+                                          'quantity'=>$quantity,
+                                          'total_package_amount'=>$total_package_amount
                                           ); 
                       $booking_array[$type][]=$bookingdata;   
                  }else if($booking->status==config('constants.PAYMENT_STATUS_REQUESTED') && $booking->is_package==1 && ($booking->user_id==$userdata->id)){
@@ -2144,13 +2171,15 @@ class WebserviceController extends Controller
                         {
                               $provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
                         }
-                        $booking_package=Package::where('id',$booking->package_id)->first();
-                        if($booking_package)
+                        if($booking->is_package==1)
                         {
-                        $booking_package_data[]=array('package_id'=>isset($booking_package->id)?$booking_package->id:'',
-                                                    'title'=>isset($booking_package->title)?$booking_package->title:'',
-                                                    'duration'=>isset($booking_package->duration)?$booking_package->duration:'',
-                                                    'description'=>isset($booking_package->description)?$booking_package->description:'');
+                          $booking_package=Package::where('id',$booking->package_id)->first();
+                          $package_id=isset($booking_package->id)?$booking_package->id:'';
+                          $package_title=isset($booking_package->title)?$booking_package->title:'';
+                          $package_duration=isset($booking_package->duration)?$booking_package->duration:'';
+                          $package_description=isset($booking_package->description)?$booking_package->description:'';
+                          $quantity=isset($booking->quantity)?$booking->quantity:'';
+                          $total_package_amount=isset($booking->total_package_amount)?(string)$booking->total_package_amount:'';
                         }
                         //$booking_array[$type][]=$booking;
                         $bookingdata=array('booking_id'=>$booking->id,
@@ -2178,9 +2207,12 @@ class WebserviceController extends Controller
                                           'email'=>$provider_email,
                                           'mobile_number'=>$provider_mobile_number,
                                           'profile_picture'=>$provider_profile_picture,
-                                          'booking_package'=>$booking_package_data,
-                                          'quantity'=>isset($booking->quantity)?$booking->quantity:'',
-                                          'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:'',
+                                          'package_id'=>$package_id,
+                                          'package_title'=>$package_title,
+                                          'package_duration'=>$package_duration,
+                                          'package_description'=>$package_description,
+                                          'quantity'=>$quantity,
+                                          'total_package_amount'=>$total_package_amount
                                           ); 
                       $booking_array[$type][]=$bookingdata;   
                  }else if($booking->status==config('constants.PAYMENT_STATUS_REQUESTED') && $booking->is_rfq==1 && ($booking->user_id==0)){
@@ -2253,9 +2285,12 @@ class WebserviceController extends Controller
                                             'email'=>$provider_email,
                                             'mobile_number'=>$provider_mobile_number,
                                             'profile_picture'=>$provider_profile_picture,
-                                            'booking_package'=>$booking_package_data,
-                                            'quantity'=>isset($booking->quantity)?$booking->quantity:'',
-                                            'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:'',
+                                            'package_id'=>$package_id,
+                                            'package_title'=>$package_title,
+                                            'package_duration'=>$package_duration,
+                                            'package_description'=>$package_description,
+                                            'quantity'=>$quantity,
+                                            'total_package_amount'=>$total_package_amount
                                             );  
                            $booking_array[$type][]=$bookingtype;              
                         }                  
@@ -2301,9 +2336,12 @@ class WebserviceController extends Controller
                                           'email'=>$provider_email,
                                           'mobile_number'=>$provider_mobile_number,
                                           'profile_picture'=>$provider_profile_picture,
-                                          'booking_package'=>$booking_package_data,
-                                          'quantity'=>isset($booking->quantity)?$booking->quantity:'',
-                                          'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:'',
+                                          'package_id'=>$package_id,
+                                          'package_title'=>$package_title,
+                                          'package_duration'=>$package_duration,
+                                          'package_description'=>$package_description,
+                                          'quantity'=>$quantity,
+                                          'total_package_amount'=>$total_package_amount
                                           ); 
                       $booking_array[$type][]=$bookingdata;
                 }else if($booking->status==config('constants.PAYMENT_STATUS_COMPLETED') && $booking->is_package==1 && ($booking->user_id==$userdata->id)) {
@@ -2318,13 +2356,15 @@ class WebserviceController extends Controller
                       {
                             $provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
                       }
-                      $booking_package=Package::where('id',$booking->package_id)->first();
-                      if($booking_package)
+                      if($booking->is_package==1)
                       {
-                      $booking_package_data[]=array('package_id'=>isset($booking_package->id)?$booking_package->id:'',
-                                                  'title'=>isset($booking_package->title)?$booking_package->title:'',
-                                                  'duration'=>isset($booking_package->duration)?$booking_package->duration:'',
-                                                  'description'=>isset($booking_package->description)?$booking_package->description:'');
+                        $booking_package=Package::where('id',$booking->package_id)->first();
+                        $package_id=isset($booking_package->id)?$booking_package->id:'';
+                        $package_title=isset($booking_package->title)?$booking_package->title:'';
+                        $package_duration=isset($booking_package->duration)?$booking_package->duration:'';
+                        $package_description=isset($booking_package->description)?$booking_package->description:'';
+                        $quantity=isset($booking->quantity)?$booking->quantity:'';
+                        $total_package_amount=isset($booking->total_package_amount)?(string)$booking->total_package_amount:'';
                       }
                     //$booking_array[$type][]=$booking;
                     $bookingdata=array('booking_id'=>$booking->id,
@@ -2351,9 +2391,12 @@ class WebserviceController extends Controller
                                           'email'=>$provider_email,
                                           'mobile_number'=>$provider_mobile_number,
                                           'profile_picture'=>$provider_profile_picture,
-                                          'booking_package'=>$booking_package_data,
-                                          'quantity'=>isset($booking->quantity)?$booking->quantity:'',
-                                          'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:'',
+                                          'package_id'=>$package_id,
+                                          'package_title'=>$package_title,
+                                          'package_duration'=>$package_duration,
+                                          'package_description'=>$package_description,
+                                          'quantity'=>$quantity,
+                                          'total_package_amount'=>$total_package_amount
                                           ); 
                       $booking_array[$type][]=$bookingdata;
                 }else if($booking->status==config('constants.PAYMENT_STATUS_COMPLETED') && $booking->is_rfq==1){ 
@@ -2385,9 +2428,12 @@ class WebserviceController extends Controller
                                           'email'=>$booking->user->email,
                                           'mobile_number'=>$booking->user->mobile_number,
                                           'profile_picture'=>$provider_profile_picture,
-                                          'booking_package'=>$booking_package_data,
-                                          'quantity'=>isset($booking->quantity)?$booking->quantity:'',
-                                          'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:'',
+                                          'package_id'=>$package_id,
+                                          'package_title'=>$package_title,
+                                          'package_duration'=>$package_duration,
+                                          'package_description'=>$package_description,
+                                          'quantity'=>$quantity,
+                                          'total_package_amount'=>$total_package_amount
                                           ); 
                          $booking_array[$type][]=$bookingdata;
                       }
@@ -2431,9 +2477,12 @@ class WebserviceController extends Controller
                                           'email'=>$provider_email,
                                           'mobile_number'=>$provider_mobile_number,
                                           'profile_picture'=>$provider_profile_picture,
-                                          'booking_package'=>$booking_package_data,
-                                          'quantity'=>isset($booking->quantity)?$booking->quantity:'',
-                                          'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:'',
+                                          'package_id'=>$package_id,
+                                          'package_title'=>$package_title,
+                                          'package_duration'=>$package_duration,
+                                          'package_description'=>$package_description,
+                                          'quantity'=>$quantity,
+                                          'total_package_amount'=>$total_package_amount
                                           ); 
                       $booking_array[$type][]=$bookingdata;
                 }else if($booking->status==config('constants.PAYMENT_STATUS_ACCEPTED') && $booking->is_package==1  && ($booking->user_id==$userdata->id)){
@@ -2448,13 +2497,15 @@ class WebserviceController extends Controller
                       {
                             $provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
                       }
-                      $booking_package=Package::where('id',$booking->package_id)->first();
-                      if($booking_package)
+                      if($booking->is_package==1)
                       {
-                      $booking_package_data[]=array('package_id'=>isset($booking_package->id)?$booking_package->id:'',
-                                                  'title'=>isset($booking_package->title)?$booking_package->title:'',
-                                                  'duration'=>isset($booking_package->duration)?$booking_package->duration:'',
-                                                  'description'=>isset($booking_package->description)?$booking_package->description:'');
+                        $booking_package=Package::where('id',$booking->package_id)->first();
+                        $package_id=isset($booking_package->id)?$booking_package->id:'';
+                        $package_title=isset($booking_package->title)?$booking_package->title:'';
+                        $package_duration=isset($booking_package->duration)?$booking_package->duration:'';
+                        $package_description=isset($booking_package->description)?$booking_package->description:'';
+                        $quantity=isset($booking->quantity)?$booking->quantity:'';
+                        $total_package_amount=isset($booking->total_package_amount)?(string)$booking->total_package_amount:'';
                       }
                     //$booking_array[$type][]=$booking;
                     $bookingdata=array('booking_id'=>$booking->id,
@@ -2481,9 +2532,12 @@ class WebserviceController extends Controller
                                           'email'=>$provider_email,
                                           'mobile_number'=>$provider_mobile_number,
                                           'profile_picture'=>$provider_profile_picture,
-                                          'booking_package'=>$booking_package_data,
-                                          'quantity'=>isset($booking->quantity)?$booking->quantity:'',
-                                          'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:'',
+                                          'package_id'=>$package_id,
+                                          'package_title'=>$package_title,
+                                          'package_duration'=>$package_duration,
+                                          'package_description'=>$package_description,
+                                          'quantity'=>$quantity,
+                                          'total_package_amount'=>$total_package_amount
                                           ); 
                       $booking_array[$type][]=$bookingdata;
                 }else if($booking->status==config('constants.PAYMENT_STATUS_ACCEPTED') && $booking->is_rfq==1){ 
@@ -2526,9 +2580,12 @@ class WebserviceController extends Controller
                                           'email'=>$provider_email,
                                           'mobile_number'=>$provider_mobile_number,
                                           'profile_picture'=>$provider_profile_picture,
-                                          'booking_package'=>$booking_package_data,
-                                          'quantity'=>isset($booking->quantity)?$booking->quantity:'',
-                                          'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:'',
+                                          'package_id'=>$package_id,
+                                          'package_title'=>$package_title,
+                                          'package_duration'=>$package_duration,
+                                          'package_description'=>$package_description,
+                                          'quantity'=>$quantity,
+                                          'total_package_amount'=>$total_package_amount
                                           ); 
                          $booking_array[$type][]=$bookingdata;
                       }
