@@ -1793,7 +1793,8 @@ class WebserviceController extends Controller
                       $provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
                   }
               //job condition  declined
-              if($type==config('constants.PAYMENT_STATUS_DECLINED') && (strtotime($booking->datetime) > strtotime(date("Y-m-d H:i:s"))))
+                 //&& (strtotime($booking->datetime) > strtotime(date("Y-m-d H:i:s")))
+              if($type==config('constants.PAYMENT_STATUS_DECLINED'))
               {
                 if($booking->status=='declined' && $booking->is_rfq==0 && ($booking->user_id==$userdata->id)){
                       $providerdata=User::with(['profile'])->where('id',$userdata->id)->first();
@@ -1879,7 +1880,7 @@ class WebserviceController extends Controller
                       $booking_array[$type][]=$bookingdata;
                       }
                 }
-              }else if($type==config('constants.PAYMENT_STATUS_PENDING') && (strtotime($booking->datetime) > strtotime(date("Y-m-d H:i:s")))) {
+              }else if($type==config('constants.PAYMENT_STATUS_PENDING')) {
                 //job condition  pending
                 if($booking->status==config('constants.PAYMENT_STATUS_QUOTED') && $booking->is_rfq==0  && ($booking->user_id==$userdata->id)) {
                     //$booking_array[$type][]=$booking;
@@ -1966,7 +1967,7 @@ class WebserviceController extends Controller
                       }
                 }
               }
-              else if($type==config('constants.PAYMENT_STATUS_REQUESTED') && (strtotime($booking->datetime) > strtotime(date("Y-m-d H:i:s"))))
+              else if($type==config('constants.PAYMENT_STATUS_REQUESTED'))
               {  
                  if($booking->status==config('constants.PAYMENT_STATUS_REQUESTED') && $booking->is_rfq==0 && ($booking->user_id==$userdata->id)){
                         $providerdata=User::with(['profile'])->where('id',$userdata->id)->first();
@@ -2084,7 +2085,7 @@ class WebserviceController extends Controller
                     }
                 }
                }                 
-              }else if($type==config('constants.PAYMENT_STATUS_COMPLETED') && (strtotime($booking->datetime) > strtotime(date("Y-m-d H:i:s")))) {
+              }else if($type==config('constants.PAYMENT_STATUS_COMPLETED')) {
                  //job condition  completed
                 if($booking->status==config('constants.PAYMENT_STATUS_COMPLETED') && $booking->is_rfq==0 && ($booking->user_id==$userdata->id)) {
                       $providerdata=User::with(['profile'])->where('id',$userdata->id)->first();
@@ -2158,7 +2159,7 @@ class WebserviceController extends Controller
                          $booking_array[$type][]=$bookingdata;
                       }
                 }
-              }else if($type==config('constants.PAYMENT_STATUS_ACCEPTED') && (strtotime($booking->datetime) > strtotime(date("Y-m-d H:i:s")))) {
+              }else if($type==config('constants.PAYMENT_STATUS_ACCEPTED')) {
                   //job condition  accepted
                   if($booking->status==config('constants.PAYMENT_STATUS_ACCEPTED') && $booking->is_rfq==0  && ($booking->user_id==$userdata->id)){
                       $providerdata=User::with(['profile'])->where('id',$booking->user_id)->first();
