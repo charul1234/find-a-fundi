@@ -997,7 +997,7 @@ class WebserviceController extends Controller
                                           'package_title'=>$package_title,
                                           'package_duration'=>$package_duration,
                                           'package_description'=>$package_description,
-                                          'quantity'=>isset($booking->quantity)?$booking->quantity:'',
+                                          'quantity'=>isset($booking->quantity)?(string)$booking->quantity:'',
                                           'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:''
                                           );                     
                        $booking_list[$type][]=$bookingrecords;
@@ -1076,11 +1076,11 @@ class WebserviceController extends Controller
                                           'age'=>(string)$age,
                                           'rating'=>$rating,
                                           'is_package'=>$booking->is_package,
-                                          'package_id'=>isset($booking_package->id)?$booking_package->id:'',
+                                          'package_id'=>isset($booking_package->id)?(string)$booking_package->id:'',
                                           'package_title'=>isset($booking_package->title)?$booking_package->title:'',
                                           'package_duration'=>isset($booking_package->duration)?(string)$booking_package->duration:'',
                                           'package_description'=>isset($booking_package->description)?$booking_package->description:'',
-                                          'quantity'=>isset($booking->quantity)?$booking->quantity:'',
+                                          'quantity'=>isset($booking->quantity)?(string)$booking->quantity:'',
                                           'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:''
                                           );                     
                         $booking_list[$type][]=$bookingrecords;
@@ -1188,7 +1188,7 @@ class WebserviceController extends Controller
                                           'package_title'=>$package_title,
                                           'package_duration'=>$package_duration,
                                           'package_description'=>$package_description,
-                                          'quantity'=>isset($booking->quantity)?$booking->quantity:'',
+                                          'quantity'=>isset($booking->quantity)?(string)$booking->quantity:'',
                                           'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:''
                                           );                     
                        $booking_list[$type][]=$bookingrecords;   
@@ -1270,7 +1270,7 @@ class WebserviceController extends Controller
                                             'package_title'=>$package_title,
                                             'package_duration'=>$package_duration,
                                             'package_description'=>$package_description,
-                                            'quantity'=>isset($booking->quantity)?$booking->quantity:'',
+                                            'quantity'=>isset($booking->quantity)?(string)$booking->quantity:'',
                                             'total_package_amount'=>isset($booking->total_package_amount)?(string)$booking->total_package_amount:''
                                             );                     
                          $booking_list[$type][]=$bookingrecords;  
@@ -1401,7 +1401,7 @@ class WebserviceController extends Controller
                                           'package_title'=>$package_title,
                                           'package_duration'=>$package_duration,
                                           'package_description'=>$package_description,
-                                          'quantity'=>isset($booking->quantity)?$booking->quantity:'',
+                                          'quantity'=>isset($booking->quantity)?(string)$booking->quantity:'',
                                           'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:''
                                           );                     
                        $booking_list[$type][]=$bookingrecords;                       
@@ -1477,11 +1477,11 @@ class WebserviceController extends Controller
                                           'age'=>(string)$age,
                                           'rating'=>$rating,
                                           'is_package'=>$booking->is_package,
-                                          'package_id'=>isset($booking_package->id)?$booking_package->id:'',
+                                          'package_id'=>isset($booking_package->id)?(string)$booking_package->id:'',
                                           'package_title'=>isset($booking_package->title)?$booking_package->title:'',
                                           'package_duration'=>isset($booking_package->duration)?(string)$booking_package->duration:'',
                                           'package_description'=>isset($booking_package->description)?$booking_package->description:'',
-                                          'quantity'=>isset($booking->quantity)?$booking->quantity:'',
+                                          'quantity'=>isset($booking->quantity)?(string)$booking->quantity:'',
                                           'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:''
                                           );                     
                        $booking_list[$type][]=$bookingrecords;            
@@ -1552,7 +1552,7 @@ class WebserviceController extends Controller
                                             'package_title'=>$package_title,
                                             'package_duration'=>$package_duration,
                                             'package_description'=>$package_description,
-                                            'quantity'=>isset($booking->quantity)?$booking->quantity:'',
+                                            'quantity'=>isset($booking->quantity)?(string)$booking->quantity:'',
                                             'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:''
                                             );  
                       $booking_list[$type][]=$bookingrecords;
@@ -1616,11 +1616,11 @@ class WebserviceController extends Controller
                                           'age'=>(string)$age,
                                           'rating'=>$rating,
                                           'is_package'=>$booking->is_package,
-                                          'package_id'=>isset($booking_package->id)?$booking_package->id:'',
+                                          'package_id'=>isset($booking_package->id)?(string)$booking_package->id:'',
                                           'package_title'=>isset($booking_package->title)?$booking_package->title:'',
                                           'package_duration'=>isset($booking_package->duration)?(string)$booking_package->duration:'',
                                           'package_description'=>isset($booking_package->description)?$booking_package->description:'',
-                                          'quantity'=>isset($booking->quantity)?$booking->quantity:'',
+                                          'quantity'=>isset($booking->quantity)?(string)$booking->quantity:'',
                                           'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:''
                                           );  
                       $booking_list[$type][]=$bookingrecords;
@@ -1707,7 +1707,7 @@ class WebserviceController extends Controller
                                           'package_title'=>$package_title,
                                           'package_duration'=>$package_duration,
                                           'package_description'=>$package_description,
-                                          'quantity'=>isset($booking->quantity)?$booking->quantity:'',
+                                          'quantity'=>isset($booking->quantity)?(string)$booking->quantity:'',
                                           'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:''
                                           );                     
                        $booking_list[$type][]=$bookingrecords;  
