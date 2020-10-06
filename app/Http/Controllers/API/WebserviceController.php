@@ -875,6 +875,8 @@ class WebserviceController extends Controller
             $works_photo_Images=array(); 
             $age=""; 
             $rating=0.0;
+            $package_id=$package_title=$package_duration=$package_description=$quantity=$total_package_amount='';
+
            if(count($bookings)>0)
            {
             $bookingrecords='';            
@@ -991,10 +993,10 @@ class WebserviceController extends Controller
                                           'age'=>(string)$age,
                                           'rating'=>$rating,
                                           'is_package'=>$booking->is_package,
-                                          'package_id'=>'',
-                                          'package_title'=>'',
-                                          'package_duration'=>'',
-                                          'package_description'=>'',
+                                          'package_id'=>$package_id,
+                                          'package_title'=>$package_title,
+                                          'package_duration'=>$package_duration,
+                                          'package_description'=>$package_description,
                                           'quantity'=>isset($booking->quantity)?$booking->quantity:'',
                                           'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:''
                                           );                     
@@ -1076,7 +1078,7 @@ class WebserviceController extends Controller
                                           'is_package'=>$booking->is_package,
                                           'package_id'=>isset($booking_package->id)?$booking_package->id:'',
                                           'package_title'=>isset($booking_package->title)?$booking_package->title:'',
-                                          'package_duration'=>isset($booking_package->duration)?$booking_package->duration:'',
+                                          'package_duration'=>isset($booking_package->duration)?(string)$booking_package->duration:'',
                                           'package_description'=>isset($booking_package->description)?$booking_package->description:'',
                                           'quantity'=>isset($booking->quantity)?$booking->quantity:'',
                                           'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:''
@@ -1182,10 +1184,10 @@ class WebserviceController extends Controller
                                           'age'=>(string)$age,
                                           'rating'=>$rating,
                                           'is_package'=>$booking->is_package,
-                                          'package_id'=>'',
-                                          'package_title'=>'',
-                                          'package_duration'=>'',
-                                          'package_description'=>'',
+                                          'package_id'=>$package_id,
+                                          'package_title'=>$package_title,
+                                          'package_duration'=>$package_duration,
+                                          'package_description'=>$package_description,
                                           'quantity'=>isset($booking->quantity)?$booking->quantity:'',
                                           'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:''
                                           );                     
@@ -1264,10 +1266,10 @@ class WebserviceController extends Controller
                                             'age'=>(string)$age,
                                             'rating'=>$rating,
                                             'is_package'=>$booking->is_package,
-                                            'package_id'=>'',
-                                            'package_title'=>'',
-                                            'package_duration'=>'',
-                                            'package_description'=>'',
+                                            'package_id'=>$package_id,
+                                            'package_title'=>$package_title,
+                                            'package_duration'=>$package_duration,
+                                            'package_description'=>$package_description,
                                             'quantity'=>isset($booking->quantity)?$booking->quantity:'',
                                             'total_package_amount'=>isset($booking->total_package_amount)?(string)$booking->total_package_amount:''
                                             );                     
@@ -1395,10 +1397,10 @@ class WebserviceController extends Controller
                                           'age'=>(string)$age,
                                           'rating'=>$rating,
                                           'is_package'=>$booking->is_package,
-                                          'package_id'=>'',
-                                          'package_title'=>'',
-                                          'package_duration'=>'',
-                                          'package_description'=>'',
+                                          'package_id'=>$package_id,
+                                          'package_title'=>$package_title,
+                                          'package_duration'=>$package_duration,
+                                          'package_description'=>$package_description,
                                           'quantity'=>isset($booking->quantity)?$booking->quantity:'',
                                           'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:''
                                           );                     
@@ -1477,7 +1479,7 @@ class WebserviceController extends Controller
                                           'is_package'=>$booking->is_package,
                                           'package_id'=>isset($booking_package->id)?$booking_package->id:'',
                                           'package_title'=>isset($booking_package->title)?$booking_package->title:'',
-                                          'package_duration'=>isset($booking_package->duration)?$booking_package->duration:'',
+                                          'package_duration'=>isset($booking_package->duration)?(string)$booking_package->duration:'',
                                           'package_description'=>isset($booking_package->description)?$booking_package->description:'',
                                           'quantity'=>isset($booking->quantity)?$booking->quantity:'',
                                           'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:''
@@ -1546,10 +1548,10 @@ class WebserviceController extends Controller
                                             'age'=>(string)$age,
                                             'rating'=>$rating,
                                             'is_package'=>$booking->is_package,
-                                            'package_id'=>'',
-                                            'package_title'=>'',
-                                            'package_duration'=>'',
-                                            'package_description'=>'',
+                                            'package_id'=>$package_id,
+                                            'package_title'=>$package_title,
+                                            'package_duration'=>$package_duration,
+                                            'package_description'=>$package_description,
                                             'quantity'=>isset($booking->quantity)?$booking->quantity:'',
                                             'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:''
                                             );  
@@ -1616,7 +1618,7 @@ class WebserviceController extends Controller
                                           'is_package'=>$booking->is_package,
                                           'package_id'=>isset($booking_package->id)?$booking_package->id:'',
                                           'package_title'=>isset($booking_package->title)?$booking_package->title:'',
-                                          'package_duration'=>isset($booking_package->duration)?$booking_package->duration:'',
+                                          'package_duration'=>isset($booking_package->duration)?(string)$booking_package->duration:'',
                                           'package_description'=>isset($booking_package->description)?$booking_package->description:'',
                                           'quantity'=>isset($booking->quantity)?$booking->quantity:'',
                                           'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:''
@@ -1701,10 +1703,10 @@ class WebserviceController extends Controller
                                           'age'=>(string)$age,
                                           'rating'=>$rating,
                                           'is_package'=>$booking->is_package,
-                                          'package_id'=>'',
-                                          'package_title'=>'',
-                                          'package_duration'=>'',
-                                          'package_description'=>'',
+                                          'package_id'=>$package_id,
+                                          'package_title'=>$package_title,
+                                          'package_duration'=>$package_duration,
+                                          'package_description'=>$package_description,
                                           'quantity'=>isset($booking->quantity)?$booking->quantity:'',
                                           'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:''
                                           );                     
@@ -4052,5 +4054,151 @@ class WebserviceController extends Controller
             $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
         }        
         return response()->json($response);
+    }
+    /**
+     * API to get provider details according to Id 
+     *
+     * @return [string] message
+     */
+    public function getProviderProfile(Request $request){
+        $user = Auth::user(); 
+        $data = $request->all(); 
+        $provider=$certification_data=$provider_data=array();
+        $user_id=$user->id;
+        if($user)
+        {         
+
+           $provider= User::with(['profile','media','profile.experience_level','profile.payment_option','profile.city','category_user.category','certification'])
+            ->whereHas('profile', function($query) use ($user_id) {    
+              $query->where('user_id',$user_id);            
+            })->first();            
+          $subcategories=[];
+          if(count($provider->category_user)>0)
+          {
+            foreach ($provider->category_user as $key => $providerdata) 
+            {
+              if($providerdata->category->parent_id!=0){
+                $subcategories[]=array('id'=>$providerdata->category->id,
+                                     'title'=>$providerdata->category->title,
+                                     'parent_id'=>$providerdata->category->parent_id,
+                                     'is_active'=>$providerdata->category->is_active);
+            }
+           }  
+          }
+          $provider_works_photo = $provider->getMedia('works_photo');  
+          $works_photo_Images=array(); 
+          if (count($provider_works_photo) > 0) 
+          {
+            foreach ($provider_works_photo as $key => $works_photo) {
+               $works_photo_Images[]=array('id'=>$works_photo->id,
+                                      'name'=>$works_photo->name,
+                                      'file_name'=>$works_photo->file_name,
+                                      'image_path'=>$works_photo->getFullUrl());
+            }
+          }
+          
+          $certification_img='';
+          if(count($provider->certification))
+          {
+            foreach ($provider->certification as $key => $certification) {
+               if(isset($certification) && $certification->getMedia('certification')->count() > 0 && file_exists($certification->getFirstMedia('certification')->getPath()))
+              {           
+                 $certification_img=$certification->getFirstMedia('certification')->getFullUrl();
+              }
+               if(isset($certification) && $certification->getMedia('diploma')->count() > 0 && file_exists($certification->getFirstMedia('diploma')->getPath()))
+              {           
+                 $certification_img=$certification->getFirstMedia('diploma')->getFullUrl();
+              }
+               if(isset($certification) && $certification->getMedia('degree')->count() > 0 && file_exists($certification->getFirstMedia('degree')->getPath()))
+              {           
+                 $certification_img=$certification->getFirstMedia('degree')->getFullUrl();
+              }
+              $certification_data[]=array('id'=>$certification->id,
+                                        'title'=>$certification->title,
+                                        'type'=>$certification->type,
+                                        'img'=>$certification_img);
+            }
+          }
+          $certificate_conduct='';
+          $nca='';
+          if(isset($provider) && $provider->getMedia('certificate_conduct')->count() > 0 && file_exists($provider->getFirstMedia('certificate_conduct')->getPath()))
+          {           
+            $certificate_conduct=$provider->getFirstMedia('certificate_conduct')->getFullUrl();
+          } 
+          if(isset($provider) && $provider->getMedia('nca')->count() > 0 && file_exists($provider->getFirstMedia('nca')->getPath()))
+          {           
+            $nca=$provider->getFirstMedia('nca')->getFullUrl();
+          } 
+          $rating=0.0;
+          $provider['certification_data']=$certification_data;
+          $provider['nca']=$nca;
+          $provider['certificate_conduct']=$certificate_conduct;
+          $provider['works_photo']=$works_photo_Images;
+          $provider['subcategories']=$subcategories;
+                  
+             
+          $provider['profile_picture']='';
+          $age="";                
+          if(isset($provider) && $provider->getMedia('profile_picture')->count() > 0 && file_exists($provider->getFirstMedia('profile_picture')->getPath()))
+          {
+            $provider['profile_picture']=$provider->getFirstMedia('profile_picture')->getFullUrl();
+          }  
+          if(isset($provider->profile->dob) && $provider->profile->dob!='')
+          {
+
+            $age = (date('Y') - date('Y',strtotime($provider->profile->dob)));          
+          }
+          /*rating*/
+          if($provider->profile->display_seeker_reviews==true)
+          {
+            $provider_review=Review::where(array('user_id'=>$user_id))->get();
+            if(count($provider_review)>0)
+            {
+              $no_of_count=count($provider_review); 
+              $provider_rating=$provider_review->sum('rating');
+              $rating = $provider_rating / $no_of_count;
+              $rating=(round($rating,2));
+            }
+          }          
+          /* rating */
+          $age=(string)$age;
+          $rating=$rating;
+          unset($provider['media']);
+          unset($provider['certification']);
+          $provider_data=array('name'=>isset($provider->name)?$provider->name:'',
+                               'mobile_number'=>isset($provider->mobile_number)?$provider->mobile_number:'',
+                               'email'=>isset($provider->email)?$provider->email:'',
+                               'location'=>isset($provider->profile->work_address)?$provider->profile->work_address:'',
+                               'latitude'=>isset($provider->profile->latitude)?$provider->profile->latitude:'',
+                               'longitude'=>isset($provider->profile->longitude)?$provider->profile->longitude:'',
+                               'radius'=>isset($provider->profile->radius)?$provider->profile->radius:'',
+                               'passport_number'=>isset($provider->profile->passport_number)?$provider->profile->passport_number:'',
+                               'residential_address'=>isset($provider->profile->residential_address)?$provider->profile->residential_address:'',
+                               'experience_level_id'=>isset($provider->profile->experience_level->id)?$provider->profile->experience_level->id:'',
+                               'experience_level_title'=>isset($provider->profile->experience_level->title)?$provider->profile->experience_level->title:'',
+                               'reference'=>isset($provider->profile->reference)?$provider->profile->reference:'',
+                               'facebook_url'=>isset($provider->profile->facebook_url)?$provider->profile->facebook_url:'',
+                               'twitter_url'=>isset($provider->profile->twitter_url)?$provider->profile->twitter_url:'',
+                               'instagram_url'=>isset($provider->profile->instagram_url)?$provider->profile->instagram_url:'',
+                               'fundi_is_middlemen'=>$provider->profile->fundi_is_middlemen,
+                               'fundi_have_tools'=>$provider->profile->fundi_have_tools,
+                               'fundi_have_smartphone'=>$provider->profile->fundi_have_smartphone,
+                               'screen_name'=>isset($provider->screen_name)?$provider->screen_name:'',
+                               'age'=>$age,
+                               'rating'=>$rating,
+                               'profile_picture'=>$provider['profile_picture'],
+                               'certificate_conduct'=>$certificate_conduct,
+                               'nca'=>$nca,
+                               'certification_data'=>$certification_data,
+                               'works_photo'=>$works_photo_Images
+                               );          
+         
+          $response=array('status'=>true,'data'=>$provider_data,'message'=>'Record found');
+        }else
+        {
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
+
     }
 }
