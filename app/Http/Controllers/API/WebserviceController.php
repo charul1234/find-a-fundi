@@ -856,7 +856,7 @@ class WebserviceController extends Controller
         $booking_data=$bookings=$bookingtype=array();
         $type=isset($request->type)?$request->type:'';
         if($user)
-        {          
+        {        
             $validator = Validator::make($data, [
                 'type'=>'required', 
             ]);
@@ -1792,8 +1792,8 @@ class WebserviceController extends Controller
                   {
                       $provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
                   }
-              //job condition  
-              if($type==config('constants.PAYMENT_STATUS_DECLINED'))
+              //job condition  declined
+              if($type==config('constants.PAYMENT_STATUS_DECLINED') && (strtotime($booking->datetime) > strtotime(date("Y-m-d H:i:s"))))
               {
                 if($booking->status=='declined' && $booking->is_rfq==0 && ($booking->user_id==$userdata->id)){
                       $providerdata=User::with(['profile'])->where('id',$userdata->id)->first();
@@ -1821,6 +1821,7 @@ class WebserviceController extends Controller
                                           'is_rfq'=>$booking->is_rfq,
                                           'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
                                           'is_hourly'=>$booking->is_hourly,
+                                          'is_package'=>$booking->is_package,
                                           'min_budget'=>isset($booking->min_budget)?(string)$booking->min_budget:'',
                                           'max_budget'=>isset($booking->max_budget)?(string)$booking->max_budget:'',
                                           'datetime'=>$booking->datetime,
@@ -1862,6 +1863,7 @@ class WebserviceController extends Controller
                                           'is_rfq'=>$booking->is_rfq,
                                           'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
                                           'is_hourly'=>$booking->is_hourly,
+                                          'is_package'=>$booking->is_package,
                                           'min_budget'=>isset($booking->min_budget)?(string)$booking->min_budget:'',
                                           'max_budget'=>isset($booking->max_budget)?(string)$booking->max_budget:'',
                                           'datetime'=>$booking->datetime,
@@ -1877,7 +1879,8 @@ class WebserviceController extends Controller
                       $booking_array[$type][]=$bookingdata;
                       }
                 }
-              }else if($type==config('constants.PAYMENT_STATUS_PENDING')){
+              }else if($type==config('constants.PAYMENT_STATUS_PENDING') && (strtotime($booking->datetime) > strtotime(date("Y-m-d H:i:s")))) {
+                //job condition  pending
                 if($booking->status==config('constants.PAYMENT_STATUS_QUOTED') && $booking->is_rfq==0  && ($booking->user_id==$userdata->id)) {
                     //$booking_array[$type][]=$booking;
                       $providerdata=User::with(['profile'])->where('id',$userdata->id)->first();
@@ -1904,6 +1907,7 @@ class WebserviceController extends Controller
                                           'is_rfq'=>$booking->is_rfq,
                                           'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
                                           'is_hourly'=>$booking->is_hourly,
+                                          'is_package'=>$booking->is_package,
                                           'min_budget'=>isset($booking->min_budget)?(string)$booking->min_budget:'',
                                           'max_budget'=>isset($booking->max_budget)?(string)$booking->max_budget:'',
                                           'datetime'=>$booking->datetime,
@@ -1945,6 +1949,7 @@ class WebserviceController extends Controller
                                           'is_rfq'=>$booking->is_rfq,
                                           'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
                                           'is_hourly'=>$booking->is_hourly,
+                                          'is_package'=>$booking->is_package,
                                           'min_budget'=>isset($booking->min_budget)?(string)$booking->min_budget:'',
                                           'max_budget'=>isset($booking->max_budget)?(string)$booking->max_budget:'',
                                           'datetime'=>$booking->datetime,
@@ -1961,8 +1966,8 @@ class WebserviceController extends Controller
                       }
                 }
               }
-              else if($type==config('constants.PAYMENT_STATUS_REQUESTED'))
-              {
+              else if($type==config('constants.PAYMENT_STATUS_REQUESTED') && (strtotime($booking->datetime) > strtotime(date("Y-m-d H:i:s"))))
+              {  
                  if($booking->status==config('constants.PAYMENT_STATUS_REQUESTED') && $booking->is_rfq==0 && ($booking->user_id==$userdata->id)){
                         $providerdata=User::with(['profile'])->where('id',$userdata->id)->first();
                         $provider_name=isset($providerdata->name)?$providerdata->name:'';
@@ -1989,6 +1994,7 @@ class WebserviceController extends Controller
                                           'is_rfq'=>$booking->is_rfq,
                                           'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
                                           'is_hourly'=>$booking->is_hourly,
+                                          'is_package'=>$booking->is_package,
                                           'min_budget'=>isset($booking->min_budget)?(string)$booking->min_budget:'',
                                           'max_budget'=>isset($booking->max_budget)?(string)$booking->max_budget:'',
                                           'datetime'=>$booking->datetime,
@@ -2060,6 +2066,7 @@ class WebserviceController extends Controller
                                             'is_rfq'=>$booking->is_rfq,
                                             'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
                                             'is_hourly'=>$booking->is_hourly,
+                                            'is_package'=>$booking->is_package,
                                             'min_budget'=>isset($booking->min_budget)?(string)$booking->min_budget:'',
                                             'max_budget'=>isset($booking->max_budget)?(string)$booking->max_budget:'',
                                             'datetime'=>$booking->datetime,
@@ -2077,7 +2084,8 @@ class WebserviceController extends Controller
                     }
                 }
                }                 
-              }else if($type==config('constants.PAYMENT_STATUS_COMPLETED')){
+              }else if($type==config('constants.PAYMENT_STATUS_COMPLETED') && (strtotime($booking->datetime) > strtotime(date("Y-m-d H:i:s")))) {
+                 //job condition  completed
                 if($booking->status==config('constants.PAYMENT_STATUS_COMPLETED') && $booking->is_rfq==0 && ($booking->user_id==$userdata->id)) {
                       $providerdata=User::with(['profile'])->where('id',$userdata->id)->first();
                       $provider_name=isset($providerdata->name)?$providerdata->name:'';
@@ -2104,6 +2112,7 @@ class WebserviceController extends Controller
                                           'is_rfq'=>$booking->is_rfq,
                                           'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
                                           'is_hourly'=>$booking->is_hourly,
+                                          'is_package'=>$booking->is_package,
                                           'min_budget'=>isset($booking->min_budget)?(string)$booking->min_budget:'',
                                           'max_budget'=>isset($booking->max_budget)?(string)$booking->max_budget:'',
                                           'datetime'=>$booking->datetime,
@@ -2133,6 +2142,7 @@ class WebserviceController extends Controller
                                           'is_rfq'=>$booking->is_rfq,
                                           'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
                                           'is_hourly'=>$booking->is_hourly,
+                                          'is_package'=>$booking->is_package,
                                           'min_budget'=>isset($booking->min_budget)?(string)$booking->min_budget:'',
                                           'max_budget'=>isset($booking->max_budget)?(string)$booking->max_budget:'',
                                           'datetime'=>$booking->datetime,
@@ -2148,7 +2158,8 @@ class WebserviceController extends Controller
                          $booking_array[$type][]=$bookingdata;
                       }
                 }
-              }else if($type==config('constants.PAYMENT_STATUS_ACCEPTED')){
+              }else if($type==config('constants.PAYMENT_STATUS_ACCEPTED') && (strtotime($booking->datetime) > strtotime(date("Y-m-d H:i:s")))) {
+                  //job condition  accepted
                   if($booking->status==config('constants.PAYMENT_STATUS_ACCEPTED') && $booking->is_rfq==0  && ($booking->user_id==$userdata->id)){
                       $providerdata=User::with(['profile'])->where('id',$booking->user_id)->first();
                       $provider_name=isset($providerdata->name)?$providerdata->name:'';
@@ -2175,6 +2186,7 @@ class WebserviceController extends Controller
                                           'is_rfq'=>$booking->is_rfq,
                                           'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
                                           'is_hourly'=>$booking->is_hourly,
+                                          'is_package'=>$booking->is_package,
                                           'min_budget'=>isset($booking->min_budget)?(string)$booking->min_budget:'',
                                           'max_budget'=>isset($booking->max_budget)?(string)$booking->max_budget:'',
                                           'datetime'=>$booking->datetime,
@@ -2215,6 +2227,7 @@ class WebserviceController extends Controller
                                           'is_rfq'=>$booking->is_rfq,
                                           'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
                                           'is_hourly'=>$booking->is_hourly,
+                                          'is_package'=>$booking->is_package,
                                           'min_budget'=>isset($booking->min_budget)?(string)$booking->min_budget:'',
                                           'max_budget'=>isset($booking->max_budget)?(string)$booking->max_budget:'',
                                           'datetime'=>$booking->datetime,

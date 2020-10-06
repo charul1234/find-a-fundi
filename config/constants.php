@@ -30,6 +30,7 @@
 		'PAYMENT_STATUS_ACCEPTED' => 'accepted',
 		'PAYMENT_STATUS_COMPLETED' => 'completed',
 		'PAYMENT_STATUS_DECLINED' => 'declined',
+		'PAYMENT_STATUS_LOST' => 'lost',
 		'PAYMENT_STATUS_PENDING' => 'pending',
 		'PAYMENT_STATUS_SUCCESS' => 'success',
 		'JOB_STATUS_NOT_STARTED' => 'not started',
