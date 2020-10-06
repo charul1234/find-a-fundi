@@ -970,8 +970,7 @@ class WebserviceController extends Controller
                                           'location'=>$booking->location,
                                           'latitude'=>$booking->latitude,
                                           'longitude'=>$booking->longitude,
-                                          'budget'=>isset($booking->budget)?(string)$booking->budget:'',
-                                          'is_package'=>$booking->is_package,
+                                          'budget'=>isset($booking->budget)?(string)$booking->budget:'',                                          
                                           'is_rfq'=>$booking->is_rfq,
                                           'booking_rfq'=>$booking_rfq,
                                           'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
@@ -991,7 +990,11 @@ class WebserviceController extends Controller
                                           'works_photo'=>$works_photo_Images,
                                           'age'=>(string)$age,
                                           'rating'=>$rating,
-                                          'booking_package'=>$booking_package_data,
+                                          'is_package'=>$booking->is_package,
+                                          'package_id'=>'',
+                                          'package_title'=>'',
+                                          'package_duration'=>'',
+                                          'package_description'=>'',
                                           'quantity'=>isset($booking->quantity)?$booking->quantity:'',
                                           'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:''
                                           );                     
@@ -1001,15 +1004,7 @@ class WebserviceController extends Controller
                      {
                         $booking_rfq=array();
                         //Package information
-                        $booking_package_data=array();
                         $booking_package=Package::where('id',$booking->package_id)->first();
-                        if($booking_package)
-                        {
-                        $booking_package_data[]=array('package_id'=>isset($booking_package->id)?$booking_package->id:'',
-                                                    'title'=>isset($booking_package->title)?$booking_package->title:'',
-                                                    'duration'=>isset($booking_package->duration)?$booking_package->duration:'',
-                                                    'description'=>isset($booking_package->description)?$booking_package->description:'');
-                        }
                         //end Package information
                         //condition for package type job  
                         $providerdata=User::with(['profile','media'])->where('id',$booking->user_id)->first();
@@ -1058,8 +1053,7 @@ class WebserviceController extends Controller
                                           'location'=>$booking->location,
                                           'latitude'=>$booking->latitude,
                                           'longitude'=>$booking->longitude,
-                                          'budget'=>isset($booking->budget)?(string)$booking->budget:'',
-                                          'is_package'=>$booking->is_package,
+                                          'budget'=>isset($booking->budget)?(string)$booking->budget:'',                                          
                                           'is_rfq'=>$booking->is_rfq,
                                           'booking_rfq'=>$booking_rfq,
                                           'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
@@ -1079,9 +1073,13 @@ class WebserviceController extends Controller
                                           'works_photo'=>$works_photo_Images,
                                           'age'=>(string)$age,
                                           'rating'=>$rating,
-                                          'booking_package'=>$booking_package_data,
+                                          'is_package'=>$booking->is_package,
+                                          'package_id'=>isset($booking_package->id)?$booking_package->id:'',
+                                          'package_title'=>isset($booking_package->title)?$booking_package->title:'',
+                                          'package_duration'=>isset($booking_package->duration)?$booking_package->duration:'',
+                                          'package_description'=>isset($booking_package->description)?$booking_package->description:'',
                                           'quantity'=>isset($booking->quantity)?$booking->quantity:'',
-                                          'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:'',
+                                          'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:''
                                           );                     
                         $booking_list[$type][]=$bookingrecords;
                      }else if($booking->status==config('constants.PAYMENT_STATUS_ACCEPTED') && $booking->is_rfq==1)
@@ -1142,7 +1140,7 @@ class WebserviceController extends Controller
                          $booking_rfq=array('booking_id'=>$booking_users->booking_id,
                                              'user_id'=>$booking_users->user_id,
                                              'is_rfq'=>$booking_users->is_rfq,
-                                             'budget'=>$booking_users->budget,
+                                             'budget'=>isset($booking_users->budget)?(string)$booking_users->budget:'',
                                              'service_datetime'=>$booking_users->service_datetime,
                                              'requirement'=>isset($booking_users->requirement)?$booking_users->requirement:'',
                                              'comment'=>isset($booking_users->comment)?$booking_users->comment:'',
@@ -1163,8 +1161,7 @@ class WebserviceController extends Controller
                                           'location'=>$booking->location,
                                           'latitude'=>$booking->latitude,
                                           'longitude'=>$booking->longitude,
-                                          'budget'=>isset($booking->budget)?(string)$booking->budget:'',
-                                          'is_package'=>$booking->is_package,
+                                          'budget'=>isset($booking->budget)?(string)$booking->budget:'',                                          
                                           'is_rfq'=>$booking->is_rfq,
                                           'booking_rfq'=>$booking_rfq,
                                           'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
@@ -1184,7 +1181,11 @@ class WebserviceController extends Controller
                                           'works_photo'=>$works_photo_Images,
                                           'age'=>(string)$age,
                                           'rating'=>$rating,
-                                          'booking_package'=>$booking_package_data,
+                                          'is_package'=>$booking->is_package,
+                                          'package_id'=>'',
+                                          'package_title'=>'',
+                                          'package_duration'=>'',
+                                          'package_description'=>'',
                                           'quantity'=>isset($booking->quantity)?$booking->quantity:'',
                                           'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:''
                                           );                     
@@ -1243,7 +1244,6 @@ class WebserviceController extends Controller
                                             'latitude'=>$booking->latitude,
                                             'longitude'=>$booking->longitude,
                                             'budget'=>isset($booking->budget)?(string)$booking->budget:'',
-                                            'is_package'=>$booking->is_package,
                                             'is_rfq'=>$booking->is_rfq,
                                             'booking_rfq'=>$booking_rfq,
                                             'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
@@ -1263,9 +1263,13 @@ class WebserviceController extends Controller
                                             'works_photo'=>$works_photo_Images,
                                             'age'=>(string)$age,
                                             'rating'=>$rating,
-                                            'booking_package'=>$booking_package_data,
+                                            'is_package'=>$booking->is_package,
+                                            'package_id'=>'',
+                                            'package_title'=>'',
+                                            'package_duration'=>'',
+                                            'package_description'=>'',
                                             'quantity'=>isset($booking->quantity)?$booking->quantity:'',
-                                            'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:''
+                                            'total_package_amount'=>isset($booking->total_package_amount)?(string)$booking->total_package_amount:''
                                             );                     
                          $booking_list[$type][]=$bookingrecords;  
                      }else if($booking->status==config('constants.PAYMENT_STATUS_REQUESTED') && $booking->is_rfq==1)
@@ -1291,7 +1295,7 @@ class WebserviceController extends Controller
                          $booking_rfq[]=array('booking_id'=>$booking_declined->booking_id,
                                              'user_id'=>$booking_declined->user_id,
                                              'is_rfq'=>$booking_declined->is_rfq,
-                                             'budget'=>$booking_declined->budget,
+                                             'budget'=>isset($booking_declined->budget)?(string)$booking_declined->budget:'',
                                              'service_datetime'=>$booking_declined->service_datetime,
                                              'requirement'=>isset($booking_declined->requirement)?$booking_declined->requirement:'',
                                              'comment'=>isset($booking_declined->comment)?$booking_declined->comment:'',
@@ -1347,7 +1351,7 @@ class WebserviceController extends Controller
                          $booking_rfq[]=array('booking_id'=>$booking_quote->booking_id,
                                              'user_id'=>$booking_quote->user_id,
                                              'is_rfq'=>$booking_quote->is_rfq,
-                                             'budget'=>$booking_quote->budget,
+                                             'budget'=>isset($booking_quote->budget)?(string)$booking_quote->budget:'',
                                              'service_datetime'=>$booking_quote->service_datetime,
                                              'requirement'=>isset($booking_quote->requirement)?$booking_quote->requirement:'',
                                              'comment'=>isset($booking_quote->comment)?$booking_quote->comment:'',
@@ -1370,8 +1374,7 @@ class WebserviceController extends Controller
                                           'location'=>$booking->location,
                                           'latitude'=>$booking->latitude,
                                           'longitude'=>$booking->longitude,
-                                          'budget'=>isset($booking->budget)?(string)$booking->budget:'',
-                                          'is_package'=>$booking->is_package,
+                                          'budget'=>isset($booking->budget)?(string)$booking->budget:'',                                         
                                           'is_rfq'=>$booking->is_rfq,
                                           'booking_rfq'=>$booking_rfq,
                                           'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
@@ -1391,7 +1394,11 @@ class WebserviceController extends Controller
                                           'works_photo'=>$works_photo_Images,
                                           'age'=>(string)$age,
                                           'rating'=>$rating,
-                                          'booking_package'=>$booking_package_data,
+                                          'is_package'=>$booking->is_package,
+                                          'package_id'=>'',
+                                          'package_title'=>'',
+                                          'package_duration'=>'',
+                                          'package_description'=>'',
                                           'quantity'=>isset($booking->quantity)?$booking->quantity:'',
                                           'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:''
                                           );                     
@@ -1400,13 +1407,6 @@ class WebserviceController extends Controller
                      }else if(($booking->status==config('constants.PAYMENT_STATUS_REQUESTED') || $booking->status==config('constants.PAYMENT_STATUS_QUOTED') || $booking->status==config('constants.PAYMENT_STATUS_DECLINED')) && $booking->is_package==1)
                      {          
                       $booking_package=Package::where('id',$booking->package_id)->first();
-                      if($booking_package)
-                      {
-                      $booking_package_data[]=array('package_id'=>isset($booking_package->id)?$booking_package->id:'',
-                                                  'title'=>isset($booking_package->title)?$booking_package->title:'',
-                                                  'duration'=>isset($booking_package->duration)?$booking_package->duration:'',
-                                                  'description'=>isset($booking_package->description)?$booking_package->description:'');
-                      }
                       //end Package information
                       $providerdata=User::with(['profile','media'])->where('id',$booking->user_id)->first();                         
                        if(isset($providerdata->profile->dob) && $providerdata->profile->dob!='')
@@ -1454,8 +1454,7 @@ class WebserviceController extends Controller
                                           'location'=>$booking->location,
                                           'latitude'=>$booking->latitude,
                                           'longitude'=>$booking->longitude,
-                                          'budget'=>isset($booking->budget)?(string)$booking->budget:'',
-                                          'is_package'=>$booking->is_package,
+                                          'budget'=>isset($booking->budget)?(string)$booking->budget:'',                                         
                                           'is_rfq'=>$booking->is_rfq,
                                           'booking_rfq'=>$booking_rfq,
                                           'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
@@ -1475,7 +1474,11 @@ class WebserviceController extends Controller
                                           'works_photo'=>$works_photo_Images,
                                           'age'=>(string)$age,
                                           'rating'=>$rating,
-                                          'booking_package'=>$booking_package_data,
+                                          'is_package'=>$booking->is_package,
+                                          'package_id'=>isset($booking_package->id)?$booking_package->id:'',
+                                          'package_title'=>isset($booking_package->title)?$booking_package->title:'',
+                                          'package_duration'=>isset($booking_package->duration)?$booking_package->duration:'',
+                                          'package_description'=>isset($booking_package->description)?$booking_package->description:'',
                                           'quantity'=>isset($booking->quantity)?$booking->quantity:'',
                                           'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:''
                                           );                     
@@ -1523,8 +1526,7 @@ class WebserviceController extends Controller
                                             'location'=>$booking->location,
                                             'latitude'=>$booking->latitude,
                                             'longitude'=>$booking->longitude,
-                                            'budget'=>isset($booking->budget)?(string)$booking->budget:'',
-                                            'is_package'=>$booking->is_package,
+                                            'budget'=>isset($booking->budget)?(string)$booking->budget:'',                                           
                                             'is_rfq'=>$booking->is_rfq,
                                             'booking_rfq'=>$booking_rfq,
                                             'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
@@ -1543,21 +1545,18 @@ class WebserviceController extends Controller
                                             'profile_picture'=>$booking_provider_profile_picture,
                                             'age'=>(string)$age,
                                             'rating'=>$rating,
-                                            'booking_package'=>$booking_package_data,
+                                            'is_package'=>$booking->is_package,
+                                            'package_id'=>'',
+                                            'package_title'=>'',
+                                            'package_duration'=>'',
+                                            'package_description'=>'',
                                             'quantity'=>isset($booking->quantity)?$booking->quantity:'',
                                             'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:''
                                             );  
                       $booking_list[$type][]=$bookingrecords;
                   }else if($booking->status==config('constants.PAYMENT_STATUS_COMPLETED') && $booking->is_package==1)
                     {
-                       $booking_package=Package::where('id',$booking->package_id)->first();
-                      if($booking_package)
-                      {
-                      $booking_package_data[]=array('package_id'=>isset($booking_package->id)?$booking_package->id:'',
-                                                  'title'=>isset($booking_package->title)?$booking_package->title:'',
-                                                  'duration'=>isset($booking_package->duration)?$booking_package->duration:'',
-                                                  'description'=>isset($booking_package->description)?$booking_package->description:'');
-                      }
+                      $booking_package=Package::where('id',$booking->package_id)->first();
                       //end Package information
                       $booking_providerdata=User::with(['profile'])->where('id',$booking->user_id)->first();
                       $provider_name=isset($booking_providerdata->name)?$booking_providerdata->name:'';
@@ -1595,8 +1594,7 @@ class WebserviceController extends Controller
                                           'location'=>$booking->location,
                                           'latitude'=>$booking->latitude,
                                           'longitude'=>$booking->longitude,
-                                          'budget'=>isset($booking->budget)?(string)$booking->budget:'',
-                                          'is_package'=>$booking->is_package,
+                                          'budget'=>isset($booking->budget)?(string)$booking->budget:'',                                         
                                           'is_rfq'=>$booking->is_rfq,
                                           'booking_rfq'=>$booking_rfq,
                                           'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
@@ -1615,7 +1613,11 @@ class WebserviceController extends Controller
                                           'profile_picture'=>$booking_provider_profile_picture,
                                           'age'=>(string)$age,
                                           'rating'=>$rating,
-                                          'booking_package'=>$booking_package_data,
+                                          'is_package'=>$booking->is_package,
+                                          'package_id'=>isset($booking_package->id)?$booking_package->id:'',
+                                          'package_title'=>isset($booking_package->title)?$booking_package->title:'',
+                                          'package_duration'=>isset($booking_package->duration)?$booking_package->duration:'',
+                                          'package_description'=>isset($booking_package->description)?$booking_package->description:'',
                                           'quantity'=>isset($booking->quantity)?$booking->quantity:'',
                                           'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:''
                                           );  
@@ -1658,7 +1660,7 @@ class WebserviceController extends Controller
                          $booking_rfq[]=array('booking_id'=>$booking_user->booking_id,
                                              'user_id'=>$booking_user->user_id,
                                              'is_rfq'=>$booking_user->is_rfq,
-                                             'budget'=>$booking_user->budget,
+                                             'budget'=>isset($booking_user->budget)?(string)$booking_user->budget:'',
                                              'service_datetime'=>$booking_user->service_datetime,
                                              'requirement'=>isset($booking_user->requirement)?$booking_user->requirement:'',
                                              'comment'=>isset($booking_user->comment)?$booking_user->comment:'',
@@ -1678,8 +1680,7 @@ class WebserviceController extends Controller
                                           'location'=>$booking->location,
                                           'latitude'=>$booking->latitude,
                                           'longitude'=>$booking->longitude,
-                                          'budget'=>isset($booking->budget)?(string)$booking->budget:'',
-                                          'is_package'=>$booking->is_package,
+                                          'budget'=>isset($booking->budget)?(string)$booking->budget:'',                                          
                                           'is_rfq'=>$booking->is_rfq,
                                           'booking_rfq'=>$booking_rfq,
                                           'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
@@ -1699,7 +1700,11 @@ class WebserviceController extends Controller
                                           'works_photo'=>$works_photo_Images,
                                           'age'=>(string)$age,
                                           'rating'=>$rating,
-                                          'booking_package'=>$booking_package_data,
+                                          'is_package'=>$booking->is_package,
+                                          'package_id'=>'',
+                                          'package_title'=>'',
+                                          'package_duration'=>'',
+                                          'package_description'=>'',
                                           'quantity'=>isset($booking->quantity)?$booking->quantity:'',
                                           'total_package_amount'=>isset($booking->total_package_amount)?$booking->total_package_amount:''
                                           );                     
@@ -2696,8 +2701,26 @@ class WebserviceController extends Controller
            
            if($booking)
             {
+              $package_id='';
+              $package_title='';
+              $package_duration='';
+              $package_description='';
+              $quantity='';
+              $total_package_amount='';
               if($is_rfq==0)
               {
+                
+                if($booking->is_package==1)
+                {
+                  $booking_package=Package::where('id',$booking->package_id)->first();
+                  $package_id=isset($booking_package->id)?$booking_package->id:'';
+                  $package_title=isset($booking_package->title)?$booking_package->title:'';
+                  $package_duration=isset($booking_package->duration)?$booking_package->duration:'';
+                  $package_description=isset($booking_package->description)?$booking_package->description:'';
+                  $quantity=isset($booking->quantity)?$booking->quantity:'';
+                  $total_package_amount=isset($booking->total_package_amount)?$booking->total_package_amount:'';
+                }
+
                 $user_data=User::with('profile','media');
                 if($user->roles->first()->id==config('constants.ROLE_TYPE_PROVIDER_ID'))
                 {
@@ -2743,17 +2766,23 @@ class WebserviceController extends Controller
                                                       'location'=>$booking->location,
                                                       'latitude'=>$booking->latitude,
                                                       'longitude'=>$booking->longitude,
-                                                      'budget'=>$booking->budget,
+                                                      'budget'=>isset($booking->budget)?(string)$booking->budget:'',
                                                       'is_rfq'=>$booking->is_rfq,
                                                       'is_quoted'=>$booking->is_quoted,
-                                                      'request_for_quote_budget'=>$booking->request_for_quote_budget,
+                                                      'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
                                                       'is_hourly'=>$booking->is_hourly,
                                                       'is_package'=>$booking->is_package,
-                                                      'estimated_hours'=>$booking->estimated_hours,
-                                                      'min_budget'=>$booking->min_budget,
-                                                      'max_budget'=>$booking->max_budget,
+                                                      'estimated_hours'=>isset($booking->estimated_hours)?(string)$booking->estimated_hours:'',
+                                                      'min_budget'=>isset($booking->min_budget)?(string)$booking->min_budget:'',
+                                                      'max_budget'=>isset($booking->max_budget)?(string)$booking->max_budget:'',
                                                       'datetime'=>$booking->datetime,
-                                                      'created_at'=>$booking->created_at),
+                                                      'created_at'=>$booking->created_at,     
+                                                      'package_id'=>$package_id,
+                                                      'package_title'=>$package_title,
+                                                      'package_duration'=>$package_duration,
+                                                      'package_description'=>$package_description,
+                                                      'quantity'=>$quantity,
+                                                      'total_package_amount'=>$total_package_amount),
                                       'rfq_data'=>$rfq_bookinguserData);
             }else
             {  
@@ -2819,17 +2848,23 @@ class WebserviceController extends Controller
                                                       'location'=>$booking->location,
                                                       'latitude'=>$booking->latitude,
                                                       'longitude'=>$booking->longitude,
-                                                      'budget'=>$booking->budget,
+                                                      'budget'=>isset($booking->budget)?(string)$booking->budget:'',
                                                       'is_rfq'=>$booking->is_rfq,
                                                       'is_quoted'=>$booking->is_quoted,
-                                                      'request_for_quote_budget'=>$booking->request_for_quote_budget,
+                                                      'request_for_quote_budget'=>isset($booking->request_for_quote_budget)?(string)$booking->request_for_quote_budget:'',
                                                       'is_hourly'=>$booking->is_hourly,
                                                       'is_package'=>$booking->is_package,
-                                                      'estimated_hours'=>$booking->estimated_hours,
-                                                      'min_budget'=>$booking->min_budget,
-                                                      'max_budget'=>$booking->max_budget,
+                                                      'estimated_hours'=>isset($booking->estimated_hours)?(string)$booking->estimated_hours:'',
+                                                      'min_budget'=>isset($booking->min_budget)?(string)$booking->min_budget:'',
+                                                      'max_budget'=>isset($booking->max_budget)?(string)$booking->max_budget:'',
                                                       'datetime'=>$booking->datetime,
-                                                      'created_at'=>$booking->created_at),
+                                                      'created_at'=>$booking->created_at,
+                                                      'package_id'=>$package_id,
+                                                      'package_title'=>$package_title,
+                                                      'package_duration'=>$package_duration,
+                                                      'package_description'=>$package_description,
+                                                      'quantity'=>$quantity,
+                                                      'total_package_amount'=>$total_package_amount),
                                       'rfq_data'=>$rfq_bookinguserData);
               }
             
@@ -3128,7 +3163,7 @@ class WebserviceController extends Controller
                     $booking_rfq_users[]=array('booking_id'=>$booking_user->booking_id,
                                            'user_id'=>$booking_user->user_id,
                                            'is_rfq'=>$booking_user->is_rfq,
-                                           'budget'=>$booking_user->budget,
+                                           'budget'=>isset($booking_user->budget)?(string)$booking_user->budget:'',
                                            'service_datetime'=>$booking_user->service_datetime,
                                            'requirement'=>isset($booking_user->requirement)?$booking_user->requirement:'',
                                            'comment'=>isset($booking_user->comment)?$booking_user->comment:'',
@@ -3137,9 +3172,9 @@ class WebserviceController extends Controller
                                            'status'=>$booking_user->status,
                                            'name'=>$provider_name,
                                            'email'=>$provider_email,
-                                          'mobile_number'=>$provider_mobile_number,
-                                          'profile_picture'=>$provider_profile_picture,
-                                          'rating'=>$rating
+                                           'mobile_number'=>$provider_mobile_number,
+                                           'profile_picture'=>$provider_profile_picture,
+                                           'rating'=>$rating
                                            );
                 }
               }
@@ -3223,7 +3258,7 @@ class WebserviceController extends Controller
                                         'longitude'=>$booking->longitude,
                                         'is_hourly'=>isset($booking->is_hourly)?$booking->is_hourly:'',
                                         'is_rfq'=>isset($booking->is_rfq)?$booking->is_rfq:'',
-                                        'budget'=>isset($booking->budget)?$booking->budget:'',
+                                        'budget'=>isset($booking->budget)?(string)$booking->budget:'',
                                         'estimated_hours'=>isset($booking->estimated_hours)?(string)$booking->estimated_hours:'',
                                         'min_budget'=>isset($booking->min_budget)?(string)$booking->min_budget:'',
                                         'max_budget'=>isset($booking->max_budget)?(string)$booking->max_budget:'',
@@ -3284,7 +3319,7 @@ class WebserviceController extends Controller
                                         'longitude'=>$booking->longitude,
                                         'is_hourly'=>isset($booking->is_hourly)?$booking->is_hourly:'',
                                         'is_rfq'=>isset($booking->is_rfq)?$booking->is_rfq:'',
-                                        'budget'=>isset($booking_user->budget)?$booking_user->budget:'',
+                                        'budget'=>isset($booking_user->budget)?(string)$booking_user->budget:'',
                                         'estimated_hours'=>isset($booking->estimated_hours)?(string)$booking->estimated_hours:'',
                                         'min_budget'=>isset($booking->min_budget)?(string)$booking->min_budget:'',
                                         'max_budget'=>isset($booking->max_budget)?(string)$booking->max_budget:'',
@@ -3641,7 +3676,7 @@ class WebserviceController extends Controller
                    $package_data[]=array('id'=>isset($package->user->id)?$package->user->id:'',
                                          'name'=>isset($package->user->name)?$package->user->name:'',
                                          'email'=>isset($package->user->email)?$package->user->email:'',
-                                         'package_price'=>isset($package->price)?$package->price:'',
+                                         'package_price'=>isset($package->price)?(string)$package->price:'',
                                          'mobile_number'=>isset($package->user->mobile_number)?$package->user->mobile_number:'',
                                          'is_verify'=>isset($package->user->is_verify)?$package->user->is_verify:'',
                                          'profile_picture'=>$profile_picture,
@@ -3796,17 +3831,17 @@ class WebserviceController extends Controller
                                   'title'=>$bookings->title,
                                   'description'=>$bookings->description,
                                   'schedules'=>$booking_schedule,
-                                  'budget'=>$bookings->budget,
-                                  'request_for_quote_budget'=>$bookings->request_for_quote_budget,
+                                  'budget'=>isset($bookings->budget)?(string)$bookings->budget:'',
+                                  'request_for_quote_budget'=>isset($bookings->request_for_quote_budget)?(string)$bookings->request_for_quote_budget:'',
                                   'is_rfq'=>$bookings->is_rfq,
                                   'is_hourly'=>$bookings->is_hourly,
-                                  'min_budget'=>$bookings->min_budget,
-                                  'max_budget'=>$bookings->max_budget,
+                                  'min_budget'=>isset($bookings->min_budget)?(string)$bookings->min_budget:'',
+                                  'max_budget'=>isset($bookings->max_budget)?(string)$bookings->max_budget:'',
                                   'is_package'=>$bookings->is_package,
                                   'quantity'=>$bookings->quantity,
                                   'datetime'=>$bookings->datetime,
                                   'requirement'=>$bookings->requirement,
-                                  'total_package_amount'=>$bookings->total_package_amount,
+                                  'total_package_amount'=>isset($bookings->total_package_amount)?(string)$bookings->total_package_amount:'',
                                   'name'=>isset($providerdata->name)?$providerdata->name:'',
                                   'email'=>isset($providerdata->email)?$providerdata->email:'',
                                   'age'=>(string)$age,
