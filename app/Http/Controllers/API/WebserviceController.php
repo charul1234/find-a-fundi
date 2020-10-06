@@ -4137,11 +4137,11 @@ class WebserviceController extends Controller
           $provider['subcategories']=$subcategories;
                   
              
-          $provider['profile_picture']='';
+          $profile_picture='';
           $age="";                
           if(isset($provider) && $provider->getMedia('profile_picture')->count() > 0 && file_exists($provider->getFirstMedia('profile_picture')->getPath()))
           {
-            $provider['profile_picture']=$provider->getFirstMedia('profile_picture')->getFullUrl();
+            $profile_picture=$provider->getFirstMedia('profile_picture')->getFullUrl();
           }  
           if(isset($provider->profile->dob) && $provider->profile->dob!='')
           {
@@ -4186,7 +4186,7 @@ class WebserviceController extends Controller
                                'screen_name'=>isset($provider->screen_name)?$provider->screen_name:'',
                                'age'=>$age,
                                'rating'=>$rating,
-                               'profile_picture'=>$provider['profile_picture'],
+                               'profile_picture'=>$profile_picture,
                                'certificate_conduct'=>$certificate_conduct,
                                'nca'=>$nca,
                                'certification_data'=>$certification_data,
@@ -4199,6 +4199,5 @@ class WebserviceController extends Controller
             $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
         }        
         return response()->json($response);
-
     }
 }
