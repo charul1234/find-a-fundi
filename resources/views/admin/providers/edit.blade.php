@@ -544,10 +544,10 @@ Reviews
 @section('scripts')
 <script type="text/javascript" src="{{ asset('js/jquery-validation/dist/jquery.validate.min.js') }}"></script>
 <script type="text/javascript" src="{{ asset('js/jquery-validation/dist/additional-methods.min.js') }}"></script>
-<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyC57llKODVp39WCmsq8xu-WLM9XjPXeLCs&libraries&libraries=places"></script>
+<!-- <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyC57llKODVp39WCmsq8xu-WLM9XjPXeLCs&libraries&libraries=places"></script> -->
 <script type="text/javascript">
-google.maps.event.addDomListener(window, 'load',initialize);
-function initialize() 
+//google.maps.event.addDomListener(window, 'load',initialize);
+/*function initialize() 
 {
     var input = document.getElementById('address');
     var autocomplete = new google.maps.places.Autocomplete(input);
@@ -556,7 +556,7 @@ function initialize()
         document.getElementById('latitude').value = place.geometry.location.lat();
         document.getElementById('longitude').value = place.geometry.location.lng();
     });
-}
+}*/
 </script>
 <script type="text/javascript">
 jQuery(document).ready(function(){
