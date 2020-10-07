@@ -8,12 +8,12 @@
     <!-- Content Row -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <!-- <a href="{{route('admin.providers.create')}}" class="btn btn-primary btn-sm btn-icon-split float-right">
+             <a href="{{route('admin.providers.create')}}" class="btn btn-primary btn-sm btn-icon-split float-right">
                 <span class="icon text-white-50">
                   <i class="fas fa-plus"></i>
                 </span>
                 <span class="text">Add Provider</span>
-            </a> -->
+            </a>
             <h6 class="m-0 font-weight-bold text-primary">Providers</h6>
         </div>
 

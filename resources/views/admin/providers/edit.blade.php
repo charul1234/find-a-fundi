@@ -172,8 +172,9 @@
  <div class="form-group col-md-3  ">
 Reviews
  </div>
-  <div class="form-group col-md-6 row ">
-<div class="col-md-2 mr-2 mt-2 "><strong><?php echo isset($rating)?$rating:'';?></strong></div>
+  <div class="form-group col-md-6 row ">    
+<div class="col-md-2 mr-2 mt-2 "><strong> <div class="rating">
+</div></strong></div>
 <div class="col-md-3 mr-3"> <div type="button"  data-toggle="modal" data-target="#myModal-001">
        
         <?php if(count($provider_review)>0) { ?> <div class="primary-btn btn text-primary"> View All</div>
@@ -204,7 +205,7 @@ Reviews
           {
              for($i=1;$i<6;$i++)
             {?>
-              <span class="fa fa-star <?php if($review->rating>=$i){ echo "checked"; } ?>"></span>
+              <span class="fa fa-star <?php if($review->rating>=$i){ echo ""; }else { echo "fa-star-o"; } ?>"></span>
             <?php 
             }
           }
@@ -229,6 +230,7 @@ Reviews
    
                  <div class="col-md-9 mb-3">
 <div class="row">
+
   <?php if(isset($works_photo) && !empty($works_photo))
   {
     $i = 1;
@@ -267,8 +269,18 @@ Reviews
 </div>
     <?php $i++; }
   } ?>
-  
-</div>
+
+</div>  <div class="form-group {{$errors->has('image') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-3 control-label" for="image">Works photo </label>
+                <div class="col-md-9">
+                  {{ Form::file('image[]', array('multiple'=>true,'accept'=>'image/*'))   }}
+                    @if($errors->has('image'))
+                    <p class="help-block">
+                        <strong>{{ $errors->first('image') }}</strong>
+                    </p>
+                    @endif
+                </div>
+            </div>
                  </div> 
  
  <div class="row">
@@ -377,10 +389,10 @@ Reviews
                     @if(isset($providerCompany) && $providerCompany->getMedia('document_image')->count() > 0 && file_exists($providerCompany->getFirstMedia('document_image')->getPath()))
                         @php $document_image_required = false; @endphp
                         <div class="row mt-2">
-                            <div class="col-md-1 form-group">
+                       <!--      <div class="col-md-1 form-group">
                         <img width="100%" src="{{ $providerCompany->getFirstMedia('document_image')->getFullUrl() }}" />
                           
-                    </div>
+                    </div> -->
                     <div class="col-md-1 mt-3 form-group">
                         <a download href="{{ $providerCompany->getFirstMedia('document_image')->getFullUrl() }}" target="_blank"><i class="fa fa-download" aria-hidden="true"></i></a>
                     </div>
@@ -520,7 +532,8 @@ Reviews
       
            
          
-           
+      
+
         </div> 
         <div class="card-footer">
             <button type="submit" class="btn btn-responsive btn-primary btn-sm">{{ __('Submit') }}</button>
@@ -560,6 +573,24 @@ Reviews
 </script>
 <script type="text/javascript">
 jQuery(document).ready(function(){
+
+var ratingValue = '<?php echo isset($rating)?$rating:'';?>',
+  rounded = (ratingValue | 0),
+  str;
+
+for (var j = 0; j < 5; j++) {
+  str = '<i class="fa ';
+  if (j < rounded) {
+    str += "fa-star";
+  } else if ((ratingValue - j) > 0 && (ratingValue - j) < 1) {
+    str += "fa-star-half-o";
+  } else {
+    str += "fa-star-o";
+  }
+  str += '" aria-hidden="true"></i>';
+  $(".rating").append(str);
+}
+
     jQuery('#reset_password').change(function(){
         resetPassword();
     }).trigger('change');
