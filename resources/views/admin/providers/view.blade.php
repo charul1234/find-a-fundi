@@ -218,7 +218,7 @@
                     @endif</td>
 
                           <td>@if(isset($value) && $value->getMedia('document_image')->count() > 0 && file_exists($value->getFirstMedia('document_image')->getPath()))  
-                       <img width="50" src="{{ $value->getFirstMedia('document_image')->getFullUrl() }}" />
+                     <!--   <img width="50" src="{{ $value->getFirstMedia('document_image')->getFullUrl() }}" /> -->
                        <a download href="{{ $value->getFirstMedia('document_image')->getFullUrl() }}" target="_blank"><i class="fa fa-download" aria-hidden="true"></i></a>
                     </div>
                     @endif</td>
