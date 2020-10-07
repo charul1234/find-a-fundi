@@ -78,6 +78,10 @@ class User extends Authenticatable implements MustVerifyEmail, HasMedia
         ->useFallbackUrl(asset(config('constants.NO_IMAGE_URL')))
         ->useFallbackPath(public_path(config('constants.NO_IMAGE_URL')))
         ->singleFile(); 
+         $this->addMediaCollection('nca')
+        ->useFallbackUrl(asset(config('constants.NO_IMAGE_URL')))
+        ->useFallbackPath(public_path(config('constants.NO_IMAGE_URL')))
+        ->singleFile(); 
     } 
     /**
      * Get the profile information that belong to this user.
