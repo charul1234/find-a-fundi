@@ -15,4 +15,8 @@ class Review extends Model
     protected $fillable = [
          'user_id', 'rating', 'text', 'added_by'
     ]; 
+    // For get user
+    public function user(){
+        return $this->belongsTo(User::class,'added_by');
+    }
 }

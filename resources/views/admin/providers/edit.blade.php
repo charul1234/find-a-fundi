@@ -108,7 +108,7 @@
             <div class="form-group {{$errors->has('address') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
                 <label class="col-md-3 control-label" for="address">Address <span style="color:red">*</span></label>
                 <div class="col-md-9">
-                    {!! Form::textarea('address',old('address',isset($user->profile->work_address)?$user->profile->work_address:''), ['class' => 'form-control', 'placeholder' => 'Address','rows'=>'1']) !!}
+                    {!! Form::textarea('address',old('address',isset($user->profile->work_address)?$user->profile->work_address:''), ['class' => 'form-control', 'placeholder' => 'Address','rows'=>'1','id' =>'address' ]) !!}
                     @if($errors->has('address'))
                     <strong for="address" class="help-block">{{ $errors->first('address') }}</strong>
                     @endif
@@ -119,7 +119,7 @@
  <div class="form-group {{$errors->has('latitude') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
                 <label class="col-md-12 control-label" for="latitude">Latitude </label>
                 <div class="col-md-12">
-                    {!! Form::text('latitude',old('latitude',isset($user->profile->latitude)?$user->profile->latitude:''), ['class' => 'form-control', 'placeholder' => 'Latitude']) !!}
+                    {!! Form::text('latitude',old('latitude',isset($user->profile->latitude)?$user->profile->latitude:''), ['class' => 'form-control', 'placeholder' => 'Latitude','id' =>'latitude' ]) !!}
                     @if($errors->has('latitude'))
                     <strong for="latitude" class="help-block">{{ $errors->first('latitude') }}</strong>
                     @endif
@@ -130,7 +130,7 @@
  <div class="form-group {{$errors->has('longitude') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
                 <label class="col-md-12 control-label" for="longitude">Longitude </label>
                 <div class="col-md-12">
-                    {!! Form::text('longitude',old('longitude',isset($user->profile->longitude)?$user->profile->longitude:''), ['class' => 'form-control', 'placeholder' => 'Longitude']) !!}
+                    {!! Form::text('longitude',old('longitude',isset($user->profile->longitude)?$user->profile->longitude:''), ['class' => 'form-control', 'placeholder' => 'Longitude','id' =>'longitude']) !!}
                     @if($errors->has('longitude'))
                     <strong for="longitude" class="help-block">{{ $errors->first('longitude') }}</strong>
                     @endif
@@ -168,11 +168,65 @@
             
              <div class="card mt-3">  <div class="card-header">Evidence of Expertise</div>
     <div class="card-body">
+      <div class="row">
+ <div class="form-group col-md-3  ">
+Reviews
+ </div>
+  <div class="form-group col-md-6 row ">
+<div class="col-md-2 mr-2 mt-2 "><strong><?php echo isset($rating)?$rating:'';?></strong></div>
+<div class="col-md-3 mr-3"> <div type="button"  data-toggle="modal" data-target="#myModal-001">
+       
+        <?php if(count($provider_review)>0) { ?> <div class="primary-btn btn text-primary"> View All</div>
+        <?php } ?>
+      </div>
+     
+     </div>
 
-                <label class="col-md-3 control-label" for="remarks">Reviews </label> 
-                <div class="col-md-9">  </div>
+<div class="modal" id="myModal-001">
+  <div class="modal-dialog">
+    <div class="modal-content">
 
-               
+      <!-- Modal Header -->
+      <div class="modal-header"> Reviews/Rating
+        <button type="button" class="close" data-dismiss="modal">×</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body row col-md-12">
+        <?php if(count($provider_review)>0) { ?>
+        <div class="col-md-4 text-primary">Seeker name</div><div class="col-md-4 text-primary">Review</div><div class="col-md-4 text-primary">Rating</div>
+          <?php foreach ($provider_review as $key => $review) { ?>
+            <div class="col-md-4"><?php echo isset($review->user->name)?$review->user->name:''; ?></div>
+               <div class="col-md-4"><?php echo isset($review->text)?$review->text:''; ?></div>
+               <div class="col-md-4">
+          <?php
+          if(isset($review->rating))
+          {
+             for($i=1;$i<6;$i++)
+            {?>
+              <span class="fa fa-star <?php if($review->rating>=$i){ echo "checked"; } ?>"></span>
+            <?php 
+            }
+          }
+          ?></div>
+          <?php }
+          ?>
+        <?php } ?>     
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+ </div>
+</div>
+   
                  <div class="col-md-9 mb-3">
 <div class="row">
   <?php if(isset($works_photo) && !empty($works_photo))
@@ -464,11 +518,6 @@
        </div>
     </div>
       
-             
-            
-           
-           
-             
            
          
            
@@ -481,10 +530,34 @@
     </div>
 </div>
 <!-- /.container-fluid -->
+
+
+@endsection
+@section('styles')
+<style type="text/css">
+.checked {
+  color: orange;
+}
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 @endsection
 @section('scripts')
 <script type="text/javascript" src="{{ asset('js/jquery-validation/dist/jquery.validate.min.js') }}"></script>
 <script type="text/javascript" src="{{ asset('js/jquery-validation/dist/additional-methods.min.js') }}"></script>
+<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyC57llKODVp39WCmsq8xu-WLM9XjPXeLCs&libraries&libraries=places"></script>
+<script type="text/javascript">
+google.maps.event.addDomListener(window, 'load',initialize);
+function initialize() 
+{
+    var input = document.getElementById('address');
+    var autocomplete = new google.maps.places.Autocomplete(input);
+    google.maps.event.addListener(autocomplete, 'place_changed', function () {
+        var place = autocomplete.getPlace();
+        document.getElementById('latitude').value = place.geometry.location.lat();
+        document.getElementById('longitude').value = place.geometry.location.lng();
+    });
+}
+</script>
 <script type="text/javascript">
 jQuery(document).ready(function(){
     jQuery('#reset_password').change(function(){

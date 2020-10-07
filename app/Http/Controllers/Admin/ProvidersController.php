@@ -19,6 +19,7 @@ use App\HourlyCharge;
 use App\Package;
 use App\Company;
 use App\Certification;
+use App\Review;
 
 class ProvidersController extends Controller
 {
@@ -194,9 +195,17 @@ class ProvidersController extends Controller
         $providerdegree=Certification::query()->with('media')->where(['user_id'=>$id,'type'=>'degree'])->first();  
         $providerdiploma=Certification::query()->with('media')->where(['user_id'=>$id,'type'=>'diploma'])->first(); 
         $providercertification=Certification::query()->with('media')->where(['user_id'=>$id,'type'=>'certification'])->first(); 
+        $provider_review=Review::with(['user'])->where(array('user_id'=>$id))->get();
+        $rating=0;
+        if(count($provider_review)>0)
+        {
+          $no_of_count=count($provider_review); 
+          $provider_rating=$provider_review->sum('rating');
+          $rating = $provider_rating / $no_of_count;
+          $rating=(round($rating,2));
+        }
 
-
-        return view('admin.providers.edit',compact('user','providerCompany','experience_levels','providerdegree','works_photo','providerdiploma','providercertification'));
+        return view('admin.providers.edit',compact('user','providerCompany','experience_levels','providerdegree','works_photo','providerdiploma','providercertification','rating','provider_review'));
     }
 
     /**
