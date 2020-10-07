@@ -35,12 +35,20 @@ class BookingsController extends Controller
         $bookings = $bookings->select(DB::raw('bookings.*'));
 
         $job_type = $request->input('job_type');
+        $job_status = $request->input('job_status');
         if($job_type=='is_rfq')
         {
             $bookings=$bookings->where('is_rfq', true);
         }else if($job_type=='is_hourly')
         {
              $bookings=$bookings->where('is_hourly', true);
+        }else if($job_type=='is_package')
+        {
+             $bookings=$bookings->where('is_package', true);
+        }
+        if($job_status!='')
+        {
+            $bookings=$bookings->where('status', $job_status);
         }     
             
         return DataTables::of($bookings)
@@ -51,19 +59,14 @@ class BookingsController extends Controller
             ->filterColumn('created_at', function ($query, $keyword) {
                 $keyword = strtolower($keyword);
                 $query->whereRaw("LOWER(DATE_FORMAT(created_at,'".config('constants.MYSQL_DATETIME_FORMAT')."')) like ?", ["%$keyword%"]);
-            })
-            ->editColumn('description', function ($booking) {
-                $description='';
-                if (strlen($booking->description) > 80) {
-                    $description=substr($booking->description,0,80).'...';
-                }else
-                {
-                    $description=$booking->description;
-                }
-                return $description;
-            })
+            })            
             ->editColumn('title', function ($booking) {
                 return isset($booking->title)?ucwords($booking->title):'';
+            })
+            ->editColumn('user_id', function ($booking) {
+                $providerdata=User::where('id',$booking->user_id)->first();
+                $provider_name=isset($providerdata->name)?$providerdata->name:'';
+                return isset($provider_name)?($provider_name):'';
             })
             ->editColumn('requested_id', function ($booking) {
                 $seekerdata=User::where('id',$booking->requested_id)->first();

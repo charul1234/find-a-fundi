@@ -15,9 +15,13 @@
           <div class="well mb-3">
                 {!! Form::open(['method' => 'POST', 'class' => 'form-inline', 'id' => 'frmFilter']) !!}
                 <div class="form-group mr-sm-2 mb-2">
-                  <?php $job_types=array('is_rfq'=>'RFQ','is_hourly'=>'Hourly'); ?>
+                  <?php $job_types=array('is_rfq'=>'RFQ','is_hourly'=>'Hourly','is_package'=>'Package'); ?>
                     {!! Form::select('job_type',$job_types, old('job_type'), ['class' => 'form-control','placeholder'=> __('Select Job Type')]) !!}                    
                 </div>   
+                <div class="form-group mr-sm-2 mb-2">
+                  <?php $job_status=array('requested'=>'Requested','accepted'=>'Accepted','quoted'=>'Quoted','declined'=>'Declined','completed'=>'Completed'); ?>
+                    {!! Form::select('job_status',$job_status, old('job_status'), ['class' => 'form-control','placeholder'=> __('Select Status')]) !!}                    
+                </div>  
 
                 <button type="submit" class="btn btn-responsive btn-primary mr-sm-2 mb-2">{{ __('Filter') }}</button>
                 <a href="javascript:;" onclick="resetFilter();" class="btn btn-responsive btn-danger mb-2">{{ __('Reset') }}</a>
@@ -26,9 +30,9 @@
             <div class="table-responsive">
                 <table class="table table-bordered" width="100%" cellspacing="0" id="bookings">
                     <thead>
-                        <tr>                          
-                          <th>Title</th>  
-                          <th>Description</th>   
+                        <tr>  
+                          <th>Provider</th>                          
+                          <th>Title</th>     
                           <th>Datetime</th>
                           <th>Location</th>   
                           <th>Type</th>  
@@ -41,9 +45,9 @@
                         </tr>
                     </thead>
                     <tfoot>
-                        <tr>                          
-                          <th>Title</th>  
-                          <th>Description</th>   
+                        <tr>
+                          <th>Provider</th>                          
+                          <th>Title</th>    
                           <th>Datetime</th>
                           <th>Location</th>   
                           <th>Type</th>  
@@ -87,6 +91,7 @@ function resetFilter(){
  
 function getBookings(){
     var job_type = jQuery('#frmFilter [name=job_type]').val();
+    var job_status = jQuery('#frmFilter [name=job_status]').val();
     jQuery('#bookings').dataTable().fnDestroy(); 
     jQuery('#bookings tbody').empty();
     jQuery('#bookings').DataTable({
@@ -96,7 +101,8 @@ function getBookings(){
             url: '{{ route('admin.bookings.getBookings') }}',
             method: 'POST',
             data : {
-              job_type : job_type
+              job_type : job_type,
+              job_status : job_status
             }
         },
         lengthMenu: [
@@ -104,8 +110,8 @@ function getBookings(){
             [10, 25, 50,100,"All"]
         ],
         columns: [
-            {data: 'title', name: 'title'}, 
-            {data: 'description', name: 'description'}, 
+            {data: 'user_id', name: 'user_id'}, 
+            {data: 'title', name: 'title'},  
             {data: 'datetime', name: 'datetime'},
             {data: 'location', name: 'location'},
             {data: 'type', name: 'type'},            
@@ -114,7 +120,7 @@ function getBookings(){
             {data: 'estimated_hours', name: 'estimated_hours'},
             {data: 'is_quoted', name: 'is_quoted'},
             {data: 'requested_id', name: 'requested_id'},
-            {data: 'action', name: 'action', orderable: false, searchable: false, "width": "10%"},
+            {data: 'action', name: 'action', orderable: false, searchable: false, "width": "5%"},
         ],
         order: [[0, 'desc']]
     });
