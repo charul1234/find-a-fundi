@@ -3653,12 +3653,7 @@ class WebserviceController extends Controller
         $data = $request->all(); 
         $role_id =  config('constants.ROLE_TYPE_SEEKER_ID');
         $review_data=array();
-        $subcategory_id=isset($request->subcategory_id)?$request->subcategory_id:'';
-        $package_id=isset($request->package_id)?$request->package_id:'';
-        $experience=isset($request->experience)?$request->experience:'';
-        $min_price=isset($request->min_price)?$request->min_price:'';
-        $max_price=isset($request->max_price)?$request->max_price:'';
-        $security_check=isset($request->security_check)?$request->security_check:'';
+        
         $seeker = User::with(['roles'])->whereHas('roles', function($query) use ($role_id){
               $query->where('id', $role_id);
         });
@@ -3668,6 +3663,19 @@ class WebserviceController extends Controller
        
         if($seeker)
         {
+            $validator = Validator::make($data, [
+                'subcategory_id'=>'required', 
+                'package_id'=>'required'
+            ]);
+            if ($validator->fails()) {
+                return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
+            }
+            $subcategory_id=isset($request->subcategory_id)?$request->subcategory_id:'';
+            $package_id=isset($request->package_id)?$request->package_id:'';
+            $experience=isset($request->experience)?$request->experience:'';
+            $min_price=isset($request->min_price)?$request->min_price:'';
+            $max_price=isset($request->max_price)?$request->max_price:'';
+            $security_check=isset($request->security_check)?$request->security_check:'';
             $packages= PackageUser::with(['user','user.profile','user.profile.experience_level','user.media','package'=>function($query) use ($subcategory_id) {              
               $query->where('category_id',$subcategory_id);  
               $query->where('is_active',true);             
