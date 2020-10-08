@@ -25,6 +25,7 @@ use App\Transaction;
 use App\Faq;
 use App\Review;
 use App\Schedule;
+use App\ExperienceLevel;
 
 class WebserviceController extends Controller
 {
@@ -4302,6 +4303,24 @@ class WebserviceController extends Controller
         {
             $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
         }        
+        return response()->json($response);
+    }
+    /**
+     * API to get experience level
+     *
+     * @return [string] message
+     */
+    public function getExperienceLevel(Request $request){
+     
+        $experience_levels=array();     
+        $experience_levels= ExperienceLevel::get(['id','title']);
+        if(count($experience_levels))
+        {  
+            $response=array('status'=>true,'experience_levels'=>$experience_levels,'message'=>'Record found!');
+        }else
+        {
+            $response=array('status'=>false,'message'=>'Record not found');
+        } 
         return response()->json($response);
     }
 }
