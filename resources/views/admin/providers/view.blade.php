@@ -124,7 +124,7 @@
                     </div>
                        <div class="form-group">
                       <!--   <label class="col-form-label"><strong>Experience Level :  </strong>{{ isset($user->profile->experience_level->title)?ucwords($user->profile->experience_level->title):'' }} </label> -->
-                       <label class="col-form-label"><strong>Year experience :  </strong>{{ isset($user->profile->year_experience)?ucwords($user->profile->year_experience):'' }} </label> 
+                       <label class="col-form-label"><strong>Year experience :  </strong>{{ isset($user->profile->experience_level->title)?ucwords($user->profile->experience_level->title):'' }} </label> 
                     </div> 
                     <!--  <div class="form-group">
                         <label class="col-form-label"><strong>Payment Option : </strong> {{ isset($user->profile->payment_option->title)?ucwords($user->profile->payment_option->title):'' }} </label>
