@@ -3668,14 +3668,15 @@ class WebserviceController extends Controller
        
         if($seeker)
         {
-            $packages= PackageUser::with(['user','user.profile','user.media','package'=>function($query) use ($subcategory_id) {              
+            $packages= PackageUser::with(['user','user.profile','user.profile.experience_level','user.media','package'=>function($query) use ($subcategory_id) {              
               $query->where('category_id',$subcategory_id);  
               $query->where('is_active',true);             
             }])->where('package_id',$package_id);
             if($experience)
             {
               $packages->whereHas('user.profile', function($query) use ($experience) {    
-              $query->where('year_experience',$experience);            
+              //$query->where('year_experience',$experience);   
+              $query->where('experience_level_id',$experience);          
               });
             }
             if($min_price || $max_price)
@@ -3690,10 +3691,9 @@ class WebserviceController extends Controller
               $query->where('is_verify',$security_check);            
               });
             }
-
-
-
-            $packages=$packages->get(); 
+            $packages=$packages->get();
+            /*print_r("<pre>"); 
+            print_r($packages);*/
             if(count($packages)>0)
             {
               foreach ($packages as $key => $package) 
@@ -3733,7 +3733,8 @@ class WebserviceController extends Controller
                                          'dob'=>isset($package->user->profile->dob)?$package->user->profile->dob:'',
                                          'age'=>$age,
                                          'radius'=>isset($package->user->profile->radius)?$package->user->profile->radius:'',
-                                         'year_experience'=>isset($package->user->profile->year_experience)?$package->user->profile->year_experience:'',
+                                         'year_experience_id'=>isset($package->user->profile->experience_level->id)?$package->user->profile->experience_level->id:'',
+                                         'year_experience'=>isset($package->user->profile->experience_level->title)?$package->user->profile->experience_level->title:'',
                                          'rating'=>$rating);
                 }
                }
