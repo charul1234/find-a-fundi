@@ -578,7 +578,7 @@ class WebserviceController extends Controller
             $profile = Profile::where(array('user_id'=>$user_id));
             if(intval($user_id) > 0)
             {
-                $profile_data=array('work_address'=>$location,'latitude'=>$latitude,'longitude'=>$longitude,'radius'=>$radius,'passport_number'=>$passport_number,'residential_address'=>$residential_address,'year_experience'=>$year_experience,'reference'=>$reference,'facebook_url'=>$facebook_url,'instagram_url'=>$instagram_url,'twitter_url'=>$twitter_url,'fundi_is_middlemen'=>$fundi_is_middlemen,'fundi_have_tools'=>$fundi_have_tools,'fundi_have_smartphone'=>$fundi_have_smartphone);
+                $profile_data=array('work_address'=>$location,'latitude'=>$latitude,'longitude'=>$longitude,'radius'=>$radius,'passport_number'=>$passport_number,'residential_address'=>$residential_address,'year_experience'=>$year_experience,'reference'=>$reference,'facebook_url'=>$facebook_url,'instagram_url'=>$instagram_url,'twitter_url'=>$twitter_url,'fundi_is_middlemen'=>$fundi_is_middlemen,'fundi_have_tools'=>$fundi_have_tools,'fundi_have_smartphone'=>$fundi_have_smartphone,'experience_level_id'=>$year_experience);
                 $profile->update($profile_data);
             }            
             if ($request->hasFile('certificate_conduct')){
@@ -591,9 +591,6 @@ class WebserviceController extends Controller
                 $customimagename  = time() . '.' . $file->getClientOriginalExtension();
                 $user->addMedia($file)->toMediaCollection('nca');
             }
-           
-          
-            
            
            
             if ($request->hasFile('works_photo')){
@@ -608,13 +605,6 @@ class WebserviceController extends Controller
                }
             }
             
-            /*$certification_data=json_decode(stripslashes($request->certification_data));
-            if(intval($certification_data) > 0 && !empty($certification_data))
-            { 
-              foreach ($certification_data as $key => $data) {                
-                $user->Certification()->create(['user_id'=>$user_id,'title'=>$data->title,'type'=>$data->type]);  
-              }
-            }*/
             if(isset($certification_text) && $certification_text!='')
             {
              $certification= $user->Certification()->create(['user_id'=>$user_id,'title'=>$certification_text,'type'=>'certification']); 
