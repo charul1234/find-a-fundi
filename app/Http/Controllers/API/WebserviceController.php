@@ -2796,12 +2796,12 @@ class WebserviceController extends Controller
            
            if($booking)
             {
-              $package_id='';
-              $package_title='';
-              $package_duration='';
-              $package_description='';
-              $quantity='';
-              $total_package_amount='';
+              $package_id="";
+              $package_title="";
+              $package_duration="";
+              $package_description="";
+              $quantity="";
+              $total_package_amount="";
               if($is_rfq==0)
               {
                 
@@ -2810,9 +2810,9 @@ class WebserviceController extends Controller
                   $booking_package=Package::where('id',$booking->package_id)->first();
                   $package_id=isset($booking_package->id)?$booking_package->id:'';
                   $package_title=isset($booking_package->title)?$booking_package->title:'';
-                  $package_duration=isset($booking_package->duration)?$booking_package->duration:'';
+                  $package_duration=isset($booking_package->duration)?(string)$booking_package->duration:'';
                   $package_description=isset($booking_package->description)?$booking_package->description:'';
-                  $quantity=isset($booking->quantity)?$booking->quantity:'';
+                  $quantity=isset($booking->quantity)?(string)$booking->quantity:'';
                   $total_package_amount=isset($booking->total_package_amount)?(string)$booking->total_package_amount:'';
                 }
 
