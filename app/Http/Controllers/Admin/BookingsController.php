@@ -12,6 +12,8 @@ use DataTables;
 use Config;
 use Form;
 use DB;
+use App\Transaction;
+use App\Schedule;
 
 class BookingsController extends Controller
 {
@@ -164,7 +166,9 @@ class BookingsController extends Controller
      */
     public function destroy($id)
     {
-      $booking = Booking::findOrFail($id);        
+      $booking = Booking::findOrFail($id);  
+      Transaction::where('booking_id',$id)->delete();
+      Schedule::where('booking_id',$id)->delete();
       $booking->delete();
       session()->flash('danger',__('global.messages.delete'));
       return redirect()->route('admin.bookings.index');
