@@ -145,6 +145,8 @@ class BookingsController extends Controller
         {
           $job_type='Package';   
         }
+        echo $booking->user_id;
+        $providerdata=User::with('profile')->where('id',$booking->user_id)->first();
         return view('admin/bookings/view',compact('booking','job_type'));
     }
     /**
