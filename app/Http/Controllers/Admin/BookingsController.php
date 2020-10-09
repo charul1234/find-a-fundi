@@ -110,7 +110,7 @@ class BookingsController extends Controller
             ->addColumn('action', function ($booking) {
                 return
                         // Edit  '.route('admin.bookings.view',[$booking->id]).'
-                        '<a href="#" class="btn btn-info btn-circle btn-sm"><i class="fas fa-eye"></i></a>';
+                        '<a href="'.route('admin.bookings.view',[$booking->id]).'" class="btn btn-info btn-circle btn-sm"><i class="fas fa-eye"></i></a>';
             })
             ->rawColumns(['is_active','action'])
             ->make(true);
@@ -131,9 +131,21 @@ class BookingsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function view($id,Booking $booking)
-    { 
-        return view('admin/bookings/view',compact('booking'));
+    public function view($id)
+    {   
+        $booking=Booking::with(['category','booking_user','user','user.profile'])->where('id',$id)->first();
+        $job_type='';
+        if($booking->is_rfq==1)
+        {
+          $job_type='RFQ';
+        }else if($booking->is_hourly==1)
+        {
+          $job_type='Hourly';
+        }else if($booking->is_package==1)
+        {
+          $job_type='Package';   
+        }
+        return view('admin/bookings/view',compact('booking','job_type'));
     }
     /**
      * Remove the specified resource from storage.

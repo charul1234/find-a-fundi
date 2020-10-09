@@ -1130,7 +1130,7 @@ class WebserviceController extends Controller
                             $rating=(round($rating,2));
                           }
                         }
-                         $booking_rfq=array('booking_id'=>$booking_users->booking_id,
+                         $booking_rfq[]=array('booking_id'=>$booking_users->booking_id,
                                              'user_id'=>$booking_users->user_id,
                                              'is_rfq'=>$booking_users->is_rfq,
                                              'budget'=>isset($booking_users->budget)?(string)$booking_users->budget:'',
