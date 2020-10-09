@@ -110,7 +110,15 @@ class BookingsController extends Controller
             ->addColumn('action', function ($booking) {
                 return
                         // Edit  '.route('admin.bookings.view',[$booking->id]).'
-                        '<a href="'.route('admin.bookings.view',[$booking->id]).'" class="btn btn-info btn-circle btn-sm"><i class="fas fa-eye"></i></a>';
+                        '<a href="'.route('admin.bookings.view',[$booking->id]).'" class="btn btn-info btn-circle btn-sm"><i class="fas fa-eye"></i></a>'.
+                        // Delete
+                          Form::open(array(
+                                      'style' => 'display: inline-block;',
+                                      'method' => 'DELETE',
+                                       'onsubmit'=>"return confirm('Do you really want to delete?')",
+                                      'route' => ['admin.bookings.destroy', $booking->id])).
+                          ' <button type="submit" class="btn btn-danger btn-circle btn-sm"><i class="fas fa-trash"></i></button>'.
+                          Form::close();
             })
             ->rawColumns(['is_active','action'])
             ->make(true);
@@ -145,9 +153,8 @@ class BookingsController extends Controller
         {
           $job_type='Package';   
         }
-        echo $booking->user_id;
         $providerdata=User::with('profile')->where('id',$booking->user_id)->first();
-        return view('admin/bookings/view',compact('booking','job_type'));
+        return view('admin/bookings/view',compact('booking','job_type','providerdata'));
     }
     /**
      * Remove the specified resource from storage.
@@ -157,6 +164,9 @@ class BookingsController extends Controller
      */
     public function destroy($id)
     {
-        //
+      $booking = Booking::findOrFail($id);        
+      $booking->delete();
+      session()->flash('danger',__('global.messages.delete'));
+      return redirect()->route('admin.bookings.index');
     }
 }
