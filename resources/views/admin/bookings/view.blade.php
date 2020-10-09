@@ -60,6 +60,11 @@
                                  </div>
 
                                  <?php } ?>
+                                  <div class="form-group">
+                                    <label class="col-form-label"><strong>Datetime : </strong>
+                                    {{date(config('constants.DATETIME_FORMAT'), strtotime($booking->datetime))}}
+                                    </label>
+                                 </div>
 
 
                                 </div>
@@ -79,6 +84,19 @@
 
                       </div>
                       <div class="col-md-6"> 
+                         <div class="card">
+                              <div class="card-header">Provider Information</div>
+                                <div class="card-body">
+                               <?php if($booking->is_package==1 || $booking->is_hourly==1) { ?>
+                                   <div class="form-group">
+                                    <label class="col-form-label"><strong>Datetime : </strong>
+                                    {{date(config('constants.DATETIME_FORMAT'), strtotime($booking->datetime))}}
+                                    </label>
+                                 </div>
+                                 <?php } ?>
+
+                                </div>
+                    </div>
 
                       </div>
                   </div>

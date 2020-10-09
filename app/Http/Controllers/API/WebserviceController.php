@@ -943,7 +943,8 @@ class WebserviceController extends Controller
 
                         $age = (date('Y') - date('Y',strtotime($providerdata->profile->dob)));          
                       } 
-                      if($providerdata->profile->display_seeker_reviews==true)
+                      $display_seeker_reviews=isset($providerdata->profile->display_seeker_reviews)?$providerdata->profile->display_seeker_reviews:0;
+                      if($display_seeker_reviews==true)
                       {
                         $provider_review=Review::where(array('user_id'=>$providerdata->profile->user_id))->get();
                         if(count($provider_review)>0)
@@ -989,7 +990,11 @@ class WebserviceController extends Controller
                                           'package_duration'=>$package_duration,
                                           'package_description'=>$package_description,
                                           'quantity'=>isset($booking->quantity)?(string)$booking->quantity:'',
-                                          'total_package_amount'=>isset($booking->total_package_amount)?(string)$booking->total_package_amount:''
+                                          'total_package_amount'=>isset($booking->total_package_amount)?(string)$booking->total_package_amount:'',
+                                          'is_quoted'=>$booking->is_quoted,
+                                          'service_datetime'=>isset($booking->service_datetime)?$booking->service_datetime:'',
+                                          'requirement'=>isset($booking->requirement)?$booking->requirement:'',
+                                          'comment'=>isset($booking->comment)?$booking->comment:''
                                           );                     
                        $booking_list[$type][]=$bookingrecords;
                        
@@ -1026,8 +1031,9 @@ class WebserviceController extends Controller
 
                         $age = (date('Y') - date('Y',strtotime($providerdata->profile->dob)));          
                         } 
-                        if($providerdata->profile->display_seeker_reviews==true)
-                        {
+                        $display_seeker_reviews=isset($providerdata->profile->display_seeker_reviews)?$providerdata->profile->display_seeker_reviews:0;
+                      if($display_seeker_reviews==true)
+                      {
                         $provider_review=Review::where(array('user_id'=>$providerdata->profile->user_id))->get();
                         if(count($provider_review)>0)
                         {
@@ -1072,7 +1078,11 @@ class WebserviceController extends Controller
                                           'package_duration'=>isset($booking_package->duration)?(string)$booking_package->duration:'',
                                           'package_description'=>isset($booking_package->description)?$booking_package->description:'',
                                           'quantity'=>isset($booking->quantity)?(string)$booking->quantity:'',
-                                          'total_package_amount'=>isset($booking->total_package_amount)?(string)$booking->total_package_amount:''
+                                          'total_package_amount'=>isset($booking->total_package_amount)?(string)$booking->total_package_amount:'',
+                                          'is_quoted'=>$booking->is_quoted,
+                                          'service_datetime'=>isset($booking->service_datetime)?$booking->service_datetime:'',
+                                          'requirement'=>isset($booking->requirement)?$booking->requirement:'',
+                                          'comment'=>isset($booking->comment)?$booking->comment:''
                                           );                     
                         $booking_list[$type][]=$bookingrecords;
                      }else if($booking->status==config('constants.PAYMENT_STATUS_ACCEPTED') && $booking->is_rfq==1)
@@ -1119,7 +1129,8 @@ class WebserviceController extends Controller
 
                           $age = (date('Y') - date('Y',strtotime($booking_providerdata->profile->dob)));          
                         } 
-                        if($booking_providerdata->profile->display_seeker_reviews==true)
+                        $display_seeker_reviews=isset($providerdata->profile->display_seeker_reviews)?$providerdata->profile->display_seeker_reviews:0;
+                      if($display_seeker_reviews==true)
                         {
                           $provider_review=Review::where(array('user_id'=>$booking_providerdata->profile->user_id))->get();
                           if(count($provider_review)>0)
@@ -1134,7 +1145,7 @@ class WebserviceController extends Controller
                                              'user_id'=>$booking_users->user_id,
                                              'is_rfq'=>$booking_users->is_rfq,
                                              'budget'=>isset($booking_users->budget)?(string)$booking_users->budget:'',
-                                             'service_datetime'=>$booking_users->service_datetime,
+                                             'service_datetime'=>isset($booking_users->service_datetime)?$booking_users->service_datetime:'',
                                              'requirement'=>isset($booking_users->requirement)?$booking_users->requirement:'',
                                              'comment'=>isset($booking_users->comment)?$booking_users->comment:'',
                                              'is_quoted'=>$booking_users->is_quoted,
@@ -1180,7 +1191,11 @@ class WebserviceController extends Controller
                                           'package_duration'=>$package_duration,
                                           'package_description'=>$package_description,
                                           'quantity'=>isset($booking->quantity)?(string)$booking->quantity:'',
-                                          'total_package_amount'=>isset($booking->total_package_amount)?(string)$booking->total_package_amount:''
+                                          'total_package_amount'=>isset($booking->total_package_amount)?(string)$booking->total_package_amount:'',
+                                          'is_quoted'=>$booking->is_quoted,
+                                          'service_datetime'=>isset($booking->service_datetime)?$booking->service_datetime:'',
+                                          'requirement'=>isset($booking->requirement)?$booking->requirement:'',
+                                          'comment'=>isset($booking->comment)?$booking->comment:''
                                           );                     
                        $booking_list[$type][]=$bookingrecords;   
                        }
@@ -1197,7 +1212,8 @@ class WebserviceController extends Controller
 
                           $age = (date('Y') - date('Y',strtotime($providerdata->profile->dob)));          
                         } 
-                        if($providerdata->profile->display_seeker_reviews==true)
+                        $display_seeker_reviews=isset($providerdata->profile->display_seeker_reviews)?$providerdata->profile->display_seeker_reviews:0;
+                        if($display_seeker_reviews==true)
                         {
                           $provider_review=Review::where(array('user_id'=>$providerdata->profile->user_id))->get();
                           if(count($provider_review)>0)
@@ -1262,7 +1278,11 @@ class WebserviceController extends Controller
                                             'package_duration'=>$package_duration,
                                             'package_description'=>$package_description,
                                             'quantity'=>isset($booking->quantity)?(string)$booking->quantity:'',
-                                            'total_package_amount'=>isset($booking->total_package_amount)?(string)$booking->total_package_amount:''
+                                            'total_package_amount'=>isset($booking->total_package_amount)?(string)$booking->total_package_amount:'',
+                                            'is_quoted'=>$booking->is_quoted,
+                                            'service_datetime'=>isset($booking->service_datetime)?$booking->service_datetime:'',
+                                            'requirement'=>isset($booking->requirement)?$booking->requirement:'',
+                                            'comment'=>isset($booking->comment)?$booking->comment:''
                                             );                     
                          $booking_list[$type][]=$bookingrecords;  
                      }else if($booking->status==config('constants.PAYMENT_STATUS_REQUESTED') && $booking->is_rfq==1)
@@ -1289,7 +1309,7 @@ class WebserviceController extends Controller
                                              'user_id'=>$booking_declined->user_id,
                                              'is_rfq'=>$booking_declined->is_rfq,
                                              'budget'=>isset($booking_declined->budget)?(string)$booking_declined->budget:'',
-                                             'service_datetime'=>$booking_declined->service_datetime,
+                                             'service_datetime'=>isset($booking_declined->service_datetime)?$booking_declined->service_datetime:'',
                                              'requirement'=>isset($booking_declined->requirement)?$booking_declined->requirement:'',
                                              'comment'=>isset($booking_declined->comment)?$booking_declined->comment:'',
                                              'is_quoted'=>$booking_declined->is_quoted,
@@ -1330,7 +1350,8 @@ class WebserviceController extends Controller
 
                             $age = (date('Y') - date('Y',strtotime($booking_providerdata->profile->dob)));          
                           } 
-                          if($booking_providerdata->profile->display_seeker_reviews==true)
+                          $display_seeker_reviews=isset($booking_providerdata->profile->display_seeker_reviews)?$booking_providerdata->profile->display_seeker_reviews:0;
+                         if($display_seeker_reviews==true)
                           {
                             $provider_review=Review::where(array('user_id'=>$booking_providerdata->profile->user_id))->get();
                             if(count($provider_review)>0)
@@ -1345,7 +1366,7 @@ class WebserviceController extends Controller
                                              'user_id'=>$booking_quote->user_id,
                                              'is_rfq'=>$booking_quote->is_rfq,
                                              'budget'=>isset($booking_quote->budget)?(string)$booking_quote->budget:'',
-                                             'service_datetime'=>$booking_quote->service_datetime,
+                                             'service_datetime'=>isset($booking_quote->service_datetime)?$booking_quote->service_datetime:'',
                                              'requirement'=>isset($booking_quote->requirement)?$booking_quote->requirement:'',
                                              'comment'=>isset($booking_quote->comment)?$booking_quote->comment:'',
                                              'is_quoted'=>$booking_quote->is_quoted,
@@ -1393,12 +1414,16 @@ class WebserviceController extends Controller
                                           'package_duration'=>$package_duration,
                                           'package_description'=>$package_description,
                                           'quantity'=>isset($booking->quantity)?(string)$booking->quantity:'',
-                                          'total_package_amount'=>isset($booking->total_package_amount)?(string)$booking->total_package_amount:''
+                                          'total_package_amount'=>isset($booking->total_package_amount)?(string)$booking->total_package_amount:'',
+                                          'is_quoted'=>$booking->is_quoted,
+                                          'service_datetime'=>isset($booking->service_datetime)?$booking->service_datetime:'',
+                                          'requirement'=>isset($booking->requirement)?$booking->requirement:'',
+                                          'comment'=>isset($booking->comment)?$booking->comment:''
                                           );                     
                        $booking_list[$type][]=$bookingrecords;                       
                        //is_rfq type jobs  
                      }else if(($booking->status==config('constants.PAYMENT_STATUS_REQUESTED') || $booking->status==config('constants.PAYMENT_STATUS_QUOTED') || $booking->status==config('constants.PAYMENT_STATUS_DECLINED')) && $booking->is_package==1)
-                     {          
+                     {   
                       $booking_package=Package::where('id',$booking->package_id)->first();
                       //end Package information
                       $providerdata=User::with(['profile','media'])->where('id',$booking->user_id)->first();                         
@@ -1407,7 +1432,8 @@ class WebserviceController extends Controller
 
                         $age = (date('Y') - date('Y',strtotime($providerdata->profile->dob)));          
                       } 
-                      if($providerdata->profile->display_seeker_reviews==true)
+                      $display_seeker_reviews=isset($providerdata->profile->display_seeker_reviews)?$providerdata->profile->display_seeker_reviews:0;
+                      if($display_seeker_reviews==true)
                       {
                         $provider_review=Review::where(array('user_id'=>$providerdata->profile->user_id))->get();
                         if(count($provider_review)>0)
@@ -1473,7 +1499,11 @@ class WebserviceController extends Controller
                                           'package_duration'=>isset($booking_package->duration)?(string)$booking_package->duration:'',
                                           'package_description'=>isset($booking_package->description)?$booking_package->description:'',
                                           'quantity'=>isset($booking->quantity)?(string)$booking->quantity:'',
-                                          'total_package_amount'=>isset($booking->total_package_amount)?(string)$booking->total_package_amount:''
+                                          'total_package_amount'=>isset($booking->total_package_amount)?(string)$booking->total_package_amount:'',
+                                          'is_quoted'=>$booking->is_quoted,
+                                          'service_datetime'=>isset($booking->service_datetime)?$booking->service_datetime:'',
+                                          'requirement'=>isset($booking->requirement)?$booking->requirement:'',
+                                          'comment'=>isset($booking->comment)?$booking->comment:''
                                           );                     
                        $booking_list[$type][]=$bookingrecords;            
 
@@ -1499,7 +1529,8 @@ class WebserviceController extends Controller
 
                             $age = (date('Y') - date('Y',strtotime($booking_providerdata->profile->dob)));          
                           } 
-                          if($booking_providerdata->profile->display_seeker_reviews==true)
+                          $display_seeker_reviews=isset($booking_providerdata->profile->display_seeker_reviews)?$booking_providerdata->profile->display_seeker_reviews:0;
+                        if($display_seeker_reviews==true)
                           {
                             $provider_review=Review::where(array('user_id'=>$booking_providerdata->profile->user_id))->get();
                             if(count($provider_review)>0)
@@ -1544,7 +1575,11 @@ class WebserviceController extends Controller
                                             'package_duration'=>$package_duration,
                                             'package_description'=>$package_description,
                                             'quantity'=>isset($booking->quantity)?(string)$booking->quantity:'',
-                                            'total_package_amount'=>isset($booking->total_package_amount)?(string)$booking->total_package_amount:''
+                                            'total_package_amount'=>isset($booking->total_package_amount)?(string)$booking->total_package_amount:'',
+                                            'is_quoted'=>$booking->is_quoted,
+                                            'service_datetime'=>isset($booking->service_datetime)?$booking->service_datetime:'',
+                                            'requirement'=>isset($booking->requirement)?$booking->requirement:'',
+                                            'comment'=>isset($booking->comment)?$booking->comment:''
                                             );  
                       $booking_list[$type][]=$bookingrecords;
                   }else if($booking->status==config('constants.PAYMENT_STATUS_COMPLETED') && $booking->is_package==1)
@@ -1567,7 +1602,8 @@ class WebserviceController extends Controller
 
                           $age = (date('Y') - date('Y',strtotime($booking_providerdata->profile->dob)));          
                         } 
-                        if($booking_providerdata->profile->display_seeker_reviews==true)
+                        $display_seeker_reviews=isset($booking_providerdata->profile->display_seeker_reviews)?$booking_providerdata->profile->display_seeker_reviews:0;
+                        if($display_seeker_reviews==true)
                         {
                           $provider_review=Review::where(array('user_id'=>$booking_providerdata->profile->user_id))->get();
                           if(count($provider_review)>0)
@@ -1612,7 +1648,11 @@ class WebserviceController extends Controller
                                           'package_duration'=>isset($booking_package->duration)?(string)$booking_package->duration:'',
                                           'package_description'=>isset($booking_package->description)?$booking_package->description:'',
                                           'quantity'=>isset($booking->quantity)?(string)$booking->quantity:'',
-                                          'total_package_amount'=>isset($booking->total_package_amount)?(string)$booking->total_package_amount:''
+                                          'total_package_amount'=>isset($booking->total_package_amount)?(string)$booking->total_package_amount:'',
+                                          'is_quoted'=>$booking->is_quoted,
+                                          'service_datetime'=>isset($booking->service_datetime)?$booking->service_datetime:'',
+                                          'requirement'=>isset($booking->requirement)?$booking->requirement:'',
+                                          'comment'=>isset($booking->comment)?$booking->comment:''
                                           );  
                       $booking_list[$type][]=$bookingrecords;
                     } else if($booking->status==config('constants.PAYMENT_STATUS_COMPLETED') && $booking->is_rfq==1)
@@ -1637,7 +1677,8 @@ class WebserviceController extends Controller
 
                             $age = (date('Y') - date('Y',strtotime($booking_providerdata->profile->dob)));          
                           } 
-                          if($booking_providerdata->profile->display_seeker_reviews==true)
+                        $display_seeker_reviews=isset($booking_providerdata->profile->display_seeker_reviews)?$booking_providerdata->profile->display_seeker_reviews:0;
+                        if($display_seeker_reviews==true)
                           {
                             $provider_review=Review::where(array('user_id'=>$booking_providerdata->profile->user_id))->get();
                             if(count($provider_review)>0)
@@ -1654,7 +1695,7 @@ class WebserviceController extends Controller
                                              'user_id'=>$booking_user->user_id,
                                              'is_rfq'=>$booking_user->is_rfq,
                                              'budget'=>isset($booking_user->budget)?(string)$booking_user->budget:'',
-                                             'service_datetime'=>$booking_user->service_datetime,
+                                             'service_datetime'=>isset($booking_user->service_datetime)?$booking_user->service_datetime:'',
                                              'requirement'=>isset($booking_user->requirement)?$booking_user->requirement:'',
                                              'comment'=>isset($booking_user->comment)?$booking_user->comment:'',
                                              'is_quoted'=>$booking_user->is_quoted,
@@ -1699,7 +1740,11 @@ class WebserviceController extends Controller
                                           'package_duration'=>$package_duration,
                                           'package_description'=>$package_description,
                                           'quantity'=>isset($booking->quantity)?(string)$booking->quantity:'',
-                                          'total_package_amount'=>isset($booking->total_package_amount)?(string)$booking->total_package_amount:''
+                                          'total_package_amount'=>isset($booking->total_package_amount)?(string)$booking->total_package_amount:'',
+                                          'is_quoted'=>$booking->is_quoted,
+                                          'service_datetime'=>isset($booking->service_datetime)?$booking->service_datetime:'',
+                                          'requirement'=>isset($booking->requirement)?$booking->requirement:'',
+                                          'comment'=>isset($booking->comment)?$booking->comment:''
                                           );                     
                        $booking_list[$type][]=$bookingrecords;  
                       }
