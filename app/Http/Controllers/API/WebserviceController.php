@@ -4113,17 +4113,24 @@ class WebserviceController extends Controller
         if($user)
         {         
 
-           $provider= User::with(['profile','media','profile.experience_level','profile.payment_option','profile.city','category_user.category','certification'])
+           $provider= User::with(['profile','media','profile.experience_level','profile.payment_option','profile.city','category_user.category','certification','package_user','hourly_charge'])
             ->whereHas('profile', function($query) use ($user_id) {    
               $query->where('user_id',$user_id);            
             })->first();            
           $subcategories=[];
+          $categories=[];
           if(count($provider->category_user)>0)
           {
             foreach ($provider->category_user as $key => $providerdata) 
             {
               if($providerdata->category->parent_id!=0){
                 $subcategories[]=array('id'=>$providerdata->category->id,
+                                     'title'=>$providerdata->category->title,
+                                     'parent_id'=>$providerdata->category->parent_id,
+                                     'is_active'=>$providerdata->category->is_active);
+            }
+             if($providerdata->category->parent_id==0){
+                $categories[]=array('id'=>$providerdata->category->id,
                                      'title'=>$providerdata->category->title,
                                      'parent_id'=>$providerdata->category->parent_id,
                                      'is_active'=>$providerdata->category->is_active);
@@ -4193,11 +4200,38 @@ class WebserviceController extends Controller
             }
           }          
           /* rating */
+
           $age=(string)$age;
           $rating=$rating;
           unset($provider['media']);
           unset($provider['certification']);
-          $provider_data=array('name'=>isset($provider->name)?$provider->name:'',
+          $packages=[];
+          $hourly=[];
+          if(count($provider->package_user)>0)
+          {
+            foreach ($provider->package_user as $key => $package) 
+            {
+              
+              $packages[]=array('id'=>$package->package->id,
+                                     'title'=>$package->package->title,
+                                     'is_active'=>$package->package->is_active);
+                      
+           }  
+          }
+          if(count($provider->hourly_charge)>0)
+          {
+            foreach ($provider->hourly_charge as $key => $charge) 
+            {
+              
+              $hourly[]=array('id'=>isset($charge->id)?$charge->id:'',
+                              'hours'=>isset($charge->hours)?$charge->hours:'',
+                              'price'=>isset($charge->price)?$charge->price:'',
+                              'type'=>isset($charge->type)?$charge->type:'');
+                      
+           }  
+          }
+          $provider_data=array('id'=>isset($provider->id)?$provider->id:'',
+                               'name'=>isset($provider->name)?$provider->name:'',
                                'mobile_number'=>isset($provider->mobile_number)?$provider->mobile_number:'',
                                'email'=>isset($provider->email)?$provider->email:'',
                                'location'=>isset($provider->profile->work_address)?$provider->profile->work_address:'',
@@ -4219,7 +4253,14 @@ class WebserviceController extends Controller
                                'profile_picture'=>$profile_picture,
                                'certificate_conduct'=>$certificate_conduct,
                                'nca'=>$nca,
-                               'certification_data'=>$certification_data
+                               'certification_data'=>$certification_data,
+                               'subcategories'=>$subcategories,
+                               'categories'=>$categories,
+                               'is_rfq'=>$provider->profile->is_rfq,
+                               'is_package'=>$provider->profile->is_package,
+                               'is_hourly'=>$provider->profile->is_hourly,
+                               'packages'=>$packages,
+                               'hourly'=>$hourly
                                );          
          
           $response=array('status'=>true,'data'=>$provider_data,'message'=>'Record found');
