@@ -4479,10 +4479,10 @@ class WebserviceController extends Controller
                 return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
             }
             $profile = Profile::where(array('user_id'=>$user_id));
-            echo $user_id;
-            echo $fundi_is_middlemen=$request->fundi_is_middlemen;
-            echo $fundi_have_tools=$request->fundi_have_tools;
-            echo $fundi_have_smartphone=$request->fundi_have_smartphone;
+           
+             $fundi_is_middlemen=$request->fundi_is_middlemen;
+             $fundi_have_tools=$request->fundi_have_tools;
+             $fundi_have_smartphone=$request->fundi_have_smartphone;
             if(intval($user_id) > 0)
             {
                 $profile_data=array('work_address'=>$request->location ,'radius'=>$request->radius,'latitude'=>$request->latitude,'longitude'=>$request->longitude,'experience_level_id'=>$request->experience_level_id,'facebook_url'=>$request->facebook_url,'twitter_url'=>$request->twitter_url,'instagram_url'=>$request->instagram_url,'fundi_is_middlemen'=>$fundi_is_middlemen,'fundi_have_tools'=>$fundi_have_tools,'fundi_have_smartphone'=>$fundi_have_smartphone);
