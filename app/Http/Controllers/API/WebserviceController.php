@@ -4408,4 +4408,146 @@ class WebserviceController extends Controller
         } 
         return response()->json($response);
     }
+    /**
+     * API to update provider details according to Id 
+     *
+     * @return [string] message
+     */
+    public function updateProviderProfileInfo(Request $request){
+        $user = Auth::user(); 
+        $data = $request->all();        
+        $user_id=$user->id;
+        if($user)
+        { 
+            $rules = [  
+                 'name'=>'required',
+                 'email'             => 'required|email|unique:'.with(new User)->getTable().',email,'.$user->getKey(),          
+                 'mobile_number'     => 'required|numeric|unique:'.with(new User)->getTable().',mobile_number,'.$user->getKey()                 
+            ]; 
+            $validator = Validator::make($data, $rules);
+            if ($validator->fails()) {
+                return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
+            }
+            $user= User::with(['profile','media'])
+            ->whereHas('profile', function($query) use ($user_id) {    
+              $query->where('user_id',$user_id);            
+            })->first(); 
+            if ($request->hasFile('profile_picture'))
+            {
+                $file = $request->file('profile_picture');
+                $customimagename  = time() . '.' . $file->getClientOriginalExtension();
+                $user->addMedia($file)->toMediaCollection('profile_picture');
+            }
+            $user_data=array('id'=>$request->id,
+                             'name'=>$request->name,
+                             'email'=>$request->email,
+                             'mobile_number'=>$request->mobile_number);   
+            $user->update($user_data);
+            $response=array('status'=>true,'message'=>'Profile updated!');
+        }else
+        {
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
+      }
+      /**
+     * API to update provider details according to Id 
+     *
+     * @return [string] message
+     */
+    public function updateProviderPersonal(Request $request){
+        $user = Auth::user(); 
+        $data = $request->all();        
+        $user_id=$user->id;
+        if($user)
+        { 
+            $rules = [  
+                  'location' => 'required',
+                  'latitude' => 'required',
+                  'longitude' => 'required',
+                  'radius' => 'required',
+                  'passport_number' => 'nullable',
+                  'residential_address'=>'nullable',
+                  'experience_level_id'=>'required',
+                  'reference'=>'nullable',
+                  'facebook_url'=>'nullable',
+                  'instagram_url'=>'nullable',
+                  'twitter_url'=>'nullable',
+            ]; 
+            $validator = Validator::make($data, $rules);
+            if ($validator->fails()) {
+                return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
+            }
+            $profile = Profile::where(array('user_id'=>$user_id));
+            echo $user_id;
+            echo $fundi_is_middlemen=$request->fundi_is_middlemen;
+            echo $fundi_have_tools=$request->fundi_have_tools;
+            echo $fundi_have_smartphone=$request->fundi_have_smartphone;
+            if(intval($user_id) > 0)
+            {
+                $profile_data=array('work_address'=>$request->location ,'radius'=>$request->radius,'latitude'=>$request->latitude,'longitude'=>$request->longitude,'experience_level_id'=>$request->experience_level_id,'facebook_url'=>$request->facebook_url,'twitter_url'=>$request->twitter_url,'instagram_url'=>$request->instagram_url,'fundi_is_middlemen'=>$fundi_is_middlemen,'fundi_have_tools'=>$fundi_have_tools,'fundi_have_smartphone'=>$fundi_have_smartphone);
+                $profile->update($profile_data);
+            }
+            $certification_img=Certification::where(['user_id'=>$user_id,'type'=>'certification'])->first();
+            $diploma_img=Certification::where(['user_id'=>$user_id,'type'=>'diploma'])->first();
+            $degree_img=Certification::where(['user_id'=>$user_id,'type'=>'degree'])->first();
+            $degree_title=isset($request->degree_text)?$request->degree_text:'';
+            $diploma_title=isset($request->diploma_text)?$request->diploma_text:'';
+            $certification_title=isset($request->certification_text)?$request->certification_text:'';
+            
+            if($certification_img)
+              {
+                $certification_data=array('title'=>$certification_title);
+                $certification_img->update($certification_data);
+               
+              }else
+              {
+                 $certification_img=Certification::create(array('title'=>$certification_title,'type'=>'certification','user_id'=>$user_id));
+              }
+              if($degree_img)
+              {
+                $degree_data=array('title'=>$degree_title);
+                $degree_img->update($degree_data);
+               
+              }else
+              {
+                 $degree_img=Certification::create(array('title'=>$degree_title,'type'=>'degree','user_id'=>$user_id));
+              }
+              if($diploma_img)
+              {
+                $diploma_data=array('title'=>$diploma_title);
+                $diploma_img->update($diploma_data);
+               
+              }else
+              {
+                 $diploma_img=Certification::create(array('title'=>$degree_title,'type'=>'diploma','user_id'=>$user_id));
+              }
+              if ($request->hasFile('certification')){
+                 $file = $request->file('certification');
+                 $customname = time() . '.' . $file->getClientOriginalExtension();
+                 $certification_img->addMedia($request->file('certification'))
+                   ->usingFileName($customname)               
+                   ->toMediaCollection('certification');
+              } 
+              if ($request->hasFile('degree')){
+                   $file = $request->file('degree');
+                   $customname = time() . '.' . $file->getClientOriginalExtension();
+                   $degree_img->addMedia($request->file('degree'))
+                     ->usingFileName($customname)               
+                     ->toMediaCollection('degree');
+              } 
+              if ($request->hasFile('diploma')){
+                   $file = $request->file('diploma');
+                   $customname = time() . '.' . $file->getClientOriginalExtension();
+                   $diploma_img->addMedia($request->file('diploma'))
+                     ->usingFileName($customname)               
+                     ->toMediaCollection('diploma');
+              } 
+            $response=array('status'=>true,'message'=>'Profile updated!');
+        }else
+        {
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
+      }
 }
