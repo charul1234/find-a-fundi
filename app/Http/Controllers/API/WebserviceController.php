@@ -3626,6 +3626,19 @@ class WebserviceController extends Controller
                   $profile_data=array('display_seeker_reviews'=>$review_show_on_profile);
                   $profile->update($profile_data);                
                }
+               $providerdata=User::with(['profile','media'])->where('id',$request->user_id)->first();
+               if ($request->hasFile('works_photo')){
+                 $files = $request->file('works_photo');
+                  $i=0;
+                  foreach ($files as $file) 
+                  {
+                     $customname = time().$i. '.' . $file->getClientOriginalExtension();
+                     $providerdata->addMedia($file)
+                       ->usingFileName($customname)
+                       ->toMediaCollection('works_photo');
+                       $i++;
+                   }
+               }
                $response=array('status'=>true,'review'=>$review_data,'message'=>'you have successfully given review, Thank you.');
             }           
         }else
