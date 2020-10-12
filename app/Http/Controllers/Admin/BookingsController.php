@@ -14,6 +14,7 @@ use Form;
 use DB;
 use App\Transaction;
 use App\Schedule;
+use App\BookingUser;
 
 class BookingsController extends Controller
 {
@@ -143,20 +144,32 @@ class BookingsController extends Controller
      */
     public function view($id)
     {   
-        $booking=Booking::with(['category','booking_user','user','user.profile'])->where('id',$id)->first();
-        $job_type='';
+        $booking=Booking::with(['category','booking_user','user','user.profile'])->where('id',$id)->first();       
+        $job_type=$providerdata=$categoryname='';
+        $subcategoryname=$booking_user=array();
         if($booking->is_rfq==1)
         {
           $job_type='RFQ';
+          $booking_user= BookingUser::with(['user'])->where(array('booking_id'=>$id))->get();
         }else if($booking->is_hourly==1)
         {
           $job_type='Hourly';
+          $providerdata=User::with('profile')->where('id',$booking->user_id)->first();
         }else if($booking->is_package==1)
         {
           $job_type='Package';   
+          $providerdata=User::with('profile')->where('id',$booking->user_id)->first();
+        }     
+        $categoryname=isset($booking->category->title)?$booking->category->title:'';        
+        if(count($booking->subcategory)>0)
+        {
+          foreach ($booking->subcategory as $key => $subcategory) 
+          {
+            $subcategoryname[]=$subcategory->category->title;
+          }   
         }
-        $providerdata=User::with('profile')->where('id',$booking->user_id)->first();
-        return view('admin/bookings/view',compact('booking','job_type','providerdata'));
+        $seekerdata=User::where('id',$booking->requested_id)->first();        
+        return view('admin/bookings/view',compact('booking','job_type','providerdata','categoryname','subcategoryname','seekerdata','booking_user'));
     }
     /**
      * Remove the specified resource from storage.
