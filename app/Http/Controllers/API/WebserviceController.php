@@ -26,6 +26,7 @@ use App\Faq;
 use App\Review;
 use App\Schedule;
 use App\ExperienceLevel;
+use App\HourlyCharge;
 
 class WebserviceController extends Controller
 {
@@ -4544,6 +4545,84 @@ class WebserviceController extends Controller
                      ->toMediaCollection('diploma');
               } 
             $response=array('status'=>true,'message'=>'Profile updated!');
+        }else
+        {
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
+      }
+    /**
+     * API to update provider cat sub details according to Id 
+     *
+     * @return [string] message
+     */
+    public function updateProviderCatSubInfo(Request $request){
+        $user = Auth::user(); 
+        $data = $request->all();        
+        $user_id=$user->id;
+        if($user)
+        { 
+            $rules = [  
+                  'category_id' => 'required',
+                  'subcategory_id' => 'required',
+                  'packages' => 'required',
+                  'hourly' => 'required'
+            ]; 
+            $validator = Validator::make($data, $rules);
+            if ($validator->fails()) {
+                return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
+            }
+            $category_id=$request->category_id;
+            if(intval($category_id) > 0)
+            {
+               CategoryUser::where('user_id',$user_id)->delete();
+               $user->category_user()->create(['user_id'=>$user_id,'category_id'=>$category_id]);
+            } 
+            $subcategory_ids=$request->subcategory_id;   
+            $subcategory_ids=explode(',',$subcategory_ids);
+            if(count($subcategory_ids)>0)
+            {
+                foreach ($subcategory_ids as $key => $subcategory_id) 
+                {  
+                  if(intval($subcategory_id) > 0)
+                   {          
+                    $user->category_user()->create(['user_id'=>$user_id,'category_id'=>$subcategory_id]); 
+                   }  
+                }                              
+            }
+            $is_hourly=isset($request->is_hourly)?$request->is_hourly:0;
+            $is_package=isset($request->is_package)?$request->is_package:0;
+            $is_rfq=isset($request->is_rfq)?$request->is_rfq:0;
+
+            $profile = Profile::where(array('user_id'=>$user_id));
+            if(intval($user_id) > 0)
+            {
+                $profile_data=array('is_hourly'=>$is_hourly,'is_package'=>$is_package,'is_rfq'=>$is_rfq);
+                $profile->update($profile_data);
+            }            
+            if($is_package==true)
+            {
+              PackageUser::where('user_id',$user_id)->delete();
+              $packagesdata=json_decode(stripslashes($request->packages));
+              if(intval($packagesdata) > 0 && !empty($packagesdata))
+              { 
+                foreach ($packagesdata as $key => $data) {                
+                  $user->package_user()->create(['package_id'=>$data->package_id,'price'=>$data->price]);  
+                }
+              }
+            } 
+            if($is_hourly==true)
+            {            
+              HourlyCharge::where('user_id',$user_id)->delete();
+              $hourlydata=json_decode(stripslashes($request->hourly));
+              if(!empty($hourlydata))
+              {               
+                foreach ($hourlydata as $key => $data) {             
+                  $user->hourly_charge()->create(['user_id'=>$user_id,'hours'=>$data->duration,'price'=>$data->price,'type'=>$data->type]);  
+                }
+              }
+            }             
+           $response=array('status'=>true,'message'=>'Profile updated!');
         }else
         {
             $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
