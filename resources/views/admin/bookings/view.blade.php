@@ -115,7 +115,7 @@
                                     </label>
                                    </div>
                                 </div>
-                    </div>
+                         </div>
                      <?php } ?>
                     <?php
                    if($booking->is_hourly==true || $booking->is_package==true )
@@ -209,6 +209,49 @@
                     </div>
 
                       </div>
+                      <div class="col-md-12">
+                        <div class="card mb-3">
+                            <div class="card-header">Job Schedules</div>
+                                <div class="card-body">
+
+                                      <div class="table-responsive">
+                  <table class="table table-striped table-bordered table-hover" id="schedules">
+                      <thead>
+                        <tr>
+                          <th scope="col">Date</th>
+                          <th scope="col">Time</th>
+                          <th scope="col">Service title</th>
+                          <th scope="col">Requirement</th>
+                          <th scope="col">Price</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+
+              <?php  
+              if(count($schedules)>0)
+                { 
+                 foreach ($schedules as $key => $schedule) 
+                 {  
+                    ?>
+                        <tr>
+                          <td>  {{isset($schedule->date)?date(config('constants.DATE_FORMAT'), strtotime($schedule->date)):''}}</td>
+                          <td>  {{isset($schedule->start_time)?date(config('constants.TIME_FORMAT'), strtotime($schedule->start_time)):''}} - {{isset($schedule->end_time)?date(config('constants.TIME_FORMAT'), strtotime($schedule->end_time)):''}}</td>                          
+                          <td>{{isset($schedule->service_title)?$schedule->service_title:''}}</td>
+                          <td>{{isset($schedule->requirements)?$schedule->requirements:''}}</td>
+                          <td>{{isset($schedule->price)?config('constants.DEFAULT_CURRENCY_SYMBOL').($schedule->price):''}}</td>
+                        </tr>     
+                    <?php                
+                 }   ?>                  
+                 <?php 
+                }   ?>
+        
+
+        </tbody></table>
+              </div> 
+
+                               </div>
+                            </div>   
+                      </div>
                   </div>
 
                 </div></div>
@@ -230,6 +273,11 @@ jQuery(document).ready(function(){
      jQuery('#rfq').DataTable({
          responsive: true,
          pageLength: 5,
+         lengthChange: false
+     });
+     jQuery('#schedules').DataTable({
+         responsive: true,
+         pageLength: 10,
          lengthChange: false
      });
    });

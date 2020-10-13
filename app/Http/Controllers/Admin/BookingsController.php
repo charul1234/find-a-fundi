@@ -172,8 +172,9 @@ class BookingsController extends Controller
             $subcategoryname[]=$subcategory->category->title;
           }   
         }
-        $seekerdata=User::where('id',$booking->requested_id)->first();        
-        return view('admin/bookings/view',compact('booking','job_type','providerdata','categoryname','subcategoryname','seekerdata','booking_user'));
+        $seekerdata=User::where('id',$booking->requested_id)->first(); 
+        $schedules=Schedule::where('booking_id',$id)->get();  
+        return view('admin/bookings/view',compact('booking','job_type','providerdata','categoryname','subcategoryname','seekerdata','booking_user','schedules'));
     }
     /**
      * Remove the specified resource from storage.

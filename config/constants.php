@@ -18,6 +18,7 @@
 		'MYSQL_DATETIME_FORMAT' => '%d %b %Y, %h:%i %p',
 		'MYSQL_DATE_FORMAT' => '%d %b %Y',
 		'DATE_FORMAT' => 'd M Y',
+		'TIME_FORMAT' => 'h:i A',
 
 		// Form error class		
 		'ERROR_FORM_GROUP_CLASS' => 'has-error border-left-danger',
