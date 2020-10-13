@@ -7,14 +7,14 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Spatie\Permission\Traits\HasRoles;
 use App\Notifications\ResetPassword;
-use Illuminate\Database\Eloquent\SoftDeletes;
+#use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Passport\HasApiTokens;
 use Spatie\MediaLibrary\HasMedia\HasMedia;
 use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
 
 class Seeker extends Authenticatable implements MustVerifyEmail, HasMedia
 {
-    use HasApiTokens, Notifiable, SoftDeletes, HasRoles, HasMediaTrait;
+    use HasApiTokens, Notifiable,/* SoftDeletes,*/ HasRoles, HasMediaTrait;
 
     /**
      * The attributes that are mass assignable.

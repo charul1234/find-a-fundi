@@ -20,6 +20,9 @@ use App\Package;
 use App\Company;
 use App\Certification;
 use App\Review;
+use App\Transaction;
+use App\Schedule;
+use App\Booking;
 
 class ProvidersController extends Controller
 {
@@ -592,7 +595,10 @@ class ProvidersController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy($id){ 
-      $user = User::findOrFail($id);        
+      $user = User::findOrFail($id);   
+      Transaction::where('user_id',$id)->delete();
+      Schedule::where('user_id',$id)->delete();    
+      Booking::where('user_id',$id)->delete();  
       $user->delete();
       session()->flash('danger',__('global.messages.delete'));
       return redirect()->route('admin.providers.index');

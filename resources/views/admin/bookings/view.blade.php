@@ -100,24 +100,23 @@
 
                       </div>
                       <div class="col-md-6"> 
+                        <?php if($booking->is_package==1 || $booking->is_hourly==1) { ?>
                          <div class="card mb-3">
                               <div class="card-header">Provider Information</div>
-                                <div class="card-body">
-                               <?php if($booking->is_package==1 || $booking->is_hourly==1) { ?>
+                                <div class="card-body">                             
                                    <div class="form-group">
                                     <label class="col-form-label"><strong>Name : </strong>
                                    {{ isset($providerdata->name)?$providerdata->name:'' }}
                                     </label>
-                                 </div>
-                                  <div class="form-group">
+                                   </div>
+                                   <div class="form-group">
                                     <label class="col-form-label"><strong>Email : </strong>
                                    {{ isset($providerdata->email)?$providerdata->email:'' }}
                                     </label>
-                                 </div>
-                                 <?php } ?>
-
+                                   </div>
                                 </div>
                     </div>
+                     <?php } ?>
                     <?php
                    if($booking->is_hourly==true || $booking->is_package==true )
                    {  

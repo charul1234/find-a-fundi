@@ -154,12 +154,16 @@ class BookingsController extends Controller
         }else if($booking->is_hourly==1)
         {
           $job_type='Hourly';
-          $providerdata=User::with('profile')->where('id',$booking->user_id)->first();
+          
         }else if($booking->is_package==1)
         {
           $job_type='Package';   
-          $providerdata=User::with('profile')->where('id',$booking->user_id)->first();
-        }     
+          
+        }         
+        if(isset($booking->user_id) || $booking->user_id!='0')
+        {
+          $providerdata=User::with('profile')->where('id',$booking->user_id)->first();    
+        }
         $categoryname=isset($booking->category->title)?$booking->category->title:'';        
         if(count($booking->subcategory)>0)
         {
