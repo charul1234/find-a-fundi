@@ -210,6 +210,7 @@
 
                       </div>
                       <div class="col-md-12">
+                        <?php if($booking->is_rfq==true || $booking->is_hourly==true) { ?>
                         <div class="card mb-3">
                             <div class="card-header">Job Schedules</div>
                                 <div class="card-body">
@@ -248,12 +249,11 @@
 
         </tbody></table>
               </div> 
-
-                               </div>
-                            </div>   
+            </div>
+           </div>  
+          <?php } ?>
                       </div>
                   </div>
-
                 </div></div>
 </div>
 <!-- /.container-fluid -->
