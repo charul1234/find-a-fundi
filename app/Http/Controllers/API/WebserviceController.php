@@ -4228,7 +4228,7 @@ class WebserviceController extends Controller
               
                    $packages[]=array('id'=>$package->package->id,
                                      'title'=>$package->package->title,
-                                     'price'=>$package->package->price,
+                                     'price'=>$package->price,
                                      'is_active'=>$package->package->is_active);
                       
            }  
