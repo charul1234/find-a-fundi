@@ -4226,8 +4226,9 @@ class WebserviceController extends Controller
             foreach ($provider->package_user as $key => $package) 
             {
               
-              $packages[]=array('id'=>$package->package->id,
+                   $packages[]=array('id'=>$package->package->id,
                                      'title'=>$package->package->title,
+                                     'price'=>$package->package->price,
                                      'is_active'=>$package->package->is_active);
                       
            }  
