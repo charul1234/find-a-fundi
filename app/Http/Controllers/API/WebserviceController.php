@@ -4244,6 +4244,17 @@ class WebserviceController extends Controller
                       
            }  
           }
+          $provider_works_photo = $provider->getMedia('works_photo');  
+          $works_photo_Images=array(); 
+          if (count($provider_works_photo) > 0) 
+          {
+            foreach ($provider_works_photo as $key => $works_photo) {
+               $works_photo_Images[]=array('id'=>$works_photo->id,
+                                      'name'=>$works_photo->name,
+                                      'file_name'=>$works_photo->file_name,
+                                      'image_path'=>$works_photo->getFullUrl());
+            }
+          }
           $provider_data=array('id'=>isset($provider->id)?$provider->id:'',
                                'name'=>isset($provider->name)?$provider->name:'',
                                'mobile_number'=>isset($provider->mobile_number)?$provider->mobile_number:'',
@@ -4274,7 +4285,8 @@ class WebserviceController extends Controller
                                'is_package'=>$provider->profile->is_package,
                                'is_hourly'=>$provider->profile->is_hourly,
                                'packages'=>$packages,
-                               'hourly'=>$hourly
+                               'hourly'=>$hourly,
+                               'works_photo'=>$works_photo_Images
                                );          
          
           $response=array('status'=>true,'data'=>$provider_data,'message'=>'Record found');
