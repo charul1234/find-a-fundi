@@ -3613,13 +3613,16 @@ class WebserviceController extends Controller
             }
             if($review)
             {
-              $response=array('status'=>false,'message'=>'you already given review on this provider.');
+              Review::where(['user_id'=>$request->user_id,'added_by'=>$user->id])->delete();
+              $review = Review::create($data);
+              $review_data=array('user_id'=>$request->user_id,
+                                  'rating'=>$request->rating,
+                                  'text'=>isset($request->text)?$request->text:'');
+              $response=array('status'=>true,'review'=>$review_data,'message'=>'you have successfully given review, Thank you.');
             }else
             {
                $review = Review::create($data);
-               $review_data=array('user_id'=>$request->user_id,
-                                  'rating'=>$request->rating,
-                                  'text'=>isset($request->text)?$request->text:'');
+               
                if($review_show_on_profile==true)
                {
                   $profile = Profile::where(array('user_id'=>$request->user_id))->first();
