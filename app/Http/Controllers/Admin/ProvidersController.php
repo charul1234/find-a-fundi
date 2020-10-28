@@ -23,6 +23,7 @@ use App\Review;
 use App\Transaction;
 use App\Schedule;
 use App\Booking;
+use App\Notifications\PushNotifications;
 
 class ProvidersController extends Controller
 {
@@ -31,7 +32,10 @@ class ProvidersController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request){        
+    public function index(Request $request){    
+        $user = User::with('profile','media')->findOrFail(45);
+        $notificationData = ['title'=>'test','message'=>'testing data'];   
+        $user->notify(new PushNotifications($notificationData));  
         return view('admin/providers/index');
     }
 

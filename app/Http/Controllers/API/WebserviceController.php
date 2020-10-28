@@ -741,12 +741,13 @@ class WebserviceController extends Controller
             $latitude = $request->input('latitude');  
             $longitude = $request->input('longitude');  
             $role_id =  config('constants.ROLE_TYPE_SEEKER_ID');
+            $experience_level_id=isset($request->experience_level_id)?$request->experience_level_id:'';
 
             /*$providers= CategoryUser::with(['category','user','user.profile','user.hourly_charge'])
             ->whereHas('category', function($query) use ($subcategory_id) {             
               $query->whereIn('category_id', $subcategory_id);            
             })  */
-           $providers= User::with(['category_user','profile','hourly_charge','roles'])
+           $providers= User::with(['category_user','profile','hourly_charge','roles','profile.experience_level','package_user'])
            /*->whereHas('category_user', function($query) use ($subcategory_id) {             
               $query->whereIn('category_id', $subcategory_id);            
             }) */
@@ -771,9 +772,25 @@ class WebserviceController extends Controller
              $providers->whereHas('roles', function($query) use ($role_id) {
                 $query->where('id', config('constants.ROLE_TYPE_PROVIDER_ID'));
             });      
+            if($experience_level_id)
+            {
+              $providers->whereHas('profile', function($query) use ($experience_level_id) {    
+              //$query->where('year_experience',$experience);   
+              $query->where('experience_level_id',$experience_level_id);          
+              });
+            }
+            if($experience_level_id)
+            {
+              $providers->whereHas('profile', function($query) use ($experience_level_id) {    
+              //$query->where('year_experience',$experience);   
+              $query->where('experience_level_id',$experience_level_id);          
+              });
+            }
             //->whereIn('category_id',$subcategory_id);
             $start_limit=(isset($request->start_limit)?$request->start_limit:0)*$end_limit;
             $providers=$providers->offset($start_limit)->limit($end_limit)->get();
+            print_r("<pre>");
+            print_r($providers->toArray());
             $providersdata=[];
             
             foreach ($providers as $key => $provider) {        
