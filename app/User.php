@@ -102,7 +102,7 @@ class User extends Authenticatable implements MustVerifyEmail, HasMedia
     */
     public function package_user()
     {
-        return $this->hasMany(PackageUser::class,'user_id');
+        return $this->hasMany(PackageUser::class,'user_id','id');
     }
     /**
      * Get the company information that belong to this user.

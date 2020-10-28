@@ -767,9 +767,25 @@ class WebserviceController extends Controller
               {
                 $query->where('is_rfq',$is_rfq); 
               }                       
-            }) 
-
-            ->whereHas('category_user', function($query) use ($subcategory_id) {
+            }) ;
+            /*if(($min_price))
+            { 
+               $providers->whereHas('package_user', function($query) use ($min_price) { 
+                    $query->where('price', '>=', $min_price);     
+                }); 
+            }
+            if(($max_price))
+            { 
+               $providers->whereHas('package_user', function($query) use ($max_price) { 
+                    $query->where('price','<=', $max_price);         
+                }); 
+            }*/
+             //$providers->whereHas('package_user', function($query) use ($min_price,$max_price) { 
+               // $query->where('price', [$min_price, $max_price]);
+             /* $providers->whereRaw("(package_user.price <= ? AND package_user.price >= ?) ", [$min_price, $max_price]);*/
+               //  }); 
+            
+            $providers->whereHas('category_user', function($query) use ($subcategory_id) {
                $query->whereIn('category_id',$subcategory_id);
             });   
              $providers->whereHas('roles', function($query) use ($role_id) {
@@ -789,24 +805,17 @@ class WebserviceController extends Controller
               $query->where('experience_level_id',$experience_level_id);          
               });
             }
-            if($min_price || $max_price)
-            {
-               $providers->whereHas('package_user', function($query) use ($min_price,$max_price) { 
-                    $query->where('price', '>=', $min_price)
-                          ->where('price', '<=', $max_price);         
-                }); 
-            }
+            
 
             if(intval($security_check)>0)
-            {  echo $security_check;
+            {  
                $providers->whereHas('profile', function($query) use ($security_check) {   
                   $query->where('security_check',$security_check);     
                 });
             }
             $start_limit=(isset($request->start_limit)?$request->start_limit:0)*$end_limit;
             $providers=$providers->offset($start_limit)->limit($end_limit)->get();
-            print_r("<pre>");
-            print_r($providers->toArray());
+            /*print_r($providers->toArray());   */         
             $providersdata=[];
             
             foreach ($providers as $key => $provider) {        
