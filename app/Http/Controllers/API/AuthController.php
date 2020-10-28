@@ -140,7 +140,7 @@ class AuthController extends Controller
             }
             if($user){ 
                 $userdata=array('device_token'=>$request->device_token,
-                              'device_type'=>$request->device_type);                
+                                'device_type'=>$request->device_type);                
                 $user->update($userdata);
             }
             $message='';
