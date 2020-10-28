@@ -742,6 +742,9 @@ class WebserviceController extends Controller
             $longitude = $request->input('longitude');  
             $role_id =  config('constants.ROLE_TYPE_SEEKER_ID');
             $experience_level_id=isset($request->experience_level_id)?$request->experience_level_id:'';
+            $min_price=isset($request->min_price)?$request->min_price:'';
+            $max_price=isset($request->max_price)?$request->max_price:'';
+            $security_check=isset($request->security_check)?$request->security_check:'';
 
             /*$providers= CategoryUser::with(['category','user','user.profile','user.hourly_charge'])
             ->whereHas('category', function($query) use ($subcategory_id) {             
@@ -786,7 +789,20 @@ class WebserviceController extends Controller
               $query->where('experience_level_id',$experience_level_id);          
               });
             }
-            //->whereIn('category_id',$subcategory_id);
+            if($min_price || $max_price)
+            {
+               $providers->whereHas('package_user', function($query) use ($min_price,$max_price) { 
+                    $query->where('price', '>=', $min_price)
+                          ->where('price', '<=', $max_price);         
+                }); 
+            }
+
+            if(intval($security_check)>0)
+            {  echo $security_check;
+               $providers->whereHas('profile', function($query) use ($security_check) {   
+                  $query->where('security_check',$security_check);     
+                });
+            }
             $start_limit=(isset($request->start_limit)?$request->start_limit:0)*$end_limit;
             $providers=$providers->offset($start_limit)->limit($end_limit)->get();
             print_r("<pre>");
