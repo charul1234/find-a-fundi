@@ -3094,7 +3094,8 @@ class WebserviceController extends Controller
         $role_id =  config('constants.ROLE_TYPE_PROVIDER_ID');
         $userdata=User::with(['roles'])->whereHas('roles', function($query) use ($role_id){
               $query->where('id', $role_id);
-            })->where('id',$user->id)->first();        
+            })->where('id',$user->id)->first();   
+        $device_token=array();     
         if($userdata)
         {          
             $rules = [   
@@ -3138,8 +3139,31 @@ class WebserviceController extends Controller
                          ->toMediaCollection('works_photo');
                        $i++;
                     }
-                 }
-                 //send notification to seeker job accepted by provider
+                 }                 
+                      
+                  //send notification to seeker job accepted by provider
+                  // start notification code
+                  $seekerdata=User::where('id',$booking->requested_id)->first();
+                  if($seekerdata)
+                  {
+                    $notification_title=config('constants.NOTIFICATION_JOB_QUOTED_SUBJECT');
+                    $notification_message=config('constants.NOTIFICATION_JOB_QUOTED_MESSAGE');
+                    if($seekerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
+                    {
+                        $device_token[]=$seekerdata->device_token;
+                    }else
+                    {
+                        $device_token[]=$seekerdata->device_token;
+                    } 
+                    if($seekerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
+                    {                      
+                       sendIphoneNotifications($notification_title,$notification_message,$device_token);
+                    }/*else
+                    {
+                       //sendIphoneNotification($title,$message,$token);
+                    } */
+                  }
+                  //end notification code
                  $response=array('status'=>true,'message'=>'Job Quoted done');
               }else
               {
@@ -3174,6 +3198,28 @@ class WebserviceController extends Controller
                     }
                  }
                  //send notification to seeker job accepted by provider
+                 // start notification code
+                  $seekerdata=User::where('id',$booking->requested_id)->first();
+                  if($seekerdata)
+                  {
+                    $notification_title=config('constants.NOTIFICATION_JOB_QUOTED_SUBJECT');
+                    $notification_message=config('constants.NOTIFICATION_JOB_QUOTED_MESSAGE');
+                    if($seekerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
+                    {
+                        $device_token[]=$seekerdata->device_token;
+                    }else
+                    {
+                        $device_token[]=$seekerdata->device_token;
+                    } 
+                    if($seekerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
+                    {                      
+                       sendIphoneNotifications($notification_title,$notification_message,$device_token);
+                    }/*else
+                    {
+                       //sendIphoneNotification($title,$message,$token);
+                    } */
+                  }
+                  //end notification code
                  $response=array('status'=>true,'message'=>'Job Quoted done');
               }else
               {
@@ -3226,6 +3272,28 @@ class WebserviceController extends Controller
                          $i++;
                       }
                    } 
+                  // start notification code
+                  $seekerdata=User::where('id',$booking->requested_id)->first();
+                  if($seekerdata)
+                  {
+                    $notification_title=config('constants.NOTIFICATION_JOB_QUOTED_SUBJECT');
+                    $notification_message=config('constants.NOTIFICATION_JOB_QUOTED_MESSAGE');
+                    if($seekerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
+                    {
+                        $device_token[]=$seekerdata->device_token;
+                    }else
+                    {
+                        $device_token[]=$seekerdata->device_token;
+                    } 
+                    if($seekerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
+                    {                      
+                       sendIphoneNotifications($notification_title,$notification_message,$device_token);
+                    }/*else
+                    {
+                       //sendIphoneNotification($title,$message,$token);
+                    } */
+                  }
+                  //end notification code
                    $response=array('status'=>true,'message'=>'Job Quoted done');
                 // }      
                  
@@ -3234,6 +3302,9 @@ class WebserviceController extends Controller
                    $response=array('status'=>false,'message'=>'no record found');
               } */
             }
+            //notification code
+
+            //end notification code
             
                        
         }else

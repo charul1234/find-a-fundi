@@ -1,9 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Cache;
-
+use Illuminate\Support\Facades\Notification;
 use App\User;
 use App\Setting;
+use Edujugon\PushNotification\PushNotification;
+use App\Notifications\PushNotifications;
 
 /**
 * Method Name : setSetting 
@@ -66,4 +68,29 @@ function sendEmail($view = null, $settings = null)
         });
     }
 } 
+function sendIphoneNotifications($title = null, $message = null,$tokens=null)
+{ 
+  $push = new PushNotification('apn');
+  $title=isset($title)?$title:'';
+  $message=isset($message)?$message:'';
+  if(!empty($tokens))
+  {
+    $results= $push->setMessage([
+            'aps' => [
+                'alert' => [
+                    'title' => $title,
+                    'body' => $message
+                ],
+                'sound' => 'default',
+                'badge' => 2
+
+            ],
+            'extraPayLoad' => [
+                'custom' => $message,
+            ]
+        ])
+        ->setDevicesToken($tokens)->send();
+   return $results;
+  }        
+}
 ?>

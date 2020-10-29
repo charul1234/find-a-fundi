@@ -5,13 +5,14 @@ namespace App\Notifications;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\MailMessage;
+use Edujugon\PushNotification\PushNotification;
 use Edujugon\PushNotification\Messages\PushMessage;
 use Edujugon\PushNotification\Channels\ApnChannel;
 use Edujugon\PushNotification\Channels\FcmChannel;
 
 class PushNotifications extends Notification
-{
-    use Queueable;
+{  
     public $push_data;
 
     /**
@@ -21,7 +22,7 @@ class PushNotifications extends Notification
      */
     public function __construct($push_data)
     {
-        $this->push_data = $push_data;
+        $this->push_data = $push_data; 
     }
 
     /**
@@ -33,7 +34,7 @@ class PushNotifications extends Notification
     public function via($notifiable)
     {
        
-        if($notifiable->device_type==config('constants.DEVICE_TYPE_IOS')){             
+        if($notifiable->device_type==config('constants.DEVICE_TYPE_IOS')){  
             return [ApnChannel::class];            
         }else{
             return [FcmChannel::class];
@@ -56,7 +57,7 @@ class PushNotifications extends Notification
                     ->body($push_message)
                     ->extra($this->push_data)
                     ->sound('default')
-                    ->badge(0);
+                    ->badge(2);   
         
         return $response;
     }

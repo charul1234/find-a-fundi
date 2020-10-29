@@ -40,5 +40,12 @@
 
 		'DEVICE_TYPE_ANDROID'=>'android',
         'DEVICE_TYPE_IOS'=>'ios',
+
+        'NOTIFICATION_VERIFY_ACCOUNT_SUBJECT'=>'Account Verified',
+        'NOTIFICATION_VERIFY_ACCOUNT_MESSAGE'=>'Account is verified. you can login with credential.',
+        
+        'NOTIFICATION_JOB_QUOTED_SUBJECT'=>'Job Qouted',
+        'NOTIFICATION_JOB_QUOTED_MESSAGE'=>'Job Qouted done',
+        
 	];
 ?>
