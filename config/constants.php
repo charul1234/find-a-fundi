@@ -46,6 +46,12 @@
         
         'NOTIFICATION_JOB_QUOTED_SUBJECT'=>'Job Qouted',
         'NOTIFICATION_JOB_QUOTED_MESSAGE'=>'Job Qouted done',
+
+        'NOTIFICATION_NEW_JOB_SUBJECT'=>'New Job',
+        'NOTIFICATION_NEW_JOB_MESSAGE'=>'New Job available',
+
+        'NOTIFICATION_AFTER_PAYMENT_SUBJECT'=>'Payment done.',
+        'NOTIFICATION_AFTER_PAYMENT_MESSAGE'=>'we got payment from seeker, you can schedule job.',
         
 	];
 ?>

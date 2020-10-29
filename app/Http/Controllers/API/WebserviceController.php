@@ -1838,7 +1838,7 @@ class WebserviceController extends Controller
             //$bookings=$bookings->offset($start_limit)->limit($end_limit)->get();   
             $bookings=$bookings->get();   
             
-            $booking_array[$type]=array();
+            $booking_array[$type]=$device_token=array();
             if(count($bookings)>0)
             {
              
@@ -2205,6 +2205,7 @@ class WebserviceController extends Controller
                         {
                               $provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
                         }
+
                         //$booking_array[$type][]=$booking;
                         $bookingdata=array('booking_id'=>$booking->id,
                                           'type'=>$booking_type,
@@ -2238,7 +2239,9 @@ class WebserviceController extends Controller
                                           'quantity'=>$quantity,
                                           'total_package_amount'=>isset($total_package_amount)?(string)$total_package_amount:''
                                           ); 
-                      $booking_array[$type][]=$bookingdata;   
+                      $booking_array[$type][]=$bookingdata;
+
+                   
                  }else if($booking->status==config('constants.PAYMENT_STATUS_REQUESTED') && $booking->is_package==1 && ($booking->user_id==$userdata->id)){
 
                         $providerdata=User::with(['profile'])->where('id',$userdata->id)->first();
@@ -2296,11 +2299,13 @@ class WebserviceController extends Controller
                                           'total_package_amount'=>isset($total_package_amount)?(string)$total_package_amount:''
                                           ); 
                       $booking_array[$type][]=$bookingdata;   
+                     
                  }else if($booking->status==config('constants.PAYMENT_STATUS_REQUESTED') && $booking->is_rfq==1 && ($booking->user_id==0)){
                   $booking_users=BookingUser::where(array('booking_id'=>$booking->id,'user_id'=>$userdata->id))->first();
-                  if($booking_users=='')
-                  {
 
+                  if($booking_users->count()>0)
+                  {
+                    
                     //$booking_array[$type][]=$booking;                
                     $booking_latitude=$booking->latitude;
                     $booking_longitude=$booking->longitude;
@@ -2316,6 +2321,7 @@ class WebserviceController extends Controller
                      
                       
                      }
+
                       $providerdata=User::with(['profile'])->where('id',$userdata->id)->first();
                       $provider_name=$providerdata->name;
                       $provider_email=$providerdata->email;
@@ -2336,6 +2342,7 @@ class WebserviceController extends Controller
                       $Kilometer_distance=  $this->distance($provider_latitude,$provider_longitude, $booking_latitude,$booking_longitude , "K");
                       $provider_radius=floatval($provider_radius);
                       $Kilometer_distance=round($Kilometer_distance, 2);  
+
                    if($provider_radius!='null' && $provider_radius!='')
                       {
                        if($provider_radius>=$Kilometer_distance)
@@ -2373,7 +2380,8 @@ class WebserviceController extends Controller
                                             'quantity'=>$quantity,
                                             'total_package_amount'=>isset($total_package_amount)?(string)$total_package_amount:''
                                             );  
-                           $booking_array[$type][]=$bookingtype;              
+                           $booking_array[$type][]=$bookingtype; 
+                         
                         }                  
                     }
                 }
@@ -3606,6 +3614,35 @@ class WebserviceController extends Controller
                                   'payment_mode'=>isset($request->payment_mode)?$request->payment_mode:'');
                  $booking->update(array('status'=>config('constants.PAYMENT_STATUS_ACCEPTED')));
                  $response=array('status'=>true,'payment'=>$payment_data,'message'=>'Payment successfully done.');
+                 // start notification code                
+                  $notification_providerdata=User::where('id',$request->user_id)->first();
+                  if($notification_providerdata)
+                  {
+                    $notification_title=config('constants.NOTIFICATION_AFTER_PAYMENT_SUBJECT');
+                    $notification_message=config('constants.NOTIFICATION_AFTER_PAYMENT_MESSAGE');
+                    if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
+                    {
+                      if(!empty($notification_providerdata->device_token) || $notification_providerdata->device_token!='')
+                      {
+                        $device_token[]=$notification_providerdata->device_token;
+                      }                        
+                    }else
+                    {
+                      if(!empty($notification_providerdata->device_token) || $notification_providerdata->device_token!='')
+                      {
+                        $device_token[]=$notification_providerdata->device_token;
+                      }
+                    } 
+                    if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
+                    {                     
+                       sendIphoneNotifications($notification_title,$notification_message,$device_token);
+                    }/*else
+                    {
+                       //sendIphoneNotification($title,$message,$token);
+                    } */
+                  }
+                  //end notification code 
+
               }else if($booking->is_rfq==1)
               {
                 $booking_user=BookingUser::where(array('booking_id'=>$booking->id,'user_id'=>$request->user_id))->first();
@@ -3627,6 +3664,34 @@ class WebserviceController extends Controller
                                     'status'=>isset($request->status)?$request->status:'',
                                     'payment_mode'=>isset($request->payment_mode)?$request->payment_mode:'');
                    $response=array('status'=>true,'payment'=>$payment_data,'message'=>'Payment successfully done.');
+                   // start notification code                
+                  $notification_providerdata=User::where('id',$booking_user->user_id)->first();
+                  if($notification_providerdata)
+                  {
+                    $notification_title=config('constants.NOTIFICATION_AFTER_PAYMENT_SUBJECT');
+                    $notification_message=config('constants.NOTIFICATION_AFTER_PAYMENT_MESSAGE');
+                    if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
+                    {
+                      if(!empty($notification_providerdata->device_token) || $notification_providerdata->device_token!='')
+                      {
+                        $device_token[]=$notification_providerdata->device_token;
+                      }                        
+                    }else
+                    {
+                      if(!empty($notification_providerdata->device_token) || $notification_providerdata->device_token!='')
+                      {
+                        $device_token[]=$notification_providerdata->device_token;
+                      }
+                    } 
+                    if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
+                    {                     
+                       sendIphoneNotifications($notification_title,$notification_message,$device_token);
+                    }/*else
+                    {
+                       //sendIphoneNotification($title,$message,$token);
+                    } */
+                  }
+                  //end notification code 
                 }else
                 { 
                   $response=array('status'=>false,'message'=>'Record not found.');
@@ -3647,6 +3712,34 @@ class WebserviceController extends Controller
                                   'payment_mode'=>isset($request->payment_mode)?$request->payment_mode:'');
                  $booking->update(array('status'=>config('constants.PAYMENT_STATUS_ACCEPTED')));
                  $response=array('status'=>true,'payment'=>$payment_data,'message'=>'Payment successfully done.');
+                 // start notification code                
+                  $notification_providerdata=User::where('id',$request->user_id)->first();
+                  if($notification_providerdata)
+                  {
+                    $notification_title=config('constants.NOTIFICATION_AFTER_PAYMENT_SUBJECT');
+                    $notification_message=config('constants.NOTIFICATION_AFTER_PAYMENT_MESSAGE');
+                    if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
+                    {
+                      if(!empty($notification_providerdata->device_token) || $notification_providerdata->device_token!='')
+                      {
+                        $device_token[]=$notification_providerdata->device_token;
+                      }                        
+                    }else
+                    {
+                      if(!empty($notification_providerdata->device_token) || $notification_providerdata->device_token!='')
+                      {
+                        $device_token[]=$notification_providerdata->device_token;
+                      }
+                    } 
+                    if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
+                    {                     
+                       sendIphoneNotifications($notification_title,$notification_message,$device_token);
+                    }/*else
+                    {
+                       //sendIphoneNotification($title,$message,$token);
+                    } */
+                  }
+                  //end notification code 
               } 
             }else
             {
