@@ -33,37 +33,7 @@ class ProvidersController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request){    
-        $user = User::with('profile','media')->findOrFail(45);   
-        $device_token=array();
-        if($user->device_type==config('constants.DEVICE_TYPE_IOS'))
-        {
-            $device_token[]=$user->device_token;
-        }else
-        {
-            $device_token[]=$user->device_token;
-        }        
-        $title='aa11';
-        $message='bb11';
-        //$token=$device_token;
-        //$test=sendIphoneNotification($title,$message,$token);
-      
-        //$push = new PushNotification('apn');
-        /*   $results= $push->setMessage([
-            'aps' => [
-                'alert' => [
-                    'title' => 'This is the title',
-                    'body' => 'This is the body'
-                ],
-                'sound' => 'default',
-                'badge' => 2
-
-            ],
-            'extraPayLoad' => [
-                'custom' => 'My custom data',
-            ]
-        ])
-        ->setDevicesToken(['99CFFEB01FB773D0110C320DFF6FCD41D30C246747A0F10CF251A2290635D503'])->send()->getFeedback();*/
+    public function index(Request $request){  
 
         return view('admin/providers/index');
     }
