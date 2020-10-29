@@ -4273,7 +4273,7 @@ class WebserviceController extends Controller
               
                    $packages[]=array('id'=>$package->package->id,
                                      'title'=>$package->package->title,
-                                     'price'=>$package->price,
+                                     'price'=>(string)$package->price,
                                      'is_active'=>$package->package->is_active);
                       
            }  
@@ -4285,7 +4285,7 @@ class WebserviceController extends Controller
               
               $hourly[]=array('id'=>isset($charge->id)?$charge->id:'',
                               'hours'=>isset($charge->hours)?$charge->hours:'',
-                              'price'=>isset($charge->price)?$charge->price:'',
+                              'price'=>isset($charge->price)?(string)$charge->price:'',
                               'type'=>isset($charge->type)?$charge->type:'');
                       
            }  

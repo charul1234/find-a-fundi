@@ -5,8 +5,6 @@ namespace App\Notifications;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
-use Edujugon\PushNotification\PushNotification;
 use Edujugon\PushNotification\Messages\PushMessage;
 use Edujugon\PushNotification\Channels\ApnChannel;
 use Edujugon\PushNotification\Channels\FcmChannel;
@@ -14,7 +12,6 @@ use Edujugon\PushNotification\Channels\FcmChannel;
 class PushNotifications extends Notification
 {
     use Queueable;
-
     public $push_data;
 
     /**
@@ -35,7 +32,8 @@ class PushNotifications extends Notification
      */
     public function via($notifiable)
     {
-        if($notifiable->device_type==config('constants.DEVICE_TYPE_IOS')){            
+       
+        if($notifiable->device_type==config('constants.DEVICE_TYPE_IOS')){             
             return [ApnChannel::class];            
         }else{
             return [FcmChannel::class];
@@ -50,8 +48,8 @@ class PushNotifications extends Notification
      */
     public function toApn($notifiable)
     {
-        $title=isset($this->push_data['subject'])?$this->push_data['subject']:'';
-        $push_message=isset($this->push_data['message'])?$this->push_data['message']:'';
+       $title=isset($this->push_data['title'])?$this->push_data['title']:'';
+       $push_message=isset($this->push_data['message'])?$this->push_data['message']:'';
 
         $response = (new PushMessage)
                     ->title($title)
@@ -59,7 +57,7 @@ class PushNotifications extends Notification
                     ->extra($this->push_data)
                     ->sound('default')
                     ->badge(0);
-
+        
         return $response;
     }
 
@@ -71,7 +69,7 @@ class PushNotifications extends Notification
      */
     public function toFcm($notifiable)
     {
-        $title=isset($this->push_data['subject'])?$this->push_data['subject']:'';
+        $title=isset($this->push_data['title'])?$this->push_data['title']:'';
         $push_message=isset($this->push_data['message'])?$this->push_data['message']:'';
 
         $response = (new PushMessage)

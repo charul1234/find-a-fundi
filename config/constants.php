@@ -37,5 +37,8 @@
 		'JOB_STATUS_NOT_STARTED' => 'not started',
 		'JOB_STATUS_STARTED' => 'started',
 		'JOB_STATUS_COMPLETED' => 'completed',
+
+		'DEVICE_TYPE_ANDROID'=>'android',
+        'DEVICE_TYPE_IOS'=>'ios',
 	];
 ?>

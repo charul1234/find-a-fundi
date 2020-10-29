@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
-
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Spatie\Permission\Models\Role;
@@ -23,6 +23,7 @@ use App\Review;
 use App\Transaction;
 use App\Schedule;
 use App\Booking;
+use Edujugon\PushNotification\PushNotification;
 use App\Notifications\PushNotifications;
 
 class ProvidersController extends Controller
@@ -35,7 +36,29 @@ class ProvidersController extends Controller
     public function index(Request $request){    
         $user = User::with('profile','media')->findOrFail(45);
         $notificationData = ['title'=>'test','message'=>'testing data'];   
-        $user->notify(new PushNotifications($notificationData));  
+        //$user->notify(new PushNotifications($notificationData));  
+      
+        $push = new PushNotification('apn');
+
+
+        $results= $push->setMessage([
+            'aps' => [
+                'alert' => [
+                    'title' => 'This is the title',
+                    'body' => 'This is the body'
+                ],
+                'sound' => 'default',
+                'badge' => 2
+
+            ],
+            'extraPayLoad' => [
+                'custom' => 'My custom data',
+            ]
+        ])
+        ->setDevicesToken(['99CFFEB01FB773D0110C320DFF6FCD41D30C246747A0F10CF251A2290635D503'])->send()->getFeedback();/*
+        print_r($results);*/
+
+
         return view('admin/providers/index');
     }
 
