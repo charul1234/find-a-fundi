@@ -3642,7 +3642,7 @@ class WebserviceController extends Controller
     public function makePayment(Request $request){
         $user = Auth::user(); 
         $data = $request->all(); 
-        $payment_data=array();
+        $payment_data=$device_token=array();
 
         if($user)
         {          
