@@ -856,12 +856,12 @@ class WebserviceController extends Controller
                 $query->where('is_package',$is_package); 
               }                    
             }) ;
-             if($is_hourly==true)
+           /*  if($is_hourly==true)
               { 
-               /* $providers->whereHas('hourly_charge', function($query) use ($min_price) { 
+                $providers->whereHas('hourly_charge', function($query) use ($min_price) { 
                         $query->where('price', '<=', $min_price);     
-                    }); */
-              }
+                    });
+              }*/
 
             /*if(($min_price))
             { 
@@ -910,7 +910,7 @@ class WebserviceController extends Controller
             }
             $start_limit=(isset($request->start_limit)?$request->start_limit:0)*$end_limit;
             $providers=$providers->offset($start_limit)->limit($end_limit)->get();
-            print_r($providers->toArray());         
+            //print_r($providers->toArray());         
             $providersdata=[];
             
             foreach ($providers as $key => $provider) {        
