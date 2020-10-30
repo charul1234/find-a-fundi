@@ -4968,4 +4968,39 @@ class WebserviceController extends Controller
         }        
         return response()->json($response);
       }
+    /**
+     * API to delete media work photo
+     *
+     * @return [string] message
+     */
+    public function deleteWorkphoto(Request $request){ 
+        $user = Auth::user(); 
+        $data = $request->all();        
+             
+        $userdata=User::with(['media'])->where('id',$user->id)->first();
+        if($userdata)
+        {
+            $validator = Validator::make($data, [
+                'image_id'=>'required', 
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
+            }
+            $image_id=isset($data['image_id'])?$data['image_id']:'';
+            $media = $userdata->media->find($image_id);
+            if($media)
+            {
+                $media->delete();
+                $response=array('status'=>true,'message'=>'Work photo deleted.');
+            }else
+            {
+                $response=array('status'=>false,'message'=>'something went wrong!');
+            }           
+        }else
+        {
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
+    }
 }
