@@ -52,6 +52,15 @@
 
         'NOTIFICATION_AFTER_PAYMENT_SUBJECT'=>'Payment done.',
         'NOTIFICATION_AFTER_PAYMENT_MESSAGE'=>'we got payment from seeker, you can schedule job.',
+
+        'NOTIFICATION_NEW_BOOKING_HOURLY_SUBJECT'=>'New job',
+        'NOTIFICATION_NEW_BOOKING_HOURLY_MESSAGE'=>'New hourly job available.',
+
+        'NOTIFICATION_NEW_BOOKING_PACKAGE_SUBJECT'=>'New job',
+        'NOTIFICATION_NEW_BOOKING_PACKAGE_MESSAGE'=>'New package job available.',
+
+        'NOTIFICATION_NEW_BOOKING_REQUEST_SUBJECT'=>'New job',
+        'NOTIFICATION_NEW_BOOKING_REQUEST_MESSAGE'=>'New request job available.',
         
 	];
 ?>

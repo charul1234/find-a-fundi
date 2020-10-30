@@ -248,7 +248,11 @@ class WebserviceController extends Controller
     public function bookingRequest(Request $request){
 
         $user = Auth::user(); 
-        $data = $request->all(); 
+        $data = $request->all();         
+        $latitude=isset($data['latitude'])?$data['latitude']:'';
+        $longitude=isset($data['longitude'])?$data['longitude']:'';
+        $device_token=array();
+        
         if($user)
         {
 
@@ -286,13 +290,106 @@ class WebserviceController extends Controller
                 {
                     foreach ($subcategories as $key => $subcategory) 
                     {
-                        BookingSubcategory::create(array('booking_id'=>$booking->id,
+                         BookingSubcategory::create(array('booking_id'=>$booking->id,
                                                          'category_id'=>$subcategory));
                     }
                 }
             } 
+            $is_hourly=isset($data['is_hourly'])?$data['is_hourly']:0;
+            $is_rfq=isset($data['is_rfq'])?$data['is_rfq']:0;
+            if($is_hourly==true)
+            {               
+                  //start notification code                
+                  $notification_providerdata=User::where('id',$provider_id)->first();
+                  if($notification_providerdata)
+                  {
+                    $notification_title=config('constants.NOTIFICATION_NEW_BOOKING_HOURLY_SUBJECT');
+                    $notification_message=config('constants.NOTIFICATION_NEW_BOOKING_HOURLY_MESSAGE');
+                    if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
+                    {
+                      if(!empty($notification_providerdata->device_token) || $notification_providerdata->device_token!='')
+                      {
+                        $device_token[]=$notification_providerdata->device_token;
+                      }                        
+                    }else
+                    {
+                      if(!empty($notification_providerdata->device_token) || $notification_providerdata->device_token!='')
+                      {
+                        $device_token[]=$notification_providerdata->device_token;
+                      }
+                    } 
+                    if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
+                    {                     
+                       sendIphoneNotifications($notification_title,$notification_message,$device_token);
+                    }/*else
+                    {
+                       //sendIphoneNotification($title,$message,$token);
+                    } */
+                  }
+                  //end notification code 
+            }
+            if($is_rfq==true)
+            { 
+              $subcategory_id = $subcategories;  
+              //$subcategory_id=explode(',',$subcategory_id);
+              $role_id=config('constants.ROLE_TYPE_PROVIDER_ID');
+              $providers= User::with(['category_user','profile','roles']);
+               /* $providers->whereHas('profile', function($query) use ($is_rfq) {   
+                $query->where('is_rfq',$is_rfq); 
+              }) ;*/
+              $providers->whereHas('category_user', function($query) use ($subcategory_id) {
+                 $query->whereIn('category_id',$subcategory_id);
+              });   
+               $providers->whereHas('roles', function($query) use ($role_id) {
+                  $query->where('id', $role_id);
+              });   
+              $providers=$providers->get();
+              if(!empty($providers))
+              {
+                foreach ($providers as $key => $provider) 
+                {
+                    $Kilometer_distance=  $this->distance($provider->profile->latitude,$provider->profile->longitude , $latitude,$longitude , "K");
+                    $radius=floatval($provider->profile->radius);
+                    $Kilometer_distance=round($Kilometer_distance, 2);  
+                    if($provider->profile->radius!='null' && $provider->profile->radius!='')
+                    {
+                       if($radius>=$Kilometer_distance)
+                        {
+                          // start notification code                
+                          $notification_providerdata=User::where('id',$provider->id)->first();
+                          if($notification_providerdata)
+                          {
+                            $notification_title=config('constants.NOTIFICATION_NEW_BOOKING_REQUEST_SUBJECT');
+                            $notification_message=config('constants.NOTIFICATION_NEW_BOOKING_REQUEST_MESSAGE');
+                            if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
+                            {
+                              if(!empty($notification_providerdata->device_token) || $notification_providerdata->device_token!='')
+                              {
+                                $device_token[]=$notification_providerdata->device_token;
+                              }                        
+                            }else
+                            {
+                              if(!empty($notification_providerdata->device_token) || $notification_providerdata->device_token!='')
+                              {
+                                $device_token[]=$notification_providerdata->device_token;
+                              }
+                            } 
+                            if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
+                            {                     
+                               sendIphoneNotifications($notification_title,$notification_message,$device_token);
+                            }/*else
+                            {
+                               //sendIphoneNotification($title,$message,$token);
+                            } */
+                          }
+                          //end notification code 
+                        }
+                    }                  
+                }
+              }
+            }
             //if is_rfq type 
-           /* $is_rfq=isset($data['is_rfq'])?$data['is_rfq']:'';
+            /*$is_rfq=isset($data['is_rfq'])?$data['is_rfq']:'';
             if($subcategories!='')
             {
               $subcategories=explode(',',$subcategories);
@@ -309,7 +406,6 @@ class WebserviceController extends Controller
                       $query->where('id', config('constants.ROLE_TYPE_PROVIDER_ID'));
                   })->get();
               }
-
             }*/
             //need to send request or notification to all providers user that are belong to Lat long address.               
 
@@ -2303,7 +2399,8 @@ class WebserviceController extends Controller
                  }else if($booking->status==config('constants.PAYMENT_STATUS_REQUESTED') && $booking->is_rfq==1 && ($booking->user_id==0)){
                   $booking_users=BookingUser::where(array('booking_id'=>$booking->id,'user_id'=>$userdata->id))->first();
 
-                  if($booking_users->count()>0)
+
+                  if($booking_users)
                   {
                     
                     //$booking_array[$type][]=$booking;                
@@ -4072,7 +4169,38 @@ class WebserviceController extends Controller
                                                      'category_id'=>$subcategory));
                 }
               }
-            }                          
+            }     
+            if($data['user_id'])
+            {              
+                  // start notification code                
+                  $notification_providerdata=User::where('id',$data['user_id'])->first();
+                  if($notification_providerdata)
+                  {
+                    $notification_title=config('constants.NOTIFICATION_NEW_BOOKING_PACKAGE_SUBJECT');
+                    $notification_message=config('constants.NOTIFICATION_NEW_BOOKING_PACKAGE_MESSAGE');
+                    if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
+                    {
+                      if(!empty($notification_providerdata->device_token) || $notification_providerdata->device_token!='')
+                      {
+                        $device_token[]=$notification_providerdata->device_token;
+                      }                        
+                    }else
+                    {
+                      if(!empty($notification_providerdata->device_token) || $notification_providerdata->device_token!='')
+                      {
+                        $device_token[]=$notification_providerdata->device_token;
+                      }
+                    } 
+                    if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
+                    {                     
+                       sendIphoneNotifications($notification_title,$notification_message,$device_token);
+                    }/*else
+                    {
+                       //sendIphoneNotification($title,$message,$token);
+                    } */
+                  }
+                  //end notification code 
+            }                                      
 
             $response=array('status'=>true,'booking'=>$booking->id,'message'=>'Package request sent successfully');
         }else
