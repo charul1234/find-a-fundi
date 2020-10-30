@@ -4106,6 +4106,7 @@ class WebserviceController extends Controller
 
         $user = Auth::user(); 
         $data = $request->all(); 
+        $device_token=array();
         if($user)
         {
             $rules = [  
