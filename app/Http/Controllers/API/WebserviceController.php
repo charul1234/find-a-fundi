@@ -828,18 +828,8 @@ class WebserviceController extends Controller
             $min_price=isset($request->min_price)?$request->min_price:'';
             $max_price=isset($request->max_price)?$request->max_price:'';
             $security_check=isset($request->security_check)?$request->security_check:'';
-
-            /*$providers= CategoryUser::with(['category','user','user.profile','user.hourly_charge'])
-            ->whereHas('category', function($query) use ($subcategory_id) {             
-              $query->whereIn('category_id', $subcategory_id);            
-            })  */
-           $providers= User::with(['category_user','profile','hourly_charge','roles','profile.experience_level','package_user'])
-           /*->whereHas('category_user', function($query) use ($subcategory_id) {             
-              $query->whereIn('category_id', $subcategory_id);            
-            }) */
-            /*->whereHas('category_user', function($query) use ($subcategory_id) {             
-              $query->whereIn('category_id', $subcategory_id);            
-            }) */
+            
+            $providers= User::with(['category_user','profile','hourly_charge','roles','profile.experience_level','package_user'])          
             
             ->whereHas('profile', function($query) use ($is_hourly,$is_rfq,$is_package) {
               if($is_hourly==true)
@@ -856,29 +846,36 @@ class WebserviceController extends Controller
                 $query->where('is_package',$is_package); 
               }                    
             }) ;
-           /*  if($is_hourly==true)
-              { 
+             if($is_hourly==true)
+             { 
+               if($min_price)
+               { 
                 $providers->whereHas('hourly_charge', function($query) use ($min_price) { 
-                        $query->where('price', '<=', $min_price);     
+                        $query->where('price', '>=', $min_price);     
                     });
-              }*/
-
-            /*if(($min_price))
-            { 
-               $providers->whereHas('package_user', function($query) use ($min_price) { 
-                    $query->where('price', '>=', $min_price);     
-                }); 
-            }
-            if(($max_price))
-            { 
-               $providers->whereHas('package_user', function($query) use ($max_price) { 
-                    $query->where('price','<=', $max_price);         
-                }); 
-            }*/
-             //$providers->whereHas('package_user', function($query) use ($min_price,$max_price) { 
-               // $query->where('price', [$min_price, $max_price]);
-             /* $providers->whereRaw("(package_user.price <= ? AND package_user.price >= ?) ", [$min_price, $max_price]);*/
-               //  }); 
+               }
+               if($max_price)
+               { 
+                $providers->whereHas('hourly_charge', function($query) use ($max_price) { 
+                        $query->where('price', '<=', $max_price);     
+                    });
+               }
+             }
+              if($is_package==true)
+             { 
+                if($min_price)
+               { 
+                $providers->whereHas('package_user', function($query) use ($min_price) { 
+                        $query->where('price', '>=', $min_price);     
+                    });
+               }
+               if($max_price)
+               { 
+                $providers->whereHas('package_user', function($query) use ($max_price) { 
+                        $query->where('price', '<=', $max_price);     
+                    });
+               }
+             }
             
             $providers->whereHas('category_user', function($query) use ($subcategory_id) {
                $query->whereIn('category_id',$subcategory_id);
@@ -888,15 +885,13 @@ class WebserviceController extends Controller
             });      
             if($experience_level_id)
             {
-              $providers->whereHas('profile', function($query) use ($experience_level_id) {    
-              //$query->where('year_experience',$experience);   
+              $providers->whereHas('profile', function($query) use ($experience_level_id) {  
               $query->where('experience_level_id',$experience_level_id);          
               });
             }
             if($experience_level_id)
             {
-              $providers->whereHas('profile', function($query) use ($experience_level_id) {    
-              //$query->where('year_experience',$experience);   
+              $providers->whereHas('profile', function($query) use ($experience_level_id) { 
               $query->where('experience_level_id',$experience_level_id);          
               });
             }
@@ -909,27 +904,29 @@ class WebserviceController extends Controller
                 });
             }
             $start_limit=(isset($request->start_limit)?$request->start_limit:0)*$end_limit;
-            $providers=$providers->offset($start_limit)->limit($end_limit)->get();
-            //print_r($providers->toArray());         
+            $providers=$providers->offset($start_limit)->limit($end_limit)->get();                     
             $providersdata=[];
             
-            foreach ($providers as $key => $provider) {        
-            $rating=0.0;      
+            foreach ($providers as $key => $provider) {  
+                /* $providerdata=array();
+                if($is_hourly==true){ 
+                  $providerdata=$provider->hourly_charge()->where('price','>',$min_price)->get();
+                }else{
+                  $providerdata=$provider->hourly_charge();
+                }*/  
+                  
+              $rating=0.0;      
               if(isset($provider) && $provider->getMedia('profile_picture')->count() > 0 && file_exists($provider->getFirstMedia('profile_picture')->getPath()))
               {
                  $provider['profile_picture']=$provider->getFirstMedia('profile_picture')->getFullUrl();
               }else
               {
                  $provider['profile_picture']= asset(config('constants.NO_IMAGE_URL'));
-              }
-
-              
+              }              
                   
                $Kilometer_distance=  $this->distance($provider->profile->latitude,$provider->profile->longitude , $latitude,$longitude , "K");
                $radius=floatval($provider->profile->radius);
                $Kilometer_distance=round($Kilometer_distance, 2);
-               //$address =$provider->user->profile->work_address;
-               //$address."-".$Kilometer_distance."-".$radius."-u".$provider->user->profile->user_id."-radi".(floatval($provider->user->profile->radius)); echo "<br/>";
               if($provider->profile->display_seeker_reviews==true)
               {
                 $provider_review=Review::where(array('user_id'=>$provider->id))->get();
@@ -958,8 +955,7 @@ class WebserviceController extends Controller
                                           );              
                 }
               }           
-            }            
-
+            }    
             
              if(count($providersdata))
             { 
@@ -2899,9 +2895,7 @@ class WebserviceController extends Controller
         $data = $request->all(); 
         $userData=$rfq_bookinguserData=array();
         $role_id =  config('constants.ROLE_TYPE_PROVIDER_ID');
-        /*$userdata=User::with(['roles','profile','media'])->whereHas('roles', function($query) use ($role_id){
-              $query->where('id', $role_id);
-            })->where('id',$user->id)->first();*/      
+             
         $userdata=User::with(['profile','media'])->where('id',$user->id)->first();
         if($userdata)
         {
@@ -2915,28 +2909,13 @@ class WebserviceController extends Controller
             $booking= Booking::where('id',$request->booking_id)->first(); 
             $is_rfq=isset($booking->is_rfq)?$booking->is_rfq:0; 
             if(($user->roles->first()->id==config('constants.ROLE_TYPE_PROVIDER_ID')) && ($is_rfq==0))
-                { 
-                  $booking=$booking->where('user_id',$userdata->id);
-                }else if(($user->roles->first()->id==config('constants.ROLE_TYPE_SEEKER_ID')) && ($is_rfq==0))
-                {
-                  $booking=$booking->where('requested_id',$userdata->id);
-                }
-
-                /*else if($is_rfq==1)
-                {
-                  $booking=$booking;
-                }*/
-           //     echo $booking->id;
-           //$booking=$booking->first();
-           /* $boking_id=isset($booking->id)?$booking->id:'';
-            if($boking_id)
-            {
-              $booking=$booking->where('id',$boking_id)->first();
-            }else
-            {
-              $booking=$booking->first();
-            }  */ 
-            //echo $user->id;
+              { 
+                $booking=$booking->where('user_id',$userdata->id);
+              }else if(($user->roles->first()->id==config('constants.ROLE_TYPE_SEEKER_ID')) && ($is_rfq==0))
+              {
+                $booking=$booking->where('requested_id',$userdata->id);
+              }
+            
             $boking_id=isset($request->booking_id)?$request->booking_id:'';
             $booking=$booking->where('id',$boking_id)->first();
             
@@ -3609,8 +3588,7 @@ class WebserviceController extends Controller
                     }else
                     {
                           $provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
-                    }
-                    //print_r($booking_user);
+                    }                    
                     $provider_review=Review::where(array('user_id'=>$provider_id))->get();
                     if(count($provider_review)>0)
                     {
@@ -4064,8 +4042,6 @@ class WebserviceController extends Controller
               });
             }
             $packages=$packages->get();
-            /*print_r("<pre>"); 
-            print_r($packages);*/
             if(count($packages)>0)
             {
               foreach ($packages as $key => $package) 
