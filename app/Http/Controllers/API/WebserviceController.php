@@ -297,6 +297,10 @@ class WebserviceController extends Controller
             } 
             $is_hourly=isset($data['is_hourly'])?$data['is_hourly']:0;
             $is_rfq=isset($data['is_rfq'])?$data['is_rfq']:0;
+                       
+            //need to send request or notification to all providers user that are belong to Lat long address.
+            $response=array('status'=>true,'booking'=>$booking->id,'message'=>'Request Sent successfully');
+
             if($is_hourly==true)
             {               
                   //start notification code                
@@ -307,13 +311,13 @@ class WebserviceController extends Controller
                     $notification_message=config('constants.NOTIFICATION_NEW_BOOKING_HOURLY_MESSAGE');
                     if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
                     {
-                      if(!empty($notification_providerdata->device_token) || $notification_providerdata->device_token!='')
+                      if(!empty($notification_providerdata->device_token))
                       {
                         $device_token[]=$notification_providerdata->device_token;
                       }                        
                     }else
                     {
-                      if(!empty($notification_providerdata->device_token) || $notification_providerdata->device_token!='')
+                      if(!empty($notification_providerdata->device_token))
                       {
                         $device_token[]=$notification_providerdata->device_token;
                       }
@@ -363,13 +367,13 @@ class WebserviceController extends Controller
                             $notification_message=config('constants.NOTIFICATION_NEW_BOOKING_REQUEST_MESSAGE');
                             if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
                             {
-                              if(!empty($notification_providerdata->device_token) || $notification_providerdata->device_token!='')
+                              if(!empty($notification_providerdata->device_token))
                               {
                                 $device_token[]=$notification_providerdata->device_token;
                               }                        
                             }else
                             {
-                              if(!empty($notification_providerdata->device_token) || $notification_providerdata->device_token!='')
+                              if(!empty($notification_providerdata->device_token))
                               {
                                 $device_token[]=$notification_providerdata->device_token;
                               }
@@ -387,29 +391,7 @@ class WebserviceController extends Controller
                     }                  
                 }
               }
-            }
-            //if is_rfq type 
-            /*$is_rfq=isset($data['is_rfq'])?$data['is_rfq']:'';
-            if($subcategories!='')
-            {
-              $subcategories=explode(',',$subcategories);
-              if($is_rfq==1)
-              {
-                 $providers= User::with(['category_user','profile','hourly_charge','roles'])
-                  ->whereHas('profile', function($query) use ($is_rfq) {             
-                      $query->where('is_rfq',$is_rfq);                                 
-                  }) 
-                  ->whereHas('category_user', function($query) use ($subcategory_id) {
-                     $query->whereIn('category_id',$subcategory_id);
-                  });   
-                   $providers->whereHas('roles', function($query) use ($role_id) {
-                      $query->where('id', config('constants.ROLE_TYPE_PROVIDER_ID'));
-                  })->get();
-              }
-            }*/
-            //need to send request or notification to all providers user that are belong to Lat long address.               
-
-            $response=array('status'=>true,'booking'=>$booking->id,'message'=>'Request Sent successfully');
+            } 
         }else
         {
                 $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
@@ -821,6 +803,7 @@ class WebserviceController extends Controller
             $is_type=false;
             $is_hourly=false;
             $is_rfq=false;
+            $is_package=false;
             if($type=='is_hourly')
             {
               $is_hourly=true;
@@ -829,6 +812,10 @@ class WebserviceController extends Controller
             if($type=='is_rfq')
             {
                $is_rfq=true;
+            }
+            if($type=='is_package')
+            {
+               $is_package=true;
             }
             $user_id = $request->input('user_id'); 
             $category_id = $request->input('category_id'); 
@@ -854,16 +841,28 @@ class WebserviceController extends Controller
               $query->whereIn('category_id', $subcategory_id);            
             }) */
             
-            ->whereHas('profile', function($query) use ($is_hourly,$is_rfq) {
+            ->whereHas('profile', function($query) use ($is_hourly,$is_rfq,$is_package) {
               if($is_hourly==true)
               {
                 $query->where('is_hourly',$is_hourly); 
+
               }
               if($is_rfq==true)
               {
                 $query->where('is_rfq',$is_rfq); 
-              }                       
+              }    
+              if($is_package==true)
+              {
+                $query->where('is_package',$is_package); 
+              }                    
             }) ;
+             if($is_hourly==true)
+              { 
+               /* $providers->whereHas('hourly_charge', function($query) use ($min_price) { 
+                        $query->where('price', '<=', $min_price);     
+                    }); */
+              }
+
             /*if(($min_price))
             { 
                $providers->whereHas('package_user', function($query) use ($min_price) { 
@@ -911,7 +910,7 @@ class WebserviceController extends Controller
             }
             $start_limit=(isset($request->start_limit)?$request->start_limit:0)*$end_limit;
             $providers=$providers->offset($start_limit)->limit($end_limit)->get();
-            /*print_r($providers->toArray());   */         
+            print_r($providers->toArray());         
             $providersdata=[];
             
             foreach ($providers as $key => $provider) {        
@@ -3719,13 +3718,13 @@ class WebserviceController extends Controller
                     $notification_message=config('constants.NOTIFICATION_AFTER_PAYMENT_MESSAGE');
                     if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
                     {
-                      if(!empty($notification_providerdata->device_token) || $notification_providerdata->device_token!='')
+                      if(!empty($notification_providerdata->device_token))
                       {
                         $device_token[]=$notification_providerdata->device_token;
                       }                        
                     }else
                     {
-                      if(!empty($notification_providerdata->device_token) || $notification_providerdata->device_token!='')
+                      if(!empty($notification_providerdata->device_token))
                       {
                         $device_token[]=$notification_providerdata->device_token;
                       }
@@ -3769,13 +3768,13 @@ class WebserviceController extends Controller
                     $notification_message=config('constants.NOTIFICATION_AFTER_PAYMENT_MESSAGE');
                     if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
                     {
-                      if(!empty($notification_providerdata->device_token) || $notification_providerdata->device_token!='')
+                      if(!empty($notification_providerdata->device_token))
                       {
                         $device_token[]=$notification_providerdata->device_token;
                       }                        
                     }else
                     {
-                      if(!empty($notification_providerdata->device_token) || $notification_providerdata->device_token!='')
+                      if(!empty($notification_providerdata->device_token))
                       {
                         $device_token[]=$notification_providerdata->device_token;
                       }
@@ -3817,13 +3816,13 @@ class WebserviceController extends Controller
                     $notification_message=config('constants.NOTIFICATION_AFTER_PAYMENT_MESSAGE');
                     if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
                     {
-                      if(!empty($notification_providerdata->device_token) || $notification_providerdata->device_token!='')
+                      if(!empty($notification_providerdata->device_token))
                       {
                         $device_token[]=$notification_providerdata->device_token;
                       }                        
                     }else
                     {
-                      if(!empty($notification_providerdata->device_token) || $notification_providerdata->device_token!='')
+                      if(!empty($notification_providerdata->device_token))
                       {
                         $device_token[]=$notification_providerdata->device_token;
                       }
@@ -4169,7 +4168,9 @@ class WebserviceController extends Controller
                                                      'category_id'=>$subcategory));
                 }
               }
-            }     
+            }                                   
+
+            $response=array('status'=>true,'booking'=>$booking->id,'message'=>'Package request sent successfully');
             if($data['user_id'])
             {              
                   // start notification code                
@@ -4180,13 +4181,13 @@ class WebserviceController extends Controller
                     $notification_message=config('constants.NOTIFICATION_NEW_BOOKING_PACKAGE_MESSAGE');
                     if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
                     {
-                      if(!empty($notification_providerdata->device_token) || $notification_providerdata->device_token!='')
+                      if(!empty($notification_providerdata->device_token))
                       {
                         $device_token[]=$notification_providerdata->device_token;
                       }                        
                     }else
                     {
-                      if(!empty($notification_providerdata->device_token) || $notification_providerdata->device_token!='')
+                      if(!empty($notification_providerdata->device_token))
                       {
                         $device_token[]=$notification_providerdata->device_token;
                       }
@@ -4200,9 +4201,7 @@ class WebserviceController extends Controller
                     } */
                   }
                   //end notification code 
-            }                                      
-
-            $response=array('status'=>true,'booking'=>$booking->id,'message'=>'Package request sent successfully');
+            }  
         }else
         {
                 $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
