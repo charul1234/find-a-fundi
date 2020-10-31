@@ -147,6 +147,8 @@ class ProvidersController extends Controller
             'address'           => 'required',
             'latitude'          => 'nullable',
             'longitude'         => 'nullable',
+            'zip_code'          => 'nullable',
+            'address_line_1'    => 'nullable',
         ];
         if (isset($request->security_check) && $request->security_check==TRUE) {
             //  $rules1 = [
@@ -206,9 +208,11 @@ class ProvidersController extends Controller
             $fundi_have_tools=isset($request->fundi_have_tools)?$request->fundi_have_tools:0;
             $fundi_have_smartphone=isset($request->fundi_have_smartphone)?$request->fundi_have_smartphone:0;
             $security_check=isset($request->security_check)?$request->security_check:0;
+            $zip_code=isset($request->zip_code)?$request->zip_code:'';
+            $address_line_1=isset($request->address_line_1)?$request->address_line_1:'';
             if(intval($user_id) > 0)
             {
-                $profile_data=array('user_id'=>$user_id,'work_address'=>$request->address ,'latitude'=>$request->latitude,'longitude'=>$request->longitude,'experience_level_id'=>$request->experience_level,'facebook_url'=>$request->facebook_url,'twitter_url'=>$request->twitter_url,'instagram_url'=>$request->instagram_url,'fundi_is_middlemen'=>$fundi_is_middlemen,'fundi_have_tools'=>$fundi_have_tools,'fundi_have_smartphone'=>$fundi_have_smartphone,'security_check'=>$security_check);
+                $profile_data=array('user_id'=>$user_id,'work_address'=>$request->address ,'latitude'=>$request->latitude,'longitude'=>$request->longitude,'experience_level_id'=>$request->experience_level,'facebook_url'=>$request->facebook_url,'twitter_url'=>$request->twitter_url,'instagram_url'=>$request->instagram_url,'fundi_is_middlemen'=>$fundi_is_middlemen,'fundi_have_tools'=>$fundi_have_tools,'fundi_have_smartphone'=>$fundi_have_smartphone,'security_check'=>$security_check,'zip_code'=>$zip_code,'address_line_1'=>$address_line_1);
                 $user->profiles()->create($profile_data);
             }
 
@@ -450,9 +454,11 @@ class ProvidersController extends Controller
             $fundi_have_tools=isset($request->fundi_have_tools)?$request->fundi_have_tools:0;
             $fundi_have_smartphone=isset($request->fundi_have_smartphone)?$request->fundi_have_smartphone:0;
             $security_check=isset($request->security_check)?$request->security_check:0;
+            $zip_code=isset($request->zip_code)?$request->zip_code:'';
+            $address_line_1=isset($request->address_line_1)?$request->address_line_1:'';
             if(intval($user_id) > 0)
             {
-                $profile_data=array('work_address'=>$request->address ,'latitude'=>$request->latitude,'longitude'=>$request->longitude,'experience_level_id'=>$request->experience_level,'facebook_url'=>$request->facebook_url,'twitter_url'=>$request->twitter_url,'instagram_url'=>$request->instagram_url,'fundi_is_middlemen'=>$fundi_is_middlemen,'fundi_have_tools'=>$fundi_have_tools,'fundi_have_smartphone'=>$fundi_have_smartphone,'security_check'=>$security_check);
+                $profile_data=array('work_address'=>$request->address ,'latitude'=>$request->latitude,'longitude'=>$request->longitude,'experience_level_id'=>$request->experience_level,'facebook_url'=>$request->facebook_url,'twitter_url'=>$request->twitter_url,'instagram_url'=>$request->instagram_url,'fundi_is_middlemen'=>$fundi_is_middlemen,'fundi_have_tools'=>$fundi_have_tools,'fundi_have_smartphone'=>$fundi_have_smartphone,'security_check'=>$security_check,'zip_code'=>$zip_code,'address_line_1'=>$address_line_1);
                 $profile->update($profile_data);
             }
             //company data

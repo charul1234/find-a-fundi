@@ -100,12 +100,30 @@
                     @endif
                 </div>
             </div>
+            <div class="form-group {{$errors->has('address_line_1') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-3 control-label" for="address_line_1">Address line 1 </label>
+                <div class="col-md-9">
+                    {!! Form::textarea('address_line_1',old('address_line_1'), ['class' => 'form-control', 'placeholder' => 'Address line 1','rows'=>'1','id' =>'address_line_1' ]) !!}
+                    @if($errors->has('address_line_1'))
+                    <strong for="address_line_1" class="help-block">{{ $errors->first('address_line_1') }}</strong>
+                    @endif
+                </div>
+            </div>
             <div class="form-group {{$errors->has('address') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
                 <label class="col-md-3 control-label" for="address">Address <span style="color:red">*</span></label>
                 <div class="col-md-9">
                     {!! Form::textarea('address',old('address'), ['class' => 'form-control', 'placeholder' => 'Address','rows'=>'1','id' =>'address' ]) !!}
                     @if($errors->has('address'))
                     <strong for="address" class="help-block">{{ $errors->first('address') }}</strong>
+                    @endif
+                </div>
+            </div>
+             <div class="form-group {{$errors->has('zip_code') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-3 control-label" for="zip_code">Zipcode </label>
+                <div class="col-md-9">
+                    {!! Form::text('zip_code', old('zip_code'), ['class' => 'form-control', 'placeholder' => 'Zip code']) !!}
+                    @if($errors->has('zip_code'))
+                    <strong for="zip_code" class="help-block">{{ $errors->first('zip_code') }}</strong>
                     @endif
                 </div>
             </div>
