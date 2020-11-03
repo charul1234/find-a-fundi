@@ -18,6 +18,6 @@ return [
         'certificate' => __DIR__ . '/iosCertificates/Fundi_dist.pem',
         'passPhrase' => '123456', //Optional
         //'passFile' => __DIR__ . '/iosCertificates/yourKey.pem', //Optional
-        'dry_run' => true,
+        'dry_run' => false, //if dist so make as false , if dev pem file so true
     ],
 ];
