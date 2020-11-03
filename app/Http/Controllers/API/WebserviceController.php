@@ -648,7 +648,7 @@ class WebserviceController extends Controller
            $diploma_text=isset($data['diploma_text'])?$data['diploma_text']:'';
            $degree_text=isset($data['degree_text'])?$data['degree_text']:'';
            $is_academy_trained=isset($data['is_academy_trained'])?$data['is_academy_trained']:0;
-           $year_experience=isset($data['year_experience'])?$data['year_experience']:'';
+           $year_experience=isset($data['passout_year'])?$data['passout_year']:'';
            $reference_name1=isset($data['reference_name1'])?$data['reference_name1']:'';
            $reference_mobile_number1=isset($data['reference_mobile_number1'])?$data['reference_mobile_number1']:'';
            $reference_name2=isset($data['reference_name2'])?$data['reference_name2']:'';
