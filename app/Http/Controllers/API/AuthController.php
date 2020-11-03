@@ -336,7 +336,7 @@ class AuthController extends Controller
          
         $validator = Validator::make($request->all(), [ 
             'name' => 'required', 
-            'email' => 'required|email|unique:'.with(new User)->getTable().',email',
+            'email' => 'nullable|email|unique:'.with(new User)->getTable().',email',
             'mobile_number' => 'required|numeric|unique:'.with(new User)->getTable().',mobile_number',   
             'category_id' => 'required',
             'password' => 'required'
