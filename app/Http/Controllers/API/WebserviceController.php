@@ -635,7 +635,7 @@ class WebserviceController extends Controller
            $radius=isset($data['radius'])?$data['radius']:'';
            $passport_number=isset($data['passport_number'])?$data['passport_number']:'';
            $residential_address=isset($data['residential_address'])?$data['residential_address']:'';
-           $year_experience=isset($data['year_experience'])?$data['year_experience']:'';
+           $experience_level_id=isset($data['experience_level_id'])?$data['experience_level_id']:'';
            $reference=isset($data['reference'])?$data['reference']:'';
            $facebook_url=isset($data['facebook_url'])?$data['facebook_url']:'';
            $instagram_url=isset($data['instagram_url'])?$data['instagram_url']:'';
@@ -647,6 +647,12 @@ class WebserviceController extends Controller
            $certification_text=isset($data['certification_text'])?$data['certification_text']:'';
            $diploma_text=isset($data['diploma_text'])?$data['diploma_text']:'';
            $degree_text=isset($data['degree_text'])?$data['degree_text']:'';
+           $is_academy_trained=isset($data['is_academy_trained'])?$data['is_academy_trained']:0;
+           $year_experience=isset($data['year_experience'])?$data['year_experience']:'';
+           $reference_name1=isset($data['reference_name1'])?$data['reference_name1']:'';
+           $reference_mobile_number1=isset($data['reference_mobile_number1'])?$data['reference_mobile_number1']:'';
+           $reference_name2=isset($data['reference_name2'])?$data['reference_name2']:'';
+           $reference_mobile_number2=isset($data['reference_mobile_number2'])?$data['reference_mobile_number2']:'';
 
            $user_id=$user->id;
            if($user_id){ 
@@ -657,7 +663,7 @@ class WebserviceController extends Controller
             $profile = Profile::where(array('user_id'=>$user_id));
             if(intval($user_id) > 0)
             {
-                $profile_data=array('work_address'=>$location,'latitude'=>$latitude,'longitude'=>$longitude,'radius'=>$radius,'passport_number'=>$passport_number,'residential_address'=>$residential_address,'year_experience'=>$year_experience,'reference'=>$reference,'facebook_url'=>$facebook_url,'instagram_url'=>$instagram_url,'twitter_url'=>$twitter_url,'fundi_is_middlemen'=>$fundi_is_middlemen,'fundi_have_tools'=>$fundi_have_tools,'fundi_have_smartphone'=>$fundi_have_smartphone,'experience_level_id'=>$year_experience);
+                $profile_data=array('work_address'=>$location,'latitude'=>$latitude,'longitude'=>$longitude,'radius'=>$radius,'passport_number'=>$passport_number,'residential_address'=>$residential_address,'year_experience'=>$year_experience,'reference'=>$reference,'facebook_url'=>$facebook_url,'instagram_url'=>$instagram_url,'twitter_url'=>$twitter_url,'fundi_is_middlemen'=>$fundi_is_middlemen,'fundi_have_tools'=>$fundi_have_tools,'fundi_have_smartphone'=>$fundi_have_smartphone,'experience_level_id'=>$experience_level_id,'is_academy_trained'=>$is_academy_trained,'reference_name1'=>$reference_name1,'reference_mobile_number1'=>$reference_mobile_number1,'reference_name2'=>$reference_name2,'reference_mobile_number2'=>$reference_mobile_number2);
                 $profile->update($profile_data);
             }            
             if ($request->hasFile('certificate_conduct')){
@@ -670,7 +676,12 @@ class WebserviceController extends Controller
                 $customimagename  = time() . '.' . $file->getClientOriginalExtension();
                 $user->addMedia($file)->toMediaCollection('nca');
             }
-           
+
+            if ($request->hasFile('passport_image')){
+                $file = $request->file('passport_image');
+                $customimagename  = time() . '.' . $file->getClientOriginalExtension();
+                $user->addMedia($file)->toMediaCollection('passport_image');
+            }           
            
             if ($request->hasFile('works_photo')){
                  $files = $request->file('works_photo');
@@ -692,7 +703,6 @@ class WebserviceController extends Controller
                 $customimagename  = time() . '.' . $file->getClientOriginalExtension();
                 $certification->addMedia($file)->toMediaCollection('certification');
               }
-
             }
             if(isset($diploma_text) && $diploma_text!='')
             {
@@ -711,8 +721,7 @@ class WebserviceController extends Controller
                 $customimagename  = time() . '.' . $file->getClientOriginalExtension();
                 $degree->addMedia($file)->toMediaCollection('degree');
               }
-            }           
-           
+            }      
            
           $response=array('status'=>true,'message'=>'Provider information successfully added.');
         }else

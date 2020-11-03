@@ -24,6 +24,10 @@ class AddFieldsProfilesTable extends Migration
             $table->string('technical_admin_rating',10)->default(0)->nullable()->after('technical_admin_remarks');
             $table->tinyInteger('is_personal_verified')->default(0)->after('technical_admin_rating');
             $table->tinyInteger('is_technical_verified')->default(0)->after('is_personal_verified');
+            $table->string('reference_name1',45)->nullable()->after('is_technical_verified');
+            $table->string('reference_mobile_number1',45)->nullable()->after('reference_name1');
+            $table->string('reference_name2',45)->nullable()->after('reference_mobile_number1');
+            $table->string('reference_mobile_number2',45)->nullable()->after('reference_name2');
         });
     }
 
@@ -44,7 +48,11 @@ class AddFieldsProfilesTable extends Migration
           $table->dropColumn('technical_admin_remarks');
           $table->dropColumn('technical_admin_rating');
           $table->dropColumn('is_personal_verified');
-          $table->dropColumn('is_technical_verified');          
+          $table->dropColumn('is_technical_verified');  
+          $table->dropColumn('reference_name1'); 
+          $table->dropColumn('reference_mobile_number1'); 
+          $table->dropColumn('reference_name2'); 
+          $table->dropColumn('reference_mobile_number2');         
         });
     }
 }

@@ -22,7 +22,7 @@ class User extends Authenticatable implements MustVerifyEmail, HasMedia
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'is_active', 'mobile_number','facebook_id','facebook_data','google_plus_id','google_plus_data','is_online','email_verified_at','device_type','device_id','device_token','screen_name','is_verify','is_mobile_verify','is_email_verify'
+        'name', 'email', 'password', 'is_active', 'mobile_number','facebook_id','facebook_data','google_plus_id','google_plus_data','is_online','email_verified_at','device_type','device_id','device_token','screen_name','is_verify','is_mobile_verify','is_email_verify','is_academy_trained','year_experience'
     ];
 
     /**
@@ -79,6 +79,10 @@ class User extends Authenticatable implements MustVerifyEmail, HasMedia
         ->useFallbackPath(public_path(config('constants.NO_IMAGE_URL')))
         ->singleFile(); 
          $this->addMediaCollection('nca')
+        ->useFallbackUrl(asset(config('constants.NO_IMAGE_URL')))
+        ->useFallbackPath(public_path(config('constants.NO_IMAGE_URL')))
+        ->singleFile(); 
+        $this->addMediaCollection('passport_image')
         ->useFallbackUrl(asset(config('constants.NO_IMAGE_URL')))
         ->useFallbackPath(public_path(config('constants.NO_IMAGE_URL')))
         ->singleFile(); 
