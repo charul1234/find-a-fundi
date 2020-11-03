@@ -12,7 +12,7 @@ class AddFieldsProfilesTable extends Migration
      * @return void
      */
     public function up()
-    {
+    { 
         Schema::table('profiles', function (Blueprint $table) {            
             $table->string('zip_code',15)->nullable()->after('security_check');
             $table->string('address_line_1')->nullable()->after('zip_code');
