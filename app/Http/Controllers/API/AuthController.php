@@ -33,6 +33,7 @@ class AuthController extends Controller
             'country_id' => 'required', 
             'city_id' => 'required', 
             'address' => 'required', 
+            'address_line_1' => 'nullable', 
             'latitude' => 'required', 
             'longitude' => 'required', 
             'otp' => 'required',  
@@ -49,6 +50,7 @@ class AuthController extends Controller
         }
         $device_token=isset($request->device_token)?$request->device_token:'';
         $device_type=isset($request->device_type)?$request->device_type:'';
+        $address_line_1=isset($request->address_line_1)?$request->address_line_1:'';
         $input = ['name'=>$request->name, 'email'=>$request->email, 'mobile_number'=>$request->mobile_number, 'is_active'=>TRUE,'device_token'=>$device_token,'device_type'=>$device_type];
         $input['password'] = bcrypt($request->password);
         $user = User::create($input); 
@@ -62,7 +64,7 @@ class AuthController extends Controller
                 $user->addMedia($file)->toMediaCollection('profile_picture');
             }
 
-            $user->profiles()->create(['city_id'=>$request->city_id, 'work_address'=>$request->address, 'latitude'=>$request->latitude, 'longitude'=>$request->longitude, 'display_seeker_reviews'=>(isset($request->display_seeker_reviews) && $request->display_seeker_reviews == TRUE)?TRUE:FALSE]);
+            $user->profiles()->create(['city_id'=>$request->city_id, 'work_address'=>$request->address, 'latitude'=>$request->latitude, 'longitude'=>$request->longitude, 'display_seeker_reviews'=>(isset($request->display_seeker_reviews) && $request->display_seeker_reviews == TRUE)?TRUE:FALSE, 'address_line_1'=>$address_line_1]);
             
             // For store access token of user
             $tokenResult = $user->createToken('Login Token');
