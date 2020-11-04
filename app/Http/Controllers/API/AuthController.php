@@ -128,7 +128,14 @@ class AuthController extends Controller
         }       
 
         $email = $request->input('email');
-        $fieldType = filter_var($email, FILTER_VALIDATE_EMAIL) ? 'email' : 'mobile_number';
+        if($request->role_id==config('constants.ROLE_TYPE_SEEKER_ID'))
+        {
+           $fieldType = filter_var($email, FILTER_VALIDATE_EMAIL) ? 'email' : 'mobile_number';
+        }else if($request->role_id==config('constants.ROLE_TYPE_PROVIDER_ID'))
+        {
+           $fieldType = 'mobile_number' ;
+        }
+        
         $credentials= [$fieldType => $email, 'password'=>$request->get('password')];
 
         if(Auth::attempt($credentials)){
