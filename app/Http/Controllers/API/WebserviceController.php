@@ -417,12 +417,13 @@ class WebserviceController extends Controller
             if ($validator->fails()) {
                 return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
             }
-           $provider= User::with(['profile','media','profile.experience_level','profile.payment_option','profile.city','category_user.category','certification'])
+           $provider= User::with(['profile','media','profile.experience_level','profile.payment_option','profile.city','category_user.category','certification','package_user','hourly_charge'])
             ->whereHas('profile', function($query) use ($user_id) {    
               $query->where('user_id',$user_id);            
             })->first();            
-          $subcategories=[];
-          if(count($provider->category_user)>0)
+          $subcategories=$packages=$hourly=[];
+          if(!empty($provider->category_user)){
+            if(count($provider->category_user)>0)
           {
             foreach ($provider->category_user as $key => $providerdata) 
             {
@@ -434,6 +435,8 @@ class WebserviceController extends Controller
             }
            }  
           }
+          }
+          
           $provider_works_photo = $provider->getMedia('works_photo');  
           $works_photo_Images=array(); 
           if (count($provider_works_photo) > 0) 
