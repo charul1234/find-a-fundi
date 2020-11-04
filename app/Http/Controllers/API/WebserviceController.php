@@ -276,122 +276,173 @@ class WebserviceController extends Controller
             if ($validator->fails()) {
                 return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
             }
+            $userprofile=User::with('profile')->where('id',$user->id)->first();
+            //print_r($userprofile);
             $provider_id=isset($data['user_id'])?$data['user_id']:0;
             $data['user_id']=$provider_id;
-            $data['datetime']=$data['date'].' '.$data['time'];
+            $bookingdatetime=$data['date'].' '.$data['time'];
+            $data['datetime']=$bookingdatetime;
             $data['requested_id']=isset($user->id)?$user->id:0;
             $data['status']='requested';
-            $booking = Booking::create($data);
-            $subcategories=isset($data['subcategory_id'])?$data['subcategory_id']:'';
-            if($subcategories!='')
-            {
-                $subcategories=explode(',',$subcategories);
-                if(count($subcategories)>0)
-                {
-                    foreach ($subcategories as $key => $subcategory) 
-                    {
-                         BookingSubcategory::create(array('booking_id'=>$booking->id,
-                                                         'category_id'=>$subcategory));
-                    }
-                }
-            } 
+            $todays_datetime=date('Y-m-d H:i:s');
             $is_hourly=isset($data['is_hourly'])?$data['is_hourly']:0;
             $is_rfq=isset($data['is_rfq'])?$data['is_rfq']:0;
-                       
-            //need to send request or notification to all providers user that are belong to Lat long address.
-            $response=array('status'=>true,'booking'=>$booking->id,'message'=>'Request Sent successfully');
 
-            if($is_hourly==true)
-            {               
-                  //start notification code                
-                  $notification_providerdata=User::where('id',$provider_id)->first();
-                  if($notification_providerdata)
-                  {
-                    $notification_title=config('constants.NOTIFICATION_NEW_BOOKING_HOURLY_SUBJECT');
-                    $notification_message=config('constants.NOTIFICATION_NEW_BOOKING_HOURLY_MESSAGE');
-                    if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
-                    {
-                      if(!empty($notification_providerdata->device_token))
-                      {
-                        $device_token[]=$notification_providerdata->device_token;
-                      }                        
-                    }else
-                    {
-                      if(!empty($notification_providerdata->device_token))
-                      {
-                        $device_token[]=$notification_providerdata->device_token;
-                      }
-                    } 
-                    if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
-                    {                     
-                       sendIphoneNotifications($notification_title,$notification_message,$device_token);
-                    }/*else
-                    {
-                       //sendIphoneNotification($title,$message,$token);
-                    } */
-                  }
-                  //end notification code 
-            }
-            if($is_rfq==true)
-            { 
-              $subcategory_id = $subcategories;  
-              //$subcategory_id=explode(',',$subcategory_id);
-              $role_id=config('constants.ROLE_TYPE_PROVIDER_ID');
-              $providers= User::with(['category_user','profile','roles']);
-               /* $providers->whereHas('profile', function($query) use ($is_rfq) {   
-                $query->where('is_rfq',$is_rfq); 
-              }) ;*/
-              $providers->whereHas('category_user', function($query) use ($subcategory_id) {
-                 $query->whereIn('category_id',$subcategory_id);
-              });   
-               $providers->whereHas('roles', function($query) use ($role_id) {
-                  $query->where('id', $role_id);
-              });   
-              $providers=$providers->get();
-              if(!empty($providers))
+
+            if($is_hourly==1)
+            {
+              $update_tentative_starttime=''; 
+              $update_tentative_endtime='';            
+            
+              $tentative_hour=isset($userprofile->profile->tentative_hour)?$userprofile->profile->tentative_hour:'';
+              if($tentative_hour!='')
               {
-                foreach ($providers as $key => $provider) 
+                 $tentative_addhour='+'.$tentative_hour." hour";
+                 $tentative_minushour='-'.$tentative_hour." hour";
+                 $update_tentative_endtime= date('Y-m-d H:i:s',strtotime($tentative_addhour,strtotime($bookingdatetime)));
+                 $update_tentative_starttime= date('Y-m-d H:i:s',strtotime($tentative_minushour,strtotime($bookingdatetime)));
+              }else
+              {
+                $update_tentative_starttime=$bookingdatetime;
+                $update_tentative_endtime=$bookingdatetime;
+              }         
+              $checkbooking= Booking::where(array('is_hourly'=>true,'user_id'=>$provider_id))->whereBetween('datetime', [$update_tentative_starttime, $update_tentative_endtime])->get();
+            
+              if(($todays_datetime<$bookingdatetime) && ($checkbooking->count()==0))
+              {
+                $booking = Booking::create($data);
+                $subcategories=isset($data['subcategory_id'])?$data['subcategory_id']:'';
+                if($subcategories!='')
                 {
-                    $Kilometer_distance=  $this->distance($provider->profile->latitude,$provider->profile->longitude , $latitude,$longitude , "K");
-                    $radius=floatval($provider->profile->radius);
-                    $Kilometer_distance=round($Kilometer_distance, 2);  
-                    if($provider->profile->radius!='null' && $provider->profile->radius!='')
+                    $subcategories=explode(',',$subcategories);
+                    if(count($subcategories)>0)
                     {
-                       if($radius>=$Kilometer_distance)
+                        foreach ($subcategories as $key => $subcategory) 
                         {
-                          // start notification code                
-                          $notification_providerdata=User::where('id',$provider->id)->first();
-                          if($notification_providerdata)
-                          {
-                            $notification_title=config('constants.NOTIFICATION_NEW_BOOKING_REQUEST_SUBJECT');
-                            $notification_message=config('constants.NOTIFICATION_NEW_BOOKING_REQUEST_MESSAGE');
-                            if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
-                            {
-                              if(!empty($notification_providerdata->device_token))
-                              {
-                                $device_token[]=$notification_providerdata->device_token;
-                              }                        
-                            }else
-                            {
-                              if(!empty($notification_providerdata->device_token))
-                              {
-                                $device_token[]=$notification_providerdata->device_token;
-                              }
-                            } 
-                            if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
-                            {                     
-                               sendIphoneNotifications($notification_title,$notification_message,$device_token);
-                            }/*else
-                            {
-                               //sendIphoneNotification($title,$message,$token);
-                            } */
-                          }
-                          //end notification code 
+                             BookingSubcategory::create(array('booking_id'=>$booking->id,
+                                                             'category_id'=>$subcategory));
                         }
-                    }                  
+                    }
+                }             
+                           
+                //need to send request or notification to all providers user that are belong to Lat long address.
+                $response=array('status'=>true,'booking'=>$booking->id,'message'=>'Request Sent successfully');
+                //start notification code                
+                      $notification_providerdata=User::where('id',$provider_id)->first();
+                      if($notification_providerdata)
+                      {
+                        $notification_title=config('constants.NOTIFICATION_NEW_BOOKING_HOURLY_SUBJECT');
+                        $notification_message=config('constants.NOTIFICATION_NEW_BOOKING_HOURLY_MESSAGE');
+                        if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
+                        {
+                          if(!empty($notification_providerdata->device_token))
+                          {
+                            $device_token[]=$notification_providerdata->device_token;
+                          }                        
+                        }else
+                        {
+                          if(!empty($notification_providerdata->device_token))
+                          {
+                            $device_token[]=$notification_providerdata->device_token;
+                          }
+                        } 
+                        if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
+                        {                     
+                           sendIphoneNotifications($notification_title,$notification_message,$device_token);
+                        }/*else
+                        {
+                           //sendIphoneNotification($title,$message,$token);
+                        } */
+                      }
+                      //end notification code                 
+                }else
+                {
+                  $response=array('status'=>false,'message'=>'Job date not available!');
                 }
+            }else {
+              //rfq start
+
+              if(($todays_datetime<$bookingdatetime))
+              {       $booking = Booking::create($data);
+                      $subcategories=isset($data['subcategory_id'])?$data['subcategory_id']:'';
+                      if($subcategories!='')
+                      {
+                          $subcategories=explode(',',$subcategories);
+                          if(count($subcategories)>0)
+                          {
+                              foreach ($subcategories as $key => $subcategory) 
+                              {
+                                   BookingSubcategory::create(array('booking_id'=>$booking->id,
+                                                                   'category_id'=>$subcategory));
+                              }
+                          }
+                      } 
+                      $subcategory_id = $subcategories;  
+                      //$subcategory_id=explode(',',$subcategory_id);
+                      $role_id=config('constants.ROLE_TYPE_PROVIDER_ID');
+                      $providers= User::with(['category_user','profile','roles']);
+                       /* $providers->whereHas('profile', function($query) use ($is_rfq) {   
+                        $query->where('is_rfq',$is_rfq); 
+                      }) ;*/
+                      $providers->whereHas('category_user', function($query) use ($subcategory_id) {
+                         $query->whereIn('category_id',$subcategory_id);
+                      });   
+                       $providers->whereHas('roles', function($query) use ($role_id) {
+                          $query->where('id', $role_id);
+                      });   
+                      $providers=$providers->get();
+                      $response=array('status'=>true,'booking'=>$booking->id,'message'=>'Request Sent successfully');
+                      if(!empty($providers))
+                      {
+                        foreach ($providers as $key => $provider) 
+                        {
+                            $Kilometer_distance=  $this->distance($provider->profile->latitude,$provider->profile->longitude , $latitude,$longitude , "K");
+                            $radius=floatval($provider->profile->radius);
+                            $Kilometer_distance=round($Kilometer_distance, 2);  
+                            if($provider->profile->radius!='null' && $provider->profile->radius!='')
+                            {
+                               if($radius>=$Kilometer_distance)
+                                {
+                                  // start notification code                
+                                  $notification_providerdata=User::where('id',$provider->id)->first();
+                                  if($notification_providerdata)
+                                  {
+                                    $notification_title=config('constants.NOTIFICATION_NEW_BOOKING_REQUEST_SUBJECT');
+                                    $notification_message=config('constants.NOTIFICATION_NEW_BOOKING_REQUEST_MESSAGE');
+                                    if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
+                                    {
+                                      if(!empty($notification_providerdata->device_token))
+                                      {
+                                        $device_token[]=$notification_providerdata->device_token;
+                                      }                        
+                                    }else
+                                    {
+                                      if(!empty($notification_providerdata->device_token))
+                                      {
+                                        $device_token[]=$notification_providerdata->device_token;
+                                      }
+                                    } 
+                                    if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
+                                    {                     
+                                       sendIphoneNotifications($notification_title,$notification_message,$device_token);
+                                    }/*else
+                                    {
+                                       //sendIphoneNotification($title,$message,$token);
+                                    } */
+                                  }
+                                  //end notification code 
+                                }
+                            }                  
+                        }
+                      }
+                      
+              }else
+              {
+                $response=array('status'=>false,'message'=>'Job date not available!');
               }
-            } 
+              //rfq end
+            }  
+            
         }else
         {
                 $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
@@ -4149,10 +4200,36 @@ class WebserviceController extends Controller
             if ($validator->fails()) {
                 return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
             }
-            $data['datetime']=$data['date'].' '.$data['time'];
+            $bookingdatetime=$data['date'].' '.$data['time'];
+            $data['datetime']=$bookingdatetime;
             $data['requested_id']=isset($user->id)?$user->id:0;
             $data['status']='requested';
             $data['is_package']=true;
+            $provider_id=isset($data['user_id'])?$data['user_id']:0;
+
+            $userprofile=User::with('profile')->where('id',$provider_id)->first();
+            $todays_datetime=date('Y-m-d H:i:s');
+            $update_tentative_starttime=''; 
+            $update_tentative_endtime='';
+          
+            $tentative_hour=isset($userprofile->profile->tentative_hour)?$userprofile->profile->tentative_hour:'';
+            if($tentative_hour!='')
+            {
+               $tentative_addhour='+'.$tentative_hour." hour";
+               $tentative_minushour='-'.$tentative_hour." hour";
+               $update_tentative_endtime= date('Y-m-d H:i:s',strtotime($tentative_addhour,strtotime($bookingdatetime)));
+               $update_tentative_starttime= date('Y-m-d H:i:s',strtotime($tentative_minushour,strtotime($bookingdatetime)));
+            }else
+            {
+              $update_tentative_starttime=$bookingdatetime;
+              $update_tentative_endtime=$bookingdatetime;
+            }     
+           
+          $checkbooking= Booking::where(array('is_package'=>true,'user_id'=>$provider_id))->whereBetween('datetime', [$update_tentative_starttime, $update_tentative_endtime])->get();
+            
+          if(($todays_datetime<$bookingdatetime) && ($checkbooking->count()==0))
+           {  
+
             $booking = Booking::create($data);
             $subcategories=isset($data['subcategory_id'])?$data['subcategory_id']:'';
             if($subcategories!='')
@@ -4199,7 +4276,12 @@ class WebserviceController extends Controller
                     } */
                   }
                   //end notification code 
-            }  
+              }
+            }else
+            {
+              $response=array('status'=>false,'message'=>'Job date not available!');
+            } 
+
         }else
         {
                 $response=array('status'=>false,'message'=>'Oops! Invalid credential.');

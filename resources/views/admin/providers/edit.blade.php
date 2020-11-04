@@ -40,7 +40,7 @@
                 </div>
             </div>
              <div class="form-group {{$errors->has('email') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-3 control-label" for="email">Email <span style="color:red">*</span></label>
+                <label class="col-md-3 control-label" for="email">Email <!-- <span style="color:red">*</span> --></label>
                 <div class="col-md-9">
                     {!! Form::text('email',old('email',$user->email), ['class' => 'form-control autoFillOff', 'placeholder' => 'Email']) !!}
                     @if($errors->has('email'))
@@ -622,7 +622,7 @@ for (var j = 0; j < 5; j++) {
                 required: true
             },
             email: {
-                required: true,
+                required: false,
                 email:true
             },
             mobile_number: {

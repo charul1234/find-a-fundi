@@ -139,7 +139,7 @@ class ProvidersController extends Controller
         $rules = [
            /* 'role_id'           => 'required', */
             'name'              => 'required', 
-            'email'             => 'required|email|unique:'.with(new User)->getTable().',email',
+            'email'             => 'nullable|email|unique:'.with(new User)->getTable().',email',
             'profile_picture'   => 'image',
             'password'          => 'required|confirmed',
             'mobile_number'     => 'required|numeric|unique:'.with(new User)->getTable().',mobile_number',
@@ -357,7 +357,7 @@ class ProvidersController extends Controller
         $media_max_size = config('medialibrary.max_file_size') / 1024; 
         $rules = [
             'name'              => 'required', 
-            'email'             => 'required|email|unique:'.with(new User)->getTable().',email,'.$user->getKey(),
+            'email'             => 'nullable|email|unique:'.with(new User)->getTable().',email,'.$user->getKey(),
             'profile_picture'   => 'image',
             'mobile_number'     => 'required|numeric|unique:'.with(new User)->getTable().',mobile_number,'.$user->getKey(),
             'experience_level'  => 'required',

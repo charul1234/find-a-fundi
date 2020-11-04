@@ -117,6 +117,7 @@ class SeekersController extends Controller
             'address'           => 'required',
             'latitude'          => 'nullable',
             'longitude'         => 'nullable',
+            'tentative_hour'    => 'nullable',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -134,9 +135,10 @@ class SeekersController extends Controller
                ->toMediaCollection('profile_picture');
             }
             $user_id=$user->id;
+            $tentative_hour=isset($request->tentative_hour)?$request->tentative_hour:'';
             if(intval($user_id) > 0)
             {
-                $profile_data=array('user_id'=>$user_id,'work_address'=>$request->address ,'latitude'=>$request->latitude,'longitude'=>$request->longitude);
+                $profile_data=array('user_id'=>$user_id,'work_address'=>$request->address ,'latitude'=>$request->latitude,'longitude'=>$request->longitude,'tentative_hour'=>$tentative_hour);
                 $user->profiles()->create($profile_data);
             }
 
@@ -190,6 +192,7 @@ class SeekersController extends Controller
             'address'           => 'required',
             'latitude'          => 'nullable',
             'longitude'         => 'nullable',
+            'tentative_hour'    => 'nullable',
         ];
        
         if (isset($request->reset_password) && $request->reset_password==TRUE) {
@@ -216,9 +219,10 @@ class SeekersController extends Controller
             } 
             $user_id=$user->id;
             $profile = Profile::where(array('user_id'=>$user_id));
+            $tentative_hour=isset($request->tentative_hour)?$request->tentative_hour:'';
             if(intval($user_id) > 0)
             {
-                $profile_data=array('work_address'=>$request->address ,'latitude'=>$request->latitude,'longitude'=>$request->longitude);
+                $profile_data=array('work_address'=>$request->address ,'latitude'=>$request->latitude,'longitude'=>$request->longitude,'tentative_hour'=>$tentative_hour);
                 $profile->update($profile_data);
             }
             $request->session()->flash('success',__('global.messages.update'));
