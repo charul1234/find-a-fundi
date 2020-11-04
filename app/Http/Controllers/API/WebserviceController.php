@@ -420,7 +420,12 @@ class WebserviceController extends Controller
            $provider= User::with(['profile','media','profile.experience_level','profile.payment_option','profile.city','category_user.category','certification','package_user','hourly_charge'])
             ->whereHas('profile', function($query) use ($user_id) {    
               $query->where('user_id',$user_id);            
-            })->first();            
+            })->first();  
+          if(isset($provider))
+          {
+
+
+
           $subcategories=$packages=$hourly=[];
           if(!empty($provider->category_user)){
             if(count($provider->category_user)>0)
@@ -519,6 +524,10 @@ class WebserviceController extends Controller
           unset($provider['certification']);
 
           $response=array('status'=>true,'data'=>$provider,'message'=>'Record found');
+          
+          } else{
+             $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+          } 
         }else
         {
             $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
