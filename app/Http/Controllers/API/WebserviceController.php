@@ -293,7 +293,8 @@ class WebserviceController extends Controller
             if($is_hourly==1)
             {
               $update_tentative_starttime=''; 
-              $update_tentative_endtime='';            
+              $update_tentative_endtime='';    
+              $define_hour_charge=$define_hours=$define_hour_type='';        
             
               $tentative_hour=isset($userprofile->profile->tentative_hour)?$userprofile->profile->tentative_hour:'';
               if($tentative_hour=='')
@@ -310,7 +311,20 @@ class WebserviceController extends Controller
               {
                 $update_tentative_starttime=$bookingdatetime;
                 $update_tentative_endtime=$bookingdatetime;
-              }         
+              }     
+              if($hourly_charge_id)
+              {
+                $define_hourly_charge=HourlyCharge::where('id',$hourly_charge_id)->first();
+                $define_hours=isset($define_hourly_charge->hours)?$define_hourly_charge->hours:'';
+                $define_hour_type=isset($define_hourly_charge->type)?$define_hourly_charge->type:'';
+                if($define_hour_type=='hours')
+                {
+                  echo $define_hour_charge='+'.$define_hours." hour";
+                }
+                print_r($define_hourly_charge);
+                echo $hourly_charge_id;die;  
+              }
+                
               $checkbooking= Booking::where(array('is_hourly'=>true,'user_id'=>$provider_id))->whereBetween('datetime', [$update_tentative_starttime, $update_tentative_endtime])->get();
             
               if(($todays_datetime<$bookingdatetime) && ($checkbooking->count()==0))
@@ -2467,11 +2481,11 @@ class WebserviceController extends Controller
                       $booking_array[$type][]=$bookingdata;   
                      
                  }else if($booking->status==config('constants.PAYMENT_STATUS_REQUESTED') && $booking->is_rfq==1 && ($booking->user_id==0)){
-                  $booking_users=BookingUser::where(array('booking_id'=>$booking->id,'user_id'=>$userdata->id))->first();
+                 /* $booking_users=BookingUser::where(array('booking_id'=>$booking->id,'user_id'=>$userdata->id))->first();
 
 
                   if($booking_users)
-                  {
+                  {*/
                     
                     //$booking_array[$type][]=$booking;                
                     $booking_latitude=$booking->latitude;
@@ -2551,7 +2565,7 @@ class WebserviceController extends Controller
                          
                         }                  
                     }
-                }
+               /* }*/
                }                 
               }else if($type==config('constants.PAYMENT_STATUS_COMPLETED')) {
                  //job condition  completed
