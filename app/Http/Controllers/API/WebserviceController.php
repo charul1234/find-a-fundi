@@ -343,13 +343,14 @@ class WebserviceController extends Controller
                           if(!empty($notification_providerdata->device_token))
                           {
                             $device_token[]=$notification_providerdata->device_token;
-                          }                     
+                          }      
+                                      
                         }else
                         {
                           if(!empty($notification_providerdata->device_token))
                           {
                             $device_token[]=$notification_providerdata->device_token;
-                          }
+                          }                           
                         } 
                         if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
                         {                     
@@ -2466,12 +2467,12 @@ class WebserviceController extends Controller
                       $booking_array[$type][]=$bookingdata;   
                      
                  }else if($booking->status==config('constants.PAYMENT_STATUS_REQUESTED') && $booking->is_rfq==1 && ($booking->user_id==0)){
-                 /* $booking_users=BookingUser::where(array('booking_id'=>$booking->id,'user_id'=>$userdata->id))->first();
+                  $booking_users=BookingUser::where(array('booking_id'=>$booking->id,'user_id'=>$userdata->id))->first();
 
 
                   if($booking_users)
                   {
-                    */
+                    
                     //$booking_array[$type][]=$booking;                
                     $booking_latitude=$booking->latitude;
                     $booking_longitude=$booking->longitude;
@@ -2549,7 +2550,7 @@ class WebserviceController extends Controller
                            $booking_array[$type][]=$bookingtype; 
                          
                         }                  
-                    //}
+                    }
                 }
                }                 
               }else if($type==config('constants.PAYMENT_STATUS_COMPLETED')) {
@@ -2980,7 +2981,8 @@ class WebserviceController extends Controller
             if ($validator->fails()) {
                 return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
             }
-            $booking= Booking::where('id',$request->booking_id)->first(); 
+            $booking= Booking::with(['hourly_charge'])->where('id',$request->booking_id)->first(); 
+
             $is_rfq=isset($booking->is_rfq)?$booking->is_rfq:0; 
             if(($user->roles->first()->id==config('constants.ROLE_TYPE_PROVIDER_ID')) && ($is_rfq==0))
               { 
@@ -3002,6 +3004,12 @@ class WebserviceController extends Controller
               $package_description="";
               $quantity="";
               $total_package_amount="";
+              $hourly_charge=array();
+              if(isset($booking->hourly_charge))
+              {
+                 $hourly_charge[]=$booking->hourly_charge;
+                
+              }
               if($is_rfq==0)
               {
                 
@@ -3042,6 +3050,7 @@ class WebserviceController extends Controller
 
                   $age = (date('Y') - date('Y',strtotime($user_data->profile->dob)));          
                 }
+
                 $age=(string)$age;
                 unset($user_data['media']);   
                 $userData=array('user_id'=>$user_data->id,
@@ -3078,7 +3087,8 @@ class WebserviceController extends Controller
                                                       'package_description'=>$package_description,
                                                       'quantity'=>$quantity,
                                                       'total_package_amount'=>isset($total_package_amount)?(string)$total_package_amount:''),
-                                      'rfq_data'=>$rfq_bookinguserData);
+                                      'rfq_data'=>$rfq_bookinguserData,
+                                      'hourly_charge'=>$hourly_charge);
             }else
             {  
                $booking_id=$request->booking_id;
@@ -3160,7 +3170,8 @@ class WebserviceController extends Controller
                                                       'package_description'=>$package_description,
                                                       'quantity'=>$quantity,
                                                       'total_package_amount'=>isset($total_package_amount)?(string)$total_package_amount:''),
-                                      'rfq_data'=>$rfq_bookinguserData);
+                                      'rfq_data'=>$rfq_bookinguserData,
+                                      'hourly_charge'=>$hourly_charge);
               }
             
                  

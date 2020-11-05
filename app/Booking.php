@@ -59,4 +59,11 @@ class Booking extends Model implements HasMedia
     {
         return $this->hasMany(Schedule::class,'booking_id','id');
     }
+    /**
+     * Get the hourly charge that belong to this hourly_charge_id.
+    */
+    public function hourly_charge()
+    {
+        return $this->belongsTo(HourlyCharge::class,'hourly_charge_id');
+    }
 }
