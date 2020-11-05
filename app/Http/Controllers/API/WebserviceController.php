@@ -294,7 +294,32 @@ class WebserviceController extends Controller
             {
               $update_tentative_starttime=''; 
               $update_tentative_endtime='';    
-              $define_hour_charge=$define_hours=$define_hour_type='';        
+              $define_hour_charge=$define_hours=$define_hour_type=$booking_enddatetime='';    
+              if($hourly_charge_id)
+              {
+                $define_hourly_charge=HourlyCharge::where('id',$hourly_charge_id)->first();
+                $define_hours=isset($define_hourly_charge->hours)?$define_hourly_charge->hours:'';
+                $define_hour_type=isset($define_hourly_charge->type)?$define_hourly_charge->type:'';
+                if($define_hour_type=='hours')
+                {
+                  $define_hour_charge='+'.$define_hours." hour";
+                }else if($define_hour_type=='days')
+                {
+                  $define_hour_charge='+'.$define_hours." day";
+                }else if($define_hour_type=='weeks')
+                {
+                  $define_hour_charge='+'.$define_hours." week";
+                }else if($define_hour_type=='months')
+                {
+                  $define_hour_charge='+'.$define_hours." month";
+                }else if($define_hour_type=='years')
+                {
+                  $define_hour_charge='+'.$define_hours." year";
+                }
+                
+                $booking_enddatetime=date('Y-m-d H:i:s',strtotime($define_hour_charge,strtotime($bookingdatetime)));                  
+              }
+
             
               $tentative_hour=isset($userprofile->profile->tentative_hour)?$userprofile->profile->tentative_hour:'';
               if($tentative_hour=='')
@@ -303,32 +328,26 @@ class WebserviceController extends Controller
               }             
               if($tentative_hour!='')
               {
-                 $tentative_addhour='+'.$tentative_hour." hour";
-                 $tentative_minushour='-'.$tentative_hour." hour";
-                 $update_tentative_endtime= date('Y-m-d H:i:s',strtotime($tentative_addhour,strtotime($bookingdatetime)));
-                 $update_tentative_starttime= date('Y-m-d H:i:s',strtotime($tentative_minushour,strtotime($bookingdatetime)));
+                   $tentative_addhour='+'.$tentative_hour." hour";
+                   $tentative_minushour='-'.$tentative_hour." hour";
+                   $update_tentative_endtime=$booking_enddatetime;
+                   $update_tentative_endtime= date('Y-m-d H:i:s',strtotime($tentative_addhour,strtotime($update_tentative_endtime)));
+                   $update_tentative_starttime= date('Y-m-d H:i:s',strtotime($tentative_minushour,strtotime($bookingdatetime)));
               }else
               {
-                $update_tentative_starttime=$bookingdatetime;
-                $update_tentative_endtime=$bookingdatetime;
-              }     
-              if($hourly_charge_id)
-              {
-                $define_hourly_charge=HourlyCharge::where('id',$hourly_charge_id)->first();
-                $define_hours=isset($define_hourly_charge->hours)?$define_hourly_charge->hours:'';
-                $define_hour_type=isset($define_hourly_charge->type)?$define_hourly_charge->type:'';
-                if($define_hour_type=='hours')
-                {
-                  echo $define_hour_charge='+'.$define_hours." hour";
-                }
-                print_r($define_hourly_charge);
-                echo $hourly_charge_id;die;  
-              }
+                   $update_tentative_starttime=$bookingdatetime;
+                   $update_tentative_endtime=$booking_enddatetime;
+              }                  
+              
+              //$checkbooking= Booking::where(array('is_hourly'=>true,'user_id'=>$provider_id))->whereBetween('datetime', [$update_tentative_starttime, $update_tentative_endtime])->get();
+
+              $checkbooking= Booking::where(array('is_hourly'=>true,'user_id'=>$provider_id))->where('datetime','<=', $bookingdatetime)->where('end_datetime','>=',$bookingdatetime)->get();
                 
-              $checkbooking= Booking::where(array('is_hourly'=>true,'user_id'=>$provider_id))->whereBetween('datetime', [$update_tentative_starttime, $update_tentative_endtime])->get();
+              //$checkbooking= Booking::where(array('is_hourly'=>true,'user_id'=>$provider_id))->whereBetween('datetime', [$update_tentative_starttime, $update_tentative_endtime])->get();
             
               if(($todays_datetime<$bookingdatetime) && ($checkbooking->count()==0))
               {
+                $data['end_datetime']=$update_tentative_endtime;
                 $booking = Booking::create($data);
                 $subcategories=isset($data['subcategory_id'])?$data['subcategory_id']:'';
                 if($subcategories!='')
