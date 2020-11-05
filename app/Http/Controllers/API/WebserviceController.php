@@ -2500,11 +2500,16 @@ class WebserviceController extends Controller
                       $booking_array[$type][]=$bookingdata;   
                      
                  }else if($booking->status==config('constants.PAYMENT_STATUS_REQUESTED') && $booking->is_rfq==1 && ($booking->user_id==0)){
-                 /* $booking_users=BookingUser::where(array('booking_id'=>$booking->id,'user_id'=>$userdata->id))->first();
+                  $booking_users=BookingUser::where(array('booking_id'=>$booking->id,'user_id'=>$userdata->id))->get();
+                  /*if($booking_users->count()<0)
+                  {
+                    echo $booking_users->count();
+                  }*/
+                 /* print_r($booking_users->count()>0);*/
 
 
-                  if($booking_users)
-                  {*/
+                  if(!$booking_users->count()>0)
+                  {
                     
                     //$booking_array[$type][]=$booking;                
                     $booking_latitude=$booking->latitude;
@@ -2584,7 +2589,9 @@ class WebserviceController extends Controller
                          
                         }                  
                     }
-               /* }*/
+                 }else
+                 {                  
+                 }
                }                 
               }else if($type==config('constants.PAYMENT_STATUS_COMPLETED')) {
                  //job condition  completed
