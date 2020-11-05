@@ -343,7 +343,7 @@ class WebserviceController extends Controller
                           if(!empty($notification_providerdata->device_token))
                           {
                             $device_token[]=$notification_providerdata->device_token;
-                          }                        
+                          }                     
                         }else
                         {
                           if(!empty($notification_providerdata->device_token))
@@ -354,10 +354,7 @@ class WebserviceController extends Controller
                         if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
                         {                     
                            sendIphoneNotifications($notification_title,$notification_message,$device_token);
-                        }/*else
-                        {
-                           //sendIphoneNotification($title,$message,$token);
-                        } */
+                        }
                       }
                       //end notification code                 
                 }else
