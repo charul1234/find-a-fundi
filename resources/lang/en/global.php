@@ -39,5 +39,6 @@ return [
         'commision_rate'=>'Commision Rate',
         'cancellation_time'=>'Cancellation time',
         'minutes'=>'Minutes',
+        'tentative_hour'=>'Tentative hour',
     ],
 ];

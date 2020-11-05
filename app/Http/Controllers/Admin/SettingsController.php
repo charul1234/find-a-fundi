@@ -43,6 +43,7 @@ class SettingsController extends Controller
             'linkedin_url'        => 'nullable|url|active_url',
             'commision_rate'      => 'required|numeric',
             'cancellation_time'   => 'nullable|numeric',
+            'tentative_hour'   => 'nullable|numeric',
         ];
 
         $request->validate($rules, [], []);
@@ -59,7 +60,8 @@ class SettingsController extends Controller
                         array('option_name'=>'footer_logo','option_value'=>$request->footer_logo),
                         array('option_name'=>'favicon','option_value'=>$request->favicon),
                         array('option_name'=>'commision_rate','option_value'=>$request->commision_rate),
-                        array('option_name'=>'cancellation_time','option_value'=>$request->cancellation_time)
+                        array('option_name'=>'cancellation_time','option_value'=>$request->cancellation_time),
+                        array('option_name'=>'tentative_hour','option_value'=>$request->tentative_hour)
                     );
         if (!empty($data)) {
             foreach ($data as $row) {

@@ -269,7 +269,8 @@ class WebserviceController extends Controller
             if(isset($data['is_hourly'])==1 && intval($data['is_hourly'])>0) {          
                $rules['user_id'] =  'required';   
                $rules['min_budget'] =  'required'; 
-               $rules['max_budget'] =  'required';  
+               $rules['max_budget'] =  'required'; 
+               $rules['hourly_charge_id'] =  'required';   
             }
            $validator = Validator::make($data, $rules);
 
@@ -277,9 +278,10 @@ class WebserviceController extends Controller
                 return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
             }
             $userprofile=User::with('profile')->where('id',$user->id)->first();
-            //print_r($userprofile);
             $provider_id=isset($data['user_id'])?$data['user_id']:0;
+            $hourly_charge_id=isset($data['hourly_charge_id'])?$data['hourly_charge_id']:0;
             $data['user_id']=$provider_id;
+            $data['hourly_charge_id']=$hourly_charge_id;
             $bookingdatetime=$data['date'].' '.$data['time'];
             $data['datetime']=$bookingdatetime;
             $data['requested_id']=isset($user->id)?$user->id:0;
@@ -288,13 +290,16 @@ class WebserviceController extends Controller
             $is_hourly=isset($data['is_hourly'])?$data['is_hourly']:0;
             $is_rfq=isset($data['is_rfq'])?$data['is_rfq']:0;
 
-
             if($is_hourly==1)
             {
               $update_tentative_starttime=''; 
               $update_tentative_endtime='';            
             
               $tentative_hour=isset($userprofile->profile->tentative_hour)?$userprofile->profile->tentative_hour:'';
+              if($tentative_hour=='')
+              {
+                $tentative_hour=getSetting('tentative_hour');
+              }             
               if($tentative_hour!='')
               {
                  $tentative_addhour='+'.$tentative_hour." hour";
@@ -4213,6 +4218,10 @@ class WebserviceController extends Controller
             $update_tentative_endtime='';
           
             $tentative_hour=isset($userprofile->profile->tentative_hour)?$userprofile->profile->tentative_hour:'';
+            if($tentative_hour=='')
+            {
+              $tentative_hour=getSetting('tentative_hour');
+            }
             if($tentative_hour!='')
             {
                $tentative_addhour='+'.$tentative_hour." hour";

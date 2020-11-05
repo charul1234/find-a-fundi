@@ -182,6 +182,19 @@
                         </div>
                     </div>
                 </div>
+                  <div class="col-6">
+
+                <div class="form-group {{$errors->has('tentative_hour') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                        <label class="col-md-12" for="tentative_hour">{{__('global.setting.tentative_hour') }} <span style="color:red"></span></label>
+                         <div class="col-md-12">
+                            {!! Form::text('tentative_hour', old('tentative_hour',getSetting('tentative_hour')), ['class' => 'form-control', 'placeholder' => 'example : 4']) !!}
+                            @if($errors->has('tentative_hour'))
+                            <strong for="tentative_hour" class="help-block">{{ $errors->first('tentative_hour') }}</strong>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+   
             </div>
         </div> 
         <div class="card-footer">
