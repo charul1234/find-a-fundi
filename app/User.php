@@ -131,6 +131,14 @@ class User extends Authenticatable implements MustVerifyEmail, HasMedia
     {
         return $this->hasMany(CategoryUser::class,'user_id');
     }
+    /**
+     * Get the review information that belong to this user.
+    */
+
+    public function review()
+    {
+        return $this->hasMany(Review::class,'user_id');
+    }
 
     
 

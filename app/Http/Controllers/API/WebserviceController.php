@@ -1014,6 +1014,7 @@ class WebserviceController extends Controller
             $start_limit=(isset($request->start_limit)?$request->start_limit:0)*$end_limit;
             $providers=$providers->offset($start_limit)->limit($end_limit)->get();                     
             $providersdata=[];
+            //print_r($providers->toArray());
             
             foreach ($providers as $key => $provider) {  
                 /* $providerdata=array();
@@ -4143,7 +4144,7 @@ class WebserviceController extends Controller
             $min_price=isset($request->min_price)?$request->min_price:'';
             $max_price=isset($request->max_price)?$request->max_price:'';
             $security_check=isset($request->security_check)?$request->security_check:'';
-            $packages= PackageUser::with(['user','user.profile','user.profile.experience_level','user.media','package'=>function($query) use ($subcategory_id) {              
+            $packages= PackageUser::with(['user','user.review','user.profile','user.profile.experience_level','user.media','package'=>function($query) use ($subcategory_id) {              
               $query->where('category_id',$subcategory_id);  
               $query->where('is_active',true);             
             }])->where('package_id',$package_id);
@@ -4154,10 +4155,15 @@ class WebserviceController extends Controller
               $query->where('experience_level_id',$experience);          
               });
             }
-            if($min_price || $max_price)
+            $rating_asc='asc';
+            $rating='desc';
+            if($min_price)
             {
-              $packages->where('price', '>=', $min_price )
-                 ->where('price', '<=', $max_price ); 
+              $packages->where('price', '>=', $min_price );
+            }
+            if($max_price)
+            {
+              $packages->where('price', '<=', $max_price ); 
             }
             if($security_check)
             {
@@ -4166,6 +4172,12 @@ class WebserviceController extends Controller
               $query->where('is_verify',$security_check);            
               });
             }
+           /* if($rating_asc)
+            {
+              $packages->whereHas('user.review', function($query) use ($rating_asc) {   
+                $query->where('rating',$rating_asc)->pluck('rating')->avg();         
+              });
+            }*/
             $packages=$packages->get();
             if(count($packages)>0)
             {
