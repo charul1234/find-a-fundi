@@ -3004,10 +3004,10 @@ class WebserviceController extends Controller
               $package_description="";
               $quantity="";
               $total_package_amount="";
-              $hourly_charge=array();
+              $hourly_charge=null;
               if(isset($booking->hourly_charge))
               {
-                 $hourly_charge[]=$booking->hourly_charge;
+                 $hourly_charge=$booking->hourly_charge;
                 
               }
               if($is_rfq==0)
