@@ -2466,12 +2466,12 @@ class WebserviceController extends Controller
                       $booking_array[$type][]=$bookingdata;   
                      
                  }else if($booking->status==config('constants.PAYMENT_STATUS_REQUESTED') && $booking->is_rfq==1 && ($booking->user_id==0)){
-                  $booking_users=BookingUser::where(array('booking_id'=>$booking->id,'user_id'=>$userdata->id))->first();
+                 /* $booking_users=BookingUser::where(array('booking_id'=>$booking->id,'user_id'=>$userdata->id))->first();
 
 
                   if($booking_users)
                   {
-                    
+                    */
                     //$booking_array[$type][]=$booking;                
                     $booking_latitude=$booking->latitude;
                     $booking_longitude=$booking->longitude;
@@ -2549,7 +2549,7 @@ class WebserviceController extends Controller
                            $booking_array[$type][]=$bookingtype; 
                          
                         }                  
-                    }
+                    //}
                 }
                }                 
               }else if($type==config('constants.PAYMENT_STATUS_COMPLETED')) {
