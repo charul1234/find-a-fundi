@@ -1114,11 +1114,13 @@ class WebserviceController extends Controller
 
            if(count($bookings)>0)
            {
-            $bookingrecords='';            
+            $bookingrecords='';   
+            $job_status='';         
             foreach ($bookings as $key => $booking) 
              {
               $booking_rfq=$booking_package_data=array();   
               $subcategories=$categories=array();   
+              $job_status=isset($booking->job_status)?$booking->job_status:'';
               if($booking->category!='')
               {
                  $categories[]=array('id'=>$booking->category->id,
@@ -1238,7 +1240,8 @@ class WebserviceController extends Controller
                                           'is_quoted'=>$booking->is_quoted,
                                           'service_datetime'=>isset($booking->service_datetime)?$booking->service_datetime:'',
                                           'requirement'=>isset($booking->requirement)?$booking->requirement:'',
-                                          'comment'=>isset($booking->comment)?$booking->comment:''
+                                          'comment'=>isset($booking->comment)?$booking->comment:'',
+                                          'job_status'=>$job_status
                                           );                     
                        $booking_list[$type][]=$bookingrecords;
                        
@@ -1326,7 +1329,8 @@ class WebserviceController extends Controller
                                           'is_quoted'=>$booking->is_quoted,
                                           'service_datetime'=>isset($booking->service_datetime)?$booking->service_datetime:'',
                                           'requirement'=>isset($booking->requirement)?$booking->requirement:'',
-                                          'comment'=>isset($booking->comment)?$booking->comment:''
+                                          'comment'=>isset($booking->comment)?$booking->comment:'',
+                                          'job_status'=>$job_status
                                           );                     
                         $booking_list[$type][]=$bookingrecords;
                      }else if($booking->status==config('constants.PAYMENT_STATUS_ACCEPTED') && $booking->is_rfq==1)
@@ -1439,7 +1443,8 @@ class WebserviceController extends Controller
                                           'is_quoted'=>$booking->is_quoted,
                                           'service_datetime'=>isset($booking->service_datetime)?$booking->service_datetime:'',
                                           'requirement'=>isset($booking->requirement)?$booking->requirement:'',
-                                          'comment'=>isset($booking->comment)?$booking->comment:''
+                                          'comment'=>isset($booking->comment)?$booking->comment:'',
+                                          'job_status'=>$job_status
                                           );                     
                        $booking_list[$type][]=$bookingrecords;   
                        }
@@ -1526,7 +1531,8 @@ class WebserviceController extends Controller
                                             'is_quoted'=>$booking->is_quoted,
                                             'service_datetime'=>isset($booking->service_datetime)?$booking->service_datetime:'',
                                             'requirement'=>isset($booking->requirement)?$booking->requirement:'',
-                                            'comment'=>isset($booking->comment)?$booking->comment:''
+                                            'comment'=>isset($booking->comment)?$booking->comment:'',
+                                            'job_status'=>$job_status
                                             );                     
                          $booking_list[$type][]=$bookingrecords;  
                      }else if($booking->status==config('constants.PAYMENT_STATUS_REQUESTED') && $booking->is_rfq==1)
@@ -1662,7 +1668,8 @@ class WebserviceController extends Controller
                                           'is_quoted'=>$booking->is_quoted,
                                           'service_datetime'=>isset($booking->service_datetime)?$booking->service_datetime:'',
                                           'requirement'=>isset($booking->requirement)?$booking->requirement:'',
-                                          'comment'=>isset($booking->comment)?$booking->comment:''
+                                          'comment'=>isset($booking->comment)?$booking->comment:'',
+                                          'job_status'=>$job_status
                                           );                     
                        $booking_list[$type][]=$bookingrecords;                       
                        //is_rfq type jobs  
@@ -1747,7 +1754,8 @@ class WebserviceController extends Controller
                                           'is_quoted'=>$booking->is_quoted,
                                           'service_datetime'=>isset($booking->service_datetime)?$booking->service_datetime:'',
                                           'requirement'=>isset($booking->requirement)?$booking->requirement:'',
-                                          'comment'=>isset($booking->comment)?$booking->comment:''
+                                          'comment'=>isset($booking->comment)?$booking->comment:'',
+                                          'job_status'=>$job_status
                                           );                     
                        $booking_list[$type][]=$bookingrecords;            
 
@@ -1823,7 +1831,8 @@ class WebserviceController extends Controller
                                             'is_quoted'=>$booking->is_quoted,
                                             'service_datetime'=>isset($booking->service_datetime)?$booking->service_datetime:'',
                                             'requirement'=>isset($booking->requirement)?$booking->requirement:'',
-                                            'comment'=>isset($booking->comment)?$booking->comment:''
+                                            'comment'=>isset($booking->comment)?$booking->comment:'',
+                                            'job_status'=>$job_status
                                             );  
                       $booking_list[$type][]=$bookingrecords;
                   }else if($booking->status==config('constants.PAYMENT_STATUS_COMPLETED') && $booking->is_package==1)
@@ -1896,7 +1905,8 @@ class WebserviceController extends Controller
                                           'is_quoted'=>$booking->is_quoted,
                                           'service_datetime'=>isset($booking->service_datetime)?$booking->service_datetime:'',
                                           'requirement'=>isset($booking->requirement)?$booking->requirement:'',
-                                          'comment'=>isset($booking->comment)?$booking->comment:''
+                                          'comment'=>isset($booking->comment)?$booking->comment:'',
+                                          'job_status'=>$job_status
                                           );  
                       $booking_list[$type][]=$bookingrecords;
                     } else if($booking->status==config('constants.PAYMENT_STATUS_COMPLETED') && $booking->is_rfq==1)
@@ -1988,7 +1998,8 @@ class WebserviceController extends Controller
                                           'is_quoted'=>$booking->is_quoted,
                                           'service_datetime'=>isset($booking->service_datetime)?$booking->service_datetime:'',
                                           'requirement'=>isset($booking->requirement)?$booking->requirement:'',
-                                          'comment'=>isset($booking->comment)?$booking->comment:''
+                                          'comment'=>isset($booking->comment)?$booking->comment:'',
+                                          'job_status'=>$job_status
                                           );                     
                        $booking_list[$type][]=$bookingrecords;  
                       }
@@ -4192,14 +4203,12 @@ class WebserviceController extends Controller
            /*if($rating_asc)
             {
               $packages->whereHas('user.review', function($query) use ($rating_asc) {   
-                //$query->where('rating',$rating_asc)->pluck('rating')->avg();   
-                $query->orderByRaw('AVG(rating) ASC');
+                // $query->select('rating as sumrating');   
+                $query->orderBy('rating', 'ASC');
               });
             }*/
             // $packages=$packages->user()->review()->avg('rating_for_user');
             $packages=$packages->get();
-            /*print_r("<pre>");
-            print_r($packages->toArray());*/
             if(count($packages)>0)
             {
               foreach ($packages as $key => $package) 
