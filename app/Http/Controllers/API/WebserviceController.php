@@ -27,6 +27,7 @@ use App\Review;
 use App\Schedule;
 use App\ExperienceLevel;
 use App\HourlyCharge;
+use App\Notifications\SendOTP;
 
 class WebserviceController extends Controller
 {
@@ -4522,7 +4523,8 @@ class WebserviceController extends Controller
             $rules = [  
                 'booking_id'=>'required',
                 'user_id'=>'required',
-                'type'=>'required'
+                'type'=>'required',
+                'otp'=>'required',
             ]; 
             $validator = Validator::make($data, $rules);
 
@@ -4530,15 +4532,16 @@ class WebserviceController extends Controller
                 return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
             }
             $type=isset($request->type)?$request->type:'';
+            $otp=$request->otp;
             $check_transaction = Transaction::where(array('booking_id'=>$request->booking_id,'user_id'=>$request->user_id,'status'=>config('constants.PAYMENT_STATUS_SUCCESS')))->first();   
             if($check_transaction)
             {
                 if($type=='is_package')
                 {
-                   $booking = Booking::where(array('id'=>$request->booking_id,'user_id'=>$request->user_id))->first(); 
+                   $booking = Booking::where(array('id'=>$request->booking_id,'user_id'=>$request->user_id,'otp'=>$otp))->first(); 
                    if($booking)
                    {
-                      $booking_data=array('status'=>config('constants.PAYMENT_STATUS_COMPLETED'));
+                      $booking_data=array('status'=>config('constants.PAYMENT_STATUS_COMPLETED'),'job_status'=>config('constants.PAYMENT_STATUS_COMPLETED'));
                       $booking->update($booking_data);
                       $response=array('status'=>true,'message'=>'Job Updated.');
                    }else
@@ -4556,10 +4559,10 @@ class WebserviceController extends Controller
                         $schedule->update($schedule_data);
                      }
                    } 
-                   $booking = Booking::where(array('id'=>$request->booking_id,'user_id'=>$request->user_id))->first(); 
+                   $booking = Booking::where(array('id'=>$request->booking_id,'user_id'=>$request->user_id,'otp'=>$otp))->first(); 
                    if($booking)
                    {
-                      $booking_data=array('status'=>config('constants.PAYMENT_STATUS_COMPLETED'));
+                      $booking_data=array('status'=>config('constants.PAYMENT_STATUS_COMPLETED'),'job_status'=>config('constants.PAYMENT_STATUS_COMPLETED'));
                       $booking->update($booking_data);
                       $response=array('status'=>true,'message'=>'Job Updated.');
                    }else
@@ -4579,12 +4582,13 @@ class WebserviceController extends Controller
                    } 
 
                    $booking_user=BookingUser::where(array('booking_id'=>$request->booking_id,'user_id'=>$request->user_id,'status'=>config('constants.PAYMENT_STATUS_ACCEPTED')))->first();
-                   if($booking_user)
+                   $booking= Booking::where('id',$request->booking_id,'otp'=>$otp)->first();
+                   if($booking)
                    {
                       $booking_data=array('status'=>config('constants.PAYMENT_STATUS_COMPLETED'));
                       $booking_user->update($booking_data);
                       $booking= Booking::where('id',$request->booking_id)->first();
-                      $booking_data=array('status'=>config('constants.PAYMENT_STATUS_COMPLETED'));
+                      $booking_data=array('status'=>config('constants.PAYMENT_STATUS_COMPLETED'),'job_status'=>config('constants.PAYMENT_STATUS_COMPLETED'));
                       $booking->update($booking_data);
                       $response=array('status'=>true,'message'=>'Job Updated.');
                    }else
@@ -5179,4 +5183,297 @@ class WebserviceController extends Controller
         }        
         return response()->json($response);
     }
+
+    /**
+     * API to send OTP to start and complete job
+     *
+     * @return [string] message
+    */
+    public function sendJobStartOTP(Request $request){ 
+        $user = Auth::user(); 
+        $data = $request->all();
+        $role_id =  config('constants.ROLE_TYPE_SEEKER_ID');
+        $seeker = User::with(['roles'])->whereHas('roles', function($query) use ($role_id){
+              $query->where('id', $role_id);
+        });
+        $seeker=$seeker->where(['id'=>$user->id])->first();
+        if($seeker)
+        {
+            $validator = Validator::make($data, [
+                'booking_id'=>'required',
+                'user_id'=>'required', 
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
+            }            
+            $otp = rand(100000,999999);
+            $booking_id=$request->booking_id;
+            $user_id=$request->user_id;
+            $bookings=Booking::where(['id'=>$booking_id])->first();  
+            if($bookings)
+            {
+              $booking_data=array('otp'=>$otp);
+              $bookings->update($booking_data);
+              $data=array('otp'=>$otp);
+              $response=array('status'=>true,'data'=>$data,'message'=>'You OTP has been sent successfully to provider');
+
+              //start notification code                
+              $notification_providerdata=User::where('id',$user_id)->first();
+              if($notification_providerdata)
+              {
+              $notification_title='New schedule job OTP sent!';
+              $notification_message='OTP is '.$otp. ' to verify with seeker.';
+              if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
+              {
+                if(!empty($notification_providerdata->device_token))
+                {
+                  $device_token[]=$notification_providerdata->device_token;
+                }      
+                            
+              }else
+              {
+                if(!empty($notification_providerdata->device_token))
+                {
+                  $device_token[]=$notification_providerdata->device_token;
+                }                           
+              } 
+              if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
+              {                     
+                 sendIphoneNotifications($notification_title,$notification_message,$device_token);
+              }
+              }
+              //end notification code              
+            }else
+            {
+              $response=array('status'=>false,'message'=>'something went wrong!');
+            }            
+        }  
+        else
+        {
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
+      }
+
+      /**
+     * API to check OTP to for start job
+     *
+     * @return [string] message checkJobStartedOTP
+    */
+    public function checkJobStartOTP(Request $request){ 
+        $user = Auth::user(); 
+        $data = $request->all();
+        $response_data=array();
+        $role_id =  config('constants.ROLE_TYPE_SEEKER_ID');
+        $seeker = User::with(['roles'])->whereHas('roles', function($query) use ($role_id){
+              $query->where('id', $role_id);
+        });
+        $seeker=$seeker->where(['id'=>$user->id])->first();
+        if($seeker)
+        {
+            $validator = Validator::make($data, [
+                'booking_id'=>'required', 
+                'user_id'=>'required',
+                'otp'=>'required', 
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
+            } 
+            $booking_id=$request->booking_id;            
+            $user_id=$request->user_id;
+            $otp=$request->otp;
+            $bookings=Booking::where(['id'=>$booking_id,'otp'=>$otp])->first();  
+            if($bookings)
+            {
+               
+               $response_data=array('otp'=>$otp);
+               $booking_data=array('job_status'=>config('constants.JOB_STATUS_STARTED'));
+               $bookings->update($booking_data);
+               $response=array('status'=>true,'data'=>$response_data,'message'=>'OTP verified. now job started');
+
+                //start notification code                
+                $notification_providerdata=User::where('id',$user_id)->first();
+                if($notification_providerdata)
+                {
+                 
+                $notification_title='OTP verified.';
+                $notification_message='OTP verified! job schedule started.';
+                if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
+                {
+                  if(!empty($notification_providerdata->device_token))
+                  {
+                    $device_token[]=$notification_providerdata->device_token;
+                  }      
+                              
+                }else
+                {
+                  if(!empty($notification_providerdata->device_token))
+                  {
+                    $device_token[]=$notification_providerdata->device_token;
+                  }                           
+                } 
+                if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
+                {                     
+                   sendIphoneNotifications($notification_title,$notification_message,$device_token);
+                }
+                }
+                //end notification code 
+            }else
+            {
+               $response=array('status'=>false,'message'=>'something went wrong!');
+            }
+           
+        }else
+        {
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
+    } 
+    /**
+     * API to send OTP to complete job
+     *
+     * @return [string] message sendJobCompleteOTP
+    */
+    public function sendJobCompleteOTP(Request $request){ 
+        $user = Auth::user(); 
+        $data = $request->all();
+        $role_id =  config('constants.ROLE_TYPE_PROVIDER_ID');
+        $provider = User::with(['roles'])->whereHas('roles', function($query) use ($role_id){
+              $query->where('id', $role_id);
+        });
+        $provider=$provider->where(['id'=>$user->id])->first();
+       
+        if($provider)
+        {
+            $validator = Validator::make($data, [
+                'booking_id'=>'required',
+                'user_id'=>'required', 
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
+            } 
+            $otp = rand(100000,999999);
+            $booking_id=$request->booking_id;
+            $user_id=$request->user_id;
+            $bookings=Booking::where(['id'=>$booking_id])->first(); 
+            if($bookings)
+            {
+               $booking_data=array('otp'=>$otp);
+               $bookings->update($booking_data);
+               $data=array('otp'=>$otp);
+               $response=array('status'=>true,'data'=>$data,'message'=>'You OTP has been sent successfully to seeker');
+                //start notification code                
+                $notification_providerdata=User::where('id',$bookings->requested_id)->first();
+                if($notification_providerdata)
+                {
+                 $notification_title='New complete job OTP sent!';
+                 $notification_message='OTP is '.$otp. ' to verify with provider.';
+                if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
+                {
+                  if(!empty($notification_providerdata->device_token))
+                  {
+                    $device_token[]=$notification_providerdata->device_token;
+                  }      
+                              
+                }else
+                {
+                  if(!empty($notification_providerdata->device_token))
+                  {
+                    $device_token[]=$notification_providerdata->device_token;
+                  }                           
+                } 
+                if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
+                {                     
+                   sendIphoneNotifications($notification_title,$notification_message,$device_token);
+                }
+                }
+                 //end notification code 
+            }else
+            {
+              $response=array('status'=>false,'message'=>'something went wrong!');
+            }
+           
+
+        }else
+        {
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
+      }
+    /**
+     * API to check OTP to complete job otp
+     *
+     * @return [string] message
+    */
+    public function checkJobCompleteOTP(Request $request){ 
+        $user = Auth::user(); 
+        $data = $request->all();
+        $role_id =  config('constants.ROLE_TYPE_PROVIDER_ID');
+        $provider = User::with(['roles'])->whereHas('roles', function($query) use ($role_id){
+              $query->where('id', $role_id);
+        });
+        $provider=$provider->where(['id'=>$user->id])->first();
+
+        if($provider)
+        {
+            $validator = Validator::make($data, [
+                'booking_id'=>'required', 
+                'user_id'=>'required',
+                'otp'=>'required', 
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['status'=>false,'message'=>$validator->errors()->first()]);
+            } 
+            $booking_id=$request->booking_id;
+            $otp=$request->otp;
+            $response_data=array('otp'=>$otp);            
+            $bookings=Booking::where(['id'=>$booking_id,'otp'=>$otp])->first();  
+            if($bookings)
+            {
+               $response_data=array('otp'=>$otp);
+               $booking_data=array('job_status'=>config('constants.JOB_STATUS_COMPLETED'));
+               $bookings->update($booking_data);
+               $response=array('status'=>true,'data'=>$response_data,'message'=>'OTP verified. now job completed');
+
+              //start notification code                
+              $notification_providerdata=User::where('id',$bookings->requested_id)->first();
+              if($notification_providerdata)
+              {
+              $notification_title='OTP verified.';
+              $notification_message='OTP verified! job schedule completed.';
+              if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
+              {
+                if(!empty($notification_providerdata->device_token))
+                {
+                  $device_token[]=$notification_providerdata->device_token;
+                }      
+                            
+              }else
+              {
+                if(!empty($notification_providerdata->device_token))
+                {
+                  $device_token[]=$notification_providerdata->device_token;
+                }                           
+              } 
+              if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
+              {                     
+                 sendIphoneNotifications($notification_title,$notification_message,$device_token);
+              }
+              }
+              //end notification code  
+
+            }else
+            {
+               $response=array('status'=>false,'message'=>'something went wrong!');
+            }      
+        }else
+        {
+            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+        }        
+        return response()->json($response);
+      }
 }

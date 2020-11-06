@@ -12,6 +12,15 @@ class Schedule extends Model
      * @var array
     */
     protected $fillable = [
-        'booking_id','user_id','date','start_time','end_time','service_title','requirements','price','status','is_verify','is_complete','verified_by'
+        'booking_id','user_id','date','start_time','end_time','service_title','requirements','price','status','is_verify','is_complete','verified_by','otp'
     ];
+
+     
+    /**
+     * Get the booking information that belong to this booking.
+    */
+    public function booking()
+    {
+        return $this->belongsTo(Booking::class,'booking_id');
+    }
 }

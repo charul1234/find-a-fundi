@@ -79,6 +79,10 @@ Route::group(['namespace'=>'API'], function(){
 		 Route::post('updateProviderPersonal', 'WebserviceController@updateProviderPersonal');
 		 Route::post('updateProviderCatSubInfo', 'WebserviceController@updateProviderCatSubInfo');
 		 Route::post('deleteWorkphoto', 'WebserviceController@deleteWorkphoto');
+		 Route::post('sendJobStartOTP', 'WebserviceController@sendJobStartOTP');
+		 Route::post('checkJobStartOTP', 'WebserviceController@checkJobStartOTP');
+		 Route::post('sendJobCompleteOTP', 'WebserviceController@sendJobCompleteOTP');
+		 Route::post('checkJobCompleteOTP', 'WebserviceController@checkJobCompleteOTP');
 	});
 
 	// APIs that can access without login
