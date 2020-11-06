@@ -4582,7 +4582,7 @@ class WebserviceController extends Controller
                    } 
 
                    $booking_user=BookingUser::where(array('booking_id'=>$request->booking_id,'user_id'=>$request->user_id,'status'=>config('constants.PAYMENT_STATUS_ACCEPTED')))->first();
-                   $booking= Booking::where('id',$request->booking_id,'otp'=>$otp)->first();
+                   $booking= Booking::where(array('id'=>$request->booking_id,'otp'=>$otp))->first();
                    if($booking)
                    {
                       $booking_data=array('status'=>config('constants.PAYMENT_STATUS_COMPLETED'));
