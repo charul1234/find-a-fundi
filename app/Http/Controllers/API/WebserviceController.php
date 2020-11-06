@@ -937,7 +937,7 @@ class WebserviceController extends Controller
             $max_price=isset($request->max_price)?$request->max_price:'';
             $security_check=isset($request->security_check)?$request->security_check:'';
             
-            $providers= User::with(['category_user','profile','hourly_charge','roles','profile.experience_level','package_user'])          
+            $providers= User::with(['category_user','profile','hourly_charge','roles','profile.experience_level','package_user','review'])          
             
             ->whereHas('profile', function($query) use ($is_hourly,$is_rfq,$is_package) {
               if($is_hourly==true)
@@ -4172,13 +4172,17 @@ class WebserviceController extends Controller
               $query->where('is_verify',$security_check);            
               });
             }
-           /* if($rating_asc)
+           /*if($rating_asc)
             {
               $packages->whereHas('user.review', function($query) use ($rating_asc) {   
-                $query->where('rating',$rating_asc)->pluck('rating')->avg();         
+                //$query->where('rating',$rating_asc)->pluck('rating')->avg();   
+                $query->orderByRaw('AVG(rating) ASC');
               });
             }*/
+            // $packages=$packages->user()->review()->avg('rating_for_user');
             $packages=$packages->get();
+            /*print_r("<pre>");
+            print_r($packages->toArray());*/
             if(count($packages)>0)
             {
               foreach ($packages as $key => $package) 
