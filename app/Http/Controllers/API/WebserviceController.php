@@ -2097,7 +2097,6 @@ class WebserviceController extends Controller
                  //&& (strtotime($booking->datetime) > strtotime(date("Y-m-d H:i:s")))
               if($type==config('constants.PAYMENT_STATUS_DECLINED'))
               {
-                $bookingrfq_data=array();
                 if($booking->status=='declined' && $booking->is_hourly==1 && ($booking->user_id==$userdata->id)){
                       $providerdata=User::with(['profile'])->where('id',$userdata->id)->first();
                       $provider_name=isset($providerdata->name)?$providerdata->name:'';
@@ -2258,7 +2257,6 @@ class WebserviceController extends Controller
                 }
               }else if($type==config('constants.PAYMENT_STATUS_PENDING')) {
                 //job condition  pending
-                $bookingrfq_data=array();
                 if($booking->status==config('constants.PAYMENT_STATUS_QUOTED') && $booking->is_hourly==1  && ($booking->user_id==$userdata->id)) {
                     //$booking_array[$type][]=$booking;
                       $providerdata=User::with(['profile'])->where('id',$userdata->id)->first();
@@ -2628,7 +2626,6 @@ class WebserviceController extends Controller
                  }
                }                 
               }else if($type==config('constants.PAYMENT_STATUS_COMPLETED')) {
-                $bookingrfq_data=array();
                  //job condition  completed
                 if($booking->status==config('constants.PAYMENT_STATUS_COMPLETED') && $booking->is_hourly==1 && ($booking->user_id==$userdata->id)) {
                       $providerdata=User::with(['profile'])->where('id',$userdata->id)->first();
@@ -2776,7 +2773,6 @@ class WebserviceController extends Controller
                       }
                 }
               }else if($type==config('constants.PAYMENT_STATUS_ACCEPTED')) {
-                $bookingrfq_data=array();
                   //job condition  accepted
                   if($booking->status==config('constants.PAYMENT_STATUS_ACCEPTED') && $booking->is_hourly==1  && ($booking->user_id==$userdata->id)){
                       $providerdata=User::with(['profile'])->where('id',$booking->user_id)->first();
@@ -2883,9 +2879,7 @@ class WebserviceController extends Controller
                                           ); 
                       $booking_array[$type][]=$bookingdata;
                 }else if($booking->status==config('constants.PAYMENT_STATUS_ACCEPTED') && $booking->is_rfq==1){ 
-                 $bookingrfq_data=array();
                  $booking_users=BookingUser::where(array('booking_id'=>$booking->id,'user_id'=>$userdata->id,'status'=>config('constants.PAYMENT_STATUS_ACCEPTED')))->first();
-                
                       if(isset($booking_users)){
 
                         $providerdata=User::with(['profile'])->where('id',$booking_users->user_id)->first();
@@ -4581,7 +4575,8 @@ class WebserviceController extends Controller
     {
         $user = Auth::user(); 
         $data = $request->all();
-        $role_id =  config('constants.ROLE_TYPE_SEEKER_ID');
+        //$role_id =  config('constants.ROLE_TYPE_SEEKER_ID');
+        $role_id=config('constants.ROLE_TYPE_PROVIDER_ID');
         $seeker = User::with(['roles'])->whereHas('roles', function($query) use ($role_id){
               $query->where('id', $role_id);
         });
