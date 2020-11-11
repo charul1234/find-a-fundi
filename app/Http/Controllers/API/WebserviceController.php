@@ -2927,7 +2927,7 @@ class WebserviceController extends Controller
                $response=array('status'=>false,'bookingdata'=>$booking_data,'message'=>'record not found');
              }             
            }else{            
-            $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
+            $response=array('status'=>false,'message'=>'record not found');
         } 
       }else{            
             $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
