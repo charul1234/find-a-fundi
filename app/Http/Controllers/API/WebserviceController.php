@@ -937,6 +937,8 @@ class WebserviceController extends Controller
             $min_price=isset($request->min_price)?$request->min_price:'';
             $max_price=isset($request->max_price)?$request->max_price:'';
             $security_check=isset($request->security_check)?$request->security_check:'';
+            $rating_asc='asc';
+            $rating_desc='desc';
             
             $providers= User::with(['category_user','profile','hourly_charge','roles','profile.experience_level','package_user','review'])          
             
@@ -1012,6 +1014,16 @@ class WebserviceController extends Controller
                   $query->where('security_check',$security_check);     
                 });
             }
+            if(isset($rating_asc))
+            {  
+               $providers->orderBy('ratings',$rating_asc);   
+            }
+            if(isset($rating_desc))
+            {  
+               $providers->orderBy('ratings',$rating_desc);   
+            }
+
+            
             $start_limit=(isset($request->start_limit)?$request->start_limit:0)*$end_limit;
             $providers=$providers->offset($start_limit)->limit($end_limit)->get();                     
             $providersdata=[];
@@ -4122,7 +4134,18 @@ class WebserviceController extends Controller
                    }
                }
                $response=array('status'=>true,'review'=>$review_data,'message'=>'you have successfully given review, Thank you.');
-            }           
+            } 
+            $providerrating=User::where('id',$request->user_id)->first();
+            $getratings=Review::where(['user_id'=>$request->user_id])->get(); 
+            $ratings=0;
+            if(count($getratings)>0)
+            {
+              foreach ($getratings as $key => $rating) 
+              {
+                $ratings += $rating->rating;
+              }
+            }
+            $providerrating->update(array('ratings'=>$ratings));             
         }else
         {
             $response=array('status'=>false,'message'=>'Oops! Invalid credential.');
@@ -4244,6 +4267,13 @@ class WebserviceController extends Controller
               $packages->whereHas('user', function($query) use ($security_check) {    
               $query->where('is_verify',$security_check);            
               });
+            }
+            //echo $rating_asc;
+            if($rating_asc)
+            {
+               $packages->whereHas('user', function($query) use ($rating_asc) {    
+                 $query->orderBy('ratings', 'DESC');      
+               });
             }
            /*if($rating_asc)
             {
