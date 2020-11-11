@@ -5516,7 +5516,7 @@ class WebserviceController extends Controller
                 }      
                             
               }else
-              {
+              { 
                 if(!empty($notification_providerdata->device_token))
                 {
                   $device_token[]=$notification_providerdata->device_token;
