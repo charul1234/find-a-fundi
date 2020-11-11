@@ -2031,7 +2031,7 @@ class WebserviceController extends Controller
     public function getMyJobs(Request $request){
         $userdata = Auth::user(); 
         $data = $request->all(); 
-        $bookingdata=$booking_data=$bookings=$bookingtype=$booking_package_data=array();
+        $bookingdata=$booking_data=$bookings=$bookingtype=$booking_package_data=$bookingrfq_data=array();
         $type=isset($request->type)?$request->type:'';
         $package_id=$package_title=$package_duration=$package_description=$quantity=$total_package_amount="";
 
@@ -2141,7 +2141,8 @@ class WebserviceController extends Controller
                                           'package_description'=>$package_description,
                                           'quantity'=>$quantity,
                                           'total_package_amount'=>isset($total_package_amount)?(string)$total_package_amount:'',
-                                          'job_status'=>$job_status
+                                          'job_status'=>$job_status,
+                                          'booking_rfq'=>$booking_rfq
                                           ); 
                       $booking_array[$type][]=$bookingdata;
                 }else if($booking->status=='declined' && $booking->is_package==1 && ($booking->user_id==$userdata->id)){
@@ -2198,7 +2199,8 @@ class WebserviceController extends Controller
                                           'package_description'=>$package_description,
                                           'quantity'=>$quantity,
                                           'total_package_amount'=>isset($total_package_amount)?(string)$total_package_amount:'',
-                                          'job_status'=>$job_status
+                                          'job_status'=>$job_status,
+                                          'booking_rfq'=>$booking_rfq
                                           ); 
                       $booking_array[$type][]=$bookingdata;
                 }else if($booking->status==config('constants.PAYMENT_STATUS_REQUESTED')  && $booking->is_rfq==1){ 
@@ -2247,7 +2249,8 @@ class WebserviceController extends Controller
                                           'package_description'=>$package_description,
                                           'quantity'=>$quantity,
                                           'total_package_amount'=>isset($total_package_amount)?(string)$total_package_amount:'',
-                                          'job_status'=>$job_status
+                                          'job_status'=>$job_status,
+                                          'booking_rfq'=>$booking_rfq
                                           ); 
                       $booking_array[$type][]=$bookingdata;
                       }
@@ -2298,7 +2301,8 @@ class WebserviceController extends Controller
                                           'package_description'=>$package_description,
                                           'quantity'=>$quantity,
                                           'total_package_amount'=>isset($total_package_amount)?(string)$total_package_amount:'',
-                                          'job_status'=>$job_status
+                                          'job_status'=>$job_status,
+                                          'booking_rfq'=>$booking_rfq
                                           ); 
                       $booking_array[$type][]=$bookingdata;
                 }else if($booking->status==config('constants.PAYMENT_STATUS_QUOTED') && $booking->is_package==1  && ($booking->user_id==$userdata->id)) {
@@ -2355,7 +2359,8 @@ class WebserviceController extends Controller
                                           'package_description'=>$package_description,
                                           'quantity'=>$quantity,
                                           'total_package_amount'=>isset($total_package_amount)?(string)$total_package_amount:'',
-                                          'job_status'=>$job_status
+                                          'job_status'=>$job_status,
+                                          'booking_rfq'=>$booking_rfq
                                           ); 
                       $booking_array[$type][]=$bookingdata;
                 }else if($booking->status==config('constants.PAYMENT_STATUS_REQUESTED') && $booking->is_rfq==1){ 
@@ -2404,7 +2409,8 @@ class WebserviceController extends Controller
                                           'package_description'=>$package_description,
                                           'quantity'=>$quantity,
                                           'total_package_amount'=>isset($total_package_amount)?(string)$total_package_amount:'',
-                                          'job_status'=>$job_status
+                                          'job_status'=>$job_status,
+                                          'booking_rfq'=>$booking_rfq
                                           ); 
                       $booking_array[$type][]=$bookingdata;
                       }
@@ -2457,7 +2463,8 @@ class WebserviceController extends Controller
                                           'package_description'=>$package_description,
                                           'quantity'=>$quantity,
                                           'total_package_amount'=>isset($total_package_amount)?(string)$total_package_amount:'',
-                                          'job_status'=>$job_status
+                                          'job_status'=>$job_status,
+                                          'booking_rfq'=>$booking_rfq
                                           ); 
                       $booking_array[$type][]=$bookingdata;
 
@@ -2517,7 +2524,8 @@ class WebserviceController extends Controller
                                           'package_description'=>$package_description,
                                           'quantity'=>$quantity,
                                           'total_package_amount'=>isset($total_package_amount)?(string)$total_package_amount:'',
-                                          'job_status'=>$job_status
+                                          'job_status'=>$job_status,
+                                          'booking_rfq'=>$booking_rfq
                                           ); 
                       $booking_array[$type][]=$bookingdata;   
                      
@@ -2606,7 +2614,8 @@ class WebserviceController extends Controller
                                             'package_description'=>$package_description,
                                             'quantity'=>$quantity,
                                             'total_package_amount'=>isset($total_package_amount)?(string)$total_package_amount:'',
-                                            'job_status'=>$job_status
+                                            'job_status'=>$job_status,
+                                            'booking_rfq'=>$booking_rfq
                                             );  
                            $booking_array[$type][]=$bookingtype; 
                          
@@ -2661,7 +2670,8 @@ class WebserviceController extends Controller
                                           'package_description'=>$package_description,
                                           'quantity'=>$quantity,
                                           'total_package_amount'=>isset($total_package_amount)?(string)$total_package_amount:'',
-                                          'job_status'=>$job_status
+                                          'job_status'=>$job_status,
+                                          'booking_rfq'=>$booking_rfq
                                           ); 
                       $booking_array[$type][]=$bookingdata;
                 }else if($booking->status==config('constants.PAYMENT_STATUS_COMPLETED') && $booking->is_package==1 && ($booking->user_id==$userdata->id)) {
@@ -2717,7 +2727,8 @@ class WebserviceController extends Controller
                                           'package_description'=>$package_description,
                                           'quantity'=>$quantity,
                                           'total_package_amount'=>isset($total_package_amount)?(string)$total_package_amount:'',
-                                          'job_status'=>$job_status
+                                          'job_status'=>$job_status,
+                                          'booking_rfq'=>$booking_rfq
                                           ); 
                       $booking_array[$type][]=$bookingdata;
                 }else if($booking->status==config('constants.PAYMENT_STATUS_COMPLETED') && $booking->is_rfq==1){ 
@@ -2755,7 +2766,8 @@ class WebserviceController extends Controller
                                           'package_description'=>$package_description,
                                           'quantity'=>$quantity,
                                           'total_package_amount'=>isset($total_package_amount)?(string)$total_package_amount:'',
-                                          'job_status'=>$job_status
+                                          'job_status'=>$job_status,
+                                          'booking_rfq'=>$booking_rfq
                                           ); 
                          $booking_array[$type][]=$bookingdata;
                       }
@@ -2805,7 +2817,8 @@ class WebserviceController extends Controller
                                           'package_description'=>$package_description,
                                           'quantity'=>$quantity,
                                           'total_package_amount'=>isset($total_package_amount)?(string)$total_package_amount:'',
-                                          'job_status'=>$job_status
+                                          'job_status'=>$job_status,
+                                          'booking_rfq'=>$booking_rfq
                                           ); 
                       $booking_array[$type][]=$bookingdata;
                 }else if($booking->status==config('constants.PAYMENT_STATUS_ACCEPTED') && $booking->is_package==1  && ($booking->user_id==$userdata->id)){
@@ -2861,12 +2874,14 @@ class WebserviceController extends Controller
                                           'package_description'=>$package_description,
                                           'quantity'=>$quantity,
                                           'total_package_amount'=>isset($total_package_amount)?(string)$total_package_amount:'',
-                                          'job_status'=>$job_status
+                                          'job_status'=>$job_status,
+                                          'booking_rfq'=>$booking_rfq
                                           ); 
                       $booking_array[$type][]=$bookingdata;
                 }else if($booking->status==config('constants.PAYMENT_STATUS_ACCEPTED') && $booking->is_rfq==1){ 
                  $booking_users=BookingUser::where(array('booking_id'=>$booking->id,'user_id'=>$userdata->id,'status'=>config('constants.PAYMENT_STATUS_ACCEPTED')))->first();
                       if(isset($booking_users)){
+
                         $providerdata=User::with(['profile'])->where('id',$booking_users->user_id)->first();
                         $provider_name=isset($providerdata->name)?$providerdata->name:'';
                         $provider_email=isset($providerdata->email)?$providerdata->email:'';
@@ -2878,6 +2893,27 @@ class WebserviceController extends Controller
                         {
                               $provider_profile_picture = asset(config('constants.NO_IMAGE_URL'));
                         }
+                        //booking rfq data
+
+                         $booking_rfq[]=array('booking_id'=>$booking_users->booking_id,
+                                             'user_id'=>$booking_users->user_id,
+                                             'is_rfq'=>$booking_users->is_rfq,
+                                             'budget'=>isset($booking_users->budget)?(string)$booking_users->budget:'',
+                                             'service_datetime'=>$booking_users->service_datetime,
+                                             'requirement'=>isset($booking_users->requirement)?$booking_users->requirement:'',
+                                             'comment'=>isset($booking_users->comment)?$booking_users->comment:'',
+                                             'is_quoted'=>$booking_users->is_quoted,
+                                             'reason'=>isset($booking_users->reason)?$booking_users->reason:'',
+                                             'status'=>$booking_users->status,
+                                             'name'=>$provider_name,
+                                             'email'=>$provider_email,
+                                            'mobile_number'=>$provider_mobile_number,
+                                            'profile_picture'=>$provider_profile_picture
+                                             );
+
+                        //end booking rfq data
+
+
                         //$booking_array[$type][]=$booking;
                         $bookingdata=array('booking_id'=>$booking->id,
                                           'type'=>$booking_type,
@@ -2910,7 +2946,8 @@ class WebserviceController extends Controller
                                           'package_description'=>$package_description,
                                           'quantity'=>$quantity,
                                           'total_package_amount'=>isset($total_package_amount)?(string)$total_package_amount:'',
-                                          'job_status'=>$job_status
+                                          'job_status'=>$job_status,
+                                          'booking_rfq'=>$booking_rfq
                                           ); 
                          $booking_array[$type][]=$bookingdata;
                       }
