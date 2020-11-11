@@ -937,8 +937,7 @@ class WebserviceController extends Controller
             $min_price=isset($request->min_price)?$request->min_price:'';
             $max_price=isset($request->max_price)?$request->max_price:'';
             $security_check=isset($request->security_check)?$request->security_check:'';
-            $rating_asc='asc';
-            $rating_desc='desc';
+            $rating_order=isset($request->rating_order)?$request->rating_order:'';
             
             $providers= User::with(['category_user','profile','hourly_charge','roles','profile.experience_level','package_user','review'])          
             
@@ -1014,13 +1013,13 @@ class WebserviceController extends Controller
                   $query->where('security_check',$security_check);     
                 });
             }
-            if(isset($rating_asc))
+            if($rating_order=='asc')
             {  
-               $providers->orderBy('ratings',$rating_asc);   
+               $providers->orderBy('ratings',$rating_order);   
             }
-            if(isset($rating_desc))
+            if($rating_order=='desc')
             {  
-               $providers->orderBy('ratings',$rating_desc);   
+               $providers->orderBy('ratings',$rating_order);   
             }
 
             
