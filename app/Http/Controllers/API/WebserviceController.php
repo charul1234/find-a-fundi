@@ -4239,6 +4239,8 @@ class WebserviceController extends Controller
             $min_price=isset($request->min_price)?$request->min_price:'';
             $max_price=isset($request->max_price)?$request->max_price:'';
             $security_check=isset($request->security_check)?$request->security_check:'';
+            //$rating_order=isset($request->rating_order)?$request->rating_order:'';
+
             $packages= PackageUser::with(['user','user.review','user.profile','user.profile.experience_level','user.media','package'=>function($query) use ($subcategory_id) {              
               $query->where('category_id',$subcategory_id);  
               $query->where('is_active',true);             
@@ -4250,8 +4252,6 @@ class WebserviceController extends Controller
               $query->where('experience_level_id',$experience);          
               });
             }
-            $rating_asc='asc';
-            $rating='desc';
             if($min_price)
             {
               $packages->where('price', '>=', $min_price );
@@ -4268,18 +4268,17 @@ class WebserviceController extends Controller
               });
             }
             //echo $rating_asc;
-            if($rating_asc)
+            /*if($rating_order=='asc')
             {
-               $packages->whereHas('user', function($query) use ($rating_asc) {    
-                 $query->orderBy('ratings', 'DESC');      
+               $packages->whereHas('user', function($query) use ($rating_order) {    
+                 $query->orderBy('ratings', $rating_order);      
                });
             }
-           /*if($rating_asc)
+             if($rating_order=='desc')
             {
-              $packages->whereHas('user.review', function($query) use ($rating_asc) {   
-                // $query->select('rating as sumrating');   
-                $query->orderBy('rating', 'ASC');
-              });
+               $packages->whereHas('user', function($query) use ($rating_order) {    
+                 $query->orderBy('ratings', $rating_order);      
+               });
             }*/
             // $packages=$packages->user()->review()->avg('rating_for_user');
             $packages=$packages->get();
