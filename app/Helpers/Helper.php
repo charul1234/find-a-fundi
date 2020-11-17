@@ -93,4 +93,24 @@ function sendIphoneNotifications($title = null, $message = null,$tokens=null)
    return $results;
   }        
 }
+function sendAndroidNotifications($title = null, $message = null,$tokens=null)
+{ 
+  $push = new PushNotification('fcm');
+  $title=isset($title)?$title:'';
+  $message=isset($message)?$message:'';
+  if(!empty($tokens))
+  {
+    $results= $push->setMessage([
+                        'data' => [
+                                    'title' => $title,
+                                    'body' => $message,
+                                    'sound' => 'default'
+                                    ]                        
+                        ])
+                        //->setApiKey('AAAAJN1IhPU:APA91bGYz-St0Wzc-Ni_ITCTNAvhAeX-h3oZwgtptJ6PQD3V5RNyIh5ECSzZ17wRCP46zUXiYvp7lYfvwzkmzZ3liZpCV1w12_Uh8yP6ytLT6jPNXKrwn-Kz6zpIcnGWiChWuUCRDmq4')
+                        ->setDevicesToken($tokens)
+                        ->send();
+   return $results;
+  }        
+}
 ?>

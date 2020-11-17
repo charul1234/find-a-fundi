@@ -10,9 +10,9 @@ return [
         'apiKey' => 'My_ApiKey',
     ],
     'fcm' => [
-        'priority' => 'normal',
+        'priority' => 'high',
         'dry_run' => false,
-        'apiKey' => 'My_ApiKey',
+        'apiKey' => 'AAAAJN1IhPU:APA91bGYz-St0Wzc-Ni_ITCTNAvhAeX-h3oZwgtptJ6PQD3V5RNyIh5ECSzZ17wRCP46zUXiYvp7lYfvwzkmzZ3liZpCV1w12_Uh8yP6ytLT6jPNXKrwn-Kz6zpIcnGWiChWuUCRDmq4',
     ],
     'apn' => [
         'certificate' => __DIR__ . '/iosCertificates/Fundi_dist.pem',

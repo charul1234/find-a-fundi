@@ -29,6 +29,7 @@ use App\ExperienceLevel;
 use App\HourlyCharge;
 use App\Notifications\SendOTP;
 
+
 class WebserviceController extends Controller
 {
 
@@ -252,7 +253,7 @@ class WebserviceController extends Controller
         $data = $request->all();         
         $latitude=isset($data['latitude'])?$data['latitude']:'';
         $longitude=isset($data['longitude'])?$data['longitude']:'';
-        $device_token=array();
+        $ios_device_token=$android_device_token=array();
         
         if($user)
         {
@@ -376,22 +377,25 @@ class WebserviceController extends Controller
                         {
                           if(!empty($notification_providerdata->device_token))
                           {
-                            $device_token[]=$notification_providerdata->device_token;
-                          }      
-                                      
+                            $ios_device_token[]=$notification_providerdata->device_token;
+                          }                             
                         }else
                         {
                           if(!empty($notification_providerdata->device_token))
                           {
-                            $device_token[]=$notification_providerdata->device_token;
-                          }                           
+                            $android_device_token[]=$notification_providerdata->device_token;
+                          } 
                         } 
-                        if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
-                        {                     
-                           sendIphoneNotifications($notification_title,$notification_message,$device_token);
+                        if(!empty($ios_device_token))
+                        {
+                          sendIphoneNotifications($notification_title,$notification_message,$ios_device_token);
+                        }
+                        if(!empty($android_device_token))
+                        {
+                          sendAndroidNotifications($notification_title,$notification_message,$android_device_token);
                         }
                       }
-                      //end notification code                 
+                      //end notification code         $ios_device_token=$android_device_token         
                 }else
                 {
                   $response=array('status'=>false,'message'=>'Job date not available!');
@@ -450,22 +454,25 @@ class WebserviceController extends Controller
                                     {
                                       if(!empty($notification_providerdata->device_token))
                                       {
-                                        $device_token[]=$notification_providerdata->device_token;
-                                      }                        
+                                        $ios_device_token[]=$notification_providerdata->device_token;
+                                      }     
+                                                     
                                     }else
                                     {
                                       if(!empty($notification_providerdata->device_token))
                                       {
-                                        $device_token[]=$notification_providerdata->device_token;
-                                      }
-                                    } 
-                                    if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
-                                    {                     
-                                       sendIphoneNotifications($notification_title,$notification_message,$device_token);
-                                    }/*else
+                                        $android_device_token[]=$notification_providerdata->device_token;
+                                      }                                     
+                                    }   
+                                    if(!empty($ios_device_token))
                                     {
-                                       //sendIphoneNotification($title,$message,$token);
-                                    } */
+
+                                      sendIphoneNotifications($notification_title,$notification_message,$ios_device_token);
+                                    }
+                                    if(!empty($android_device_token))
+                                    {
+                                      sendAndroidNotifications($notification_title,$notification_message,$android_device_token);
+                                    }                                  
                                   }
                                   //end notification code 
                                 }
@@ -3388,7 +3395,7 @@ class WebserviceController extends Controller
         $userdata=User::with(['roles'])->whereHas('roles', function($query) use ($role_id){
               $query->where('id', $role_id);
             })->where('id',$user->id)->first();   
-        $device_token=array();     
+        $ios_device_token=$android_device_token=array();
         if($userdata)
         {          
             $rules = [   
@@ -3443,18 +3450,19 @@ class WebserviceController extends Controller
                     $notification_message=config('constants.NOTIFICATION_JOB_QUOTED_MESSAGE');
                     if($seekerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
                     {
-                        $device_token[]=$seekerdata->device_token;
+                        $ios_device_token[]=$seekerdata->device_token;
                     }else
                     {
-                        $device_token[]=$seekerdata->device_token;
+                        $android_device_token[]=$seekerdata->device_token;
                     } 
-                    if($seekerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
-                    {                      
-                       sendIphoneNotifications($notification_title,$notification_message,$device_token);
-                    }/*else
+                    if(!empty($ios_device_token))
                     {
-                       //sendIphoneNotification($title,$message,$token);
-                    } */
+                      sendIphoneNotifications($notification_title,$notification_message,$ios_device_token);
+                    }
+                    if(!empty($android_device_token))
+                    {
+                      sendAndroidNotifications($notification_title,$notification_message,$android_device_token);
+                    } 
                   }
                   //end notification code
                  $response=array('status'=>true,'message'=>'Job Quoted done');
@@ -3499,18 +3507,19 @@ class WebserviceController extends Controller
                     $notification_message=config('constants.NOTIFICATION_JOB_QUOTED_MESSAGE');
                     if($seekerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
                     {
-                        $device_token[]=$seekerdata->device_token;
+                        $ios_device_token[]=$seekerdata->device_token;
                     }else
                     {
-                        $device_token[]=$seekerdata->device_token;
+                        $android_device_token[]=$seekerdata->device_token;
                     } 
-                    if($seekerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
-                    {                      
-                       sendIphoneNotifications($notification_title,$notification_message,$device_token);
-                    }/*else
+                    if(!empty($ios_device_token))
                     {
-                       //sendIphoneNotification($title,$message,$token);
-                    } */
+                      sendIphoneNotifications($notification_title,$notification_message,$ios_device_token);
+                    }
+                    if(!empty($android_device_token))
+                    {
+                      sendAndroidNotifications($notification_title,$notification_message,$android_device_token);
+                    }
                   }
                   //end notification code
                  $response=array('status'=>true,'message'=>'Job Quoted done');
@@ -3573,18 +3582,19 @@ class WebserviceController extends Controller
                     $notification_message=config('constants.NOTIFICATION_JOB_QUOTED_MESSAGE');
                     if($seekerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
                     {
-                        $device_token[]=$seekerdata->device_token;
+                        $ios_device_token[]=$seekerdata->device_token;
                     }else
                     {
-                        $device_token[]=$seekerdata->device_token;
+                        $android_device_token[]=$seekerdata->device_token;
                     } 
-                    if($seekerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
-                    {                      
-                       sendIphoneNotifications($notification_title,$notification_message,$device_token);
-                    }/*else
+                    if(!empty($ios_device_token))
                     {
-                       //sendIphoneNotification($title,$message,$token);
-                    } */
+                      sendIphoneNotifications($notification_title,$notification_message,$ios_device_token);
+                    }
+                    if(!empty($android_device_token))
+                    {
+                      sendAndroidNotifications($notification_title,$notification_message,$android_device_token);
+                    } 
                   }
                   //end notification code
                    $response=array('status'=>true,'message'=>'Job Quoted done');
@@ -3852,7 +3862,7 @@ class WebserviceController extends Controller
     public function makePayment(Request $request){
         $user = Auth::user(); 
         $data = $request->all(); 
-        $payment_data=$device_token=array();
+        $payment_data=$ios_device_token=$android_device_token=array();
 
         if($user)
         {          
@@ -3908,22 +3918,23 @@ class WebserviceController extends Controller
                     {
                       if(!empty($notification_providerdata->device_token))
                       {
-                        $device_token[]=$notification_providerdata->device_token;
+                        $ios_device_token[]=$notification_providerdata->device_token;
                       }                        
                     }else
                     {
                       if(!empty($notification_providerdata->device_token))
                       {
-                        $device_token[]=$notification_providerdata->device_token;
+                        $android_device_token[]=$notification_providerdata->device_token;
                       }
                     } 
-                    if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
-                    {                     
-                       sendIphoneNotifications($notification_title,$notification_message,$device_token);
-                    }/*else
+                    if(!empty($ios_device_token))
                     {
-                       //sendIphoneNotification($title,$message,$token);
-                    } */
+                      sendIphoneNotifications($notification_title,$notification_message,$ios_device_token);
+                    }
+                    if(!empty($android_device_token))
+                    {
+                      sendAndroidNotifications($notification_title,$notification_message,$android_device_token);
+                    }
                   }
                   //end notification code 
 
@@ -3958,22 +3969,23 @@ class WebserviceController extends Controller
                     {
                       if(!empty($notification_providerdata->device_token))
                       {
-                        $device_token[]=$notification_providerdata->device_token;
+                        $ios_device_token[]=$notification_providerdata->device_token;
                       }                        
                     }else
                     {
                       if(!empty($notification_providerdata->device_token))
                       {
-                        $device_token[]=$notification_providerdata->device_token;
+                        $android_device_token[]=$notification_providerdata->device_token;
                       }
-                    } 
-                    if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
-                    {                     
-                       sendIphoneNotifications($notification_title,$notification_message,$device_token);
-                    }/*else
+                    }
+                    if(!empty($ios_device_token))
                     {
-                       //sendIphoneNotification($title,$message,$token);
-                    } */
+                      sendIphoneNotifications($notification_title,$notification_message,$ios_device_token);
+                    }
+                    if(!empty($android_device_token))
+                    {
+                      sendAndroidNotifications($notification_title,$notification_message,$android_device_token);
+                    }    
                   }
                   //end notification code 
                 }else
@@ -4006,22 +4018,23 @@ class WebserviceController extends Controller
                     {
                       if(!empty($notification_providerdata->device_token))
                       {
-                        $device_token[]=$notification_providerdata->device_token;
+                        $ios_device_token[]=$notification_providerdata->device_token;
                       }                        
                     }else
                     {
                       if(!empty($notification_providerdata->device_token))
                       {
-                        $device_token[]=$notification_providerdata->device_token;
+                        $android_device_token[]=$notification_providerdata->device_token;
                       }
                     } 
-                    if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
-                    {                     
-                       sendIphoneNotifications($notification_title,$notification_message,$device_token);
-                    }/*else
+                    if(!empty($ios_device_token))
                     {
-                       //sendIphoneNotification($title,$message,$token);
-                    } */
+                      sendIphoneNotifications($notification_title,$notification_message,$ios_device_token);
+                    }
+                    if(!empty($android_device_token))
+                    {
+                      sendAndroidNotifications($notification_title,$notification_message,$android_device_token);
+                    } 
                   }
                   //end notification code 
               } 
@@ -4346,7 +4359,7 @@ class WebserviceController extends Controller
 
         $user = Auth::user(); 
         $data = $request->all(); 
-        $device_token=array();
+        $ios_device_token=$android_device_token=array();
         if($user)
         {
             $rules = [  
@@ -4430,22 +4443,23 @@ class WebserviceController extends Controller
                     {
                       if(!empty($notification_providerdata->device_token))
                       {
-                        $device_token[]=$notification_providerdata->device_token;
+                        $ios_device_token[]=$notification_providerdata->device_token;
                       }                        
                     }else
                     {
                       if(!empty($notification_providerdata->device_token))
                       {
-                        $device_token[]=$notification_providerdata->device_token;
+                        $android_device_token[]=$notification_providerdata->device_token;
                       }
                     } 
-                    if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
-                    {                     
-                       sendIphoneNotifications($notification_title,$notification_message,$device_token);
-                    }/*else
+                    if(!empty($ios_device_token))
                     {
-                       //sendIphoneNotification($title,$message,$token);
-                    } */
+                      sendIphoneNotifications($notification_title,$notification_message,$ios_device_token);
+                    }
+                    if(!empty($android_device_token))
+                    {
+                      sendAndroidNotifications($notification_title,$notification_message,$android_device_token);
+                    }  
                   }
                   //end notification code 
               }
@@ -5295,6 +5309,7 @@ class WebserviceController extends Controller
         $seeker = User::with(['roles'])->whereHas('roles', function($query) use ($role_id){
               $query->where('id', $role_id);
         });
+        $ios_device_token=$android_device_token=array();
         $seeker=$seeker->where(['id'=>$user->id])->first();
         if($seeker)
         {
@@ -5321,26 +5336,30 @@ class WebserviceController extends Controller
               $notification_providerdata=User::where('id',$user_id)->first();
               if($notification_providerdata)
               {
-              $notification_title='New schedule job OTP sent!';
-              $notification_message='OTP is '.$otp. ' to verify with seeker.';
-              if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
-              {
-                if(!empty($notification_providerdata->device_token))
+                $notification_title='New schedule job OTP sent!';
+                $notification_message='OTP is '.$otp. ' to verify with seeker.';
+                if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
                 {
-                  $device_token[]=$notification_providerdata->device_token;
-                }      
-                            
-              }else
-              {
-                if(!empty($notification_providerdata->device_token))
+                  if(!empty($notification_providerdata->device_token))
+                  {
+                    $ios_device_token[]=$notification_providerdata->device_token;
+                  }      
+                              
+                }else
                 {
-                  $device_token[]=$notification_providerdata->device_token;
-                }                           
-              } 
-              if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
-              {                     
-                 sendIphoneNotifications($notification_title,$notification_message,$device_token);
-              }
+                  if(!empty($notification_providerdata->device_token))
+                  {
+                    $android_device_token[]=$notification_providerdata->device_token;
+                  }                           
+                } 
+                if(!empty($ios_device_token))
+                {
+                  sendIphoneNotifications($notification_title,$notification_message,$ios_device_token);
+                }
+                if(!empty($android_device_token))
+                {
+                  sendAndroidNotifications($notification_title,$notification_message,$android_device_token);
+                }               
               }
               //end notification code              
             }else
@@ -5368,6 +5387,7 @@ class WebserviceController extends Controller
         $seeker = User::with(['roles'])->whereHas('roles', function($query) use ($role_id){
               $query->where('id', $role_id);
         });
+        $ios_device_token=$android_device_token=array();
         $seeker=$seeker->where(['id'=>$user->id])->first();
         if($seeker)
         {
@@ -5403,20 +5423,24 @@ class WebserviceController extends Controller
                 {
                   if(!empty($notification_providerdata->device_token))
                   {
-                    $device_token[]=$notification_providerdata->device_token;
+                    $ios_device_token[]=$notification_providerdata->device_token;
                   }      
                               
                 }else
                 {
                   if(!empty($notification_providerdata->device_token))
                   {
-                    $device_token[]=$notification_providerdata->device_token;
+                    $android_device_token[]=$notification_providerdata->device_token;
                   }                           
                 } 
-                if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
-                {                     
-                   sendIphoneNotifications($notification_title,$notification_message,$device_token);
-                }
+                 if(!empty($ios_device_token))
+                  {
+                    sendIphoneNotifications($notification_title,$notification_message,$ios_device_token);
+                  }
+                  if(!empty($android_device_token))
+                  {
+                    sendAndroidNotifications($notification_title,$notification_message,$android_device_token);
+                  }                 
                 }
                 //end notification code 
             }else
@@ -5443,7 +5467,7 @@ class WebserviceController extends Controller
               $query->where('id', $role_id);
         });
         $provider=$provider->where(['id'=>$user->id])->first();
-       
+        $ios_device_token=$android_device_token=array();
         if($provider)
         {
             $validator = Validator::make($data, [
@@ -5474,20 +5498,24 @@ class WebserviceController extends Controller
                 {
                   if(!empty($notification_providerdata->device_token))
                   {
-                    $device_token[]=$notification_providerdata->device_token;
+                    $ios_device_token[]=$notification_providerdata->device_token;
                   }      
                               
                 }else
                 {
                   if(!empty($notification_providerdata->device_token))
                   {
-                    $device_token[]=$notification_providerdata->device_token;
+                    $android_device_token[]=$notification_providerdata->device_token;
                   }                           
                 } 
-                if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
-                {                     
-                   sendIphoneNotifications($notification_title,$notification_message,$device_token);
-                }
+                if(!empty($ios_device_token))
+                  {
+                    sendIphoneNotifications($notification_title,$notification_message,$ios_device_token);
+                  }
+                  if(!empty($android_device_token))
+                  {
+                    sendAndroidNotifications($notification_title,$notification_message,$android_device_token);
+                  } 
                 }
                  //end notification code 
             }else
@@ -5514,6 +5542,7 @@ class WebserviceController extends Controller
         $provider = User::with(['roles'])->whereHas('roles', function($query) use ($role_id){
               $query->where('id', $role_id);
         });
+        $ios_device_token=$android_device_token=array();
         $provider=$provider->where(['id'=>$user->id])->first();
 
         if($provider)
@@ -5548,20 +5577,24 @@ class WebserviceController extends Controller
               {
                 if(!empty($notification_providerdata->device_token))
                 {
-                  $device_token[]=$notification_providerdata->device_token;
+                  $ios_device_token[]=$notification_providerdata->device_token;
                 }      
                             
               }else
               { 
                 if(!empty($notification_providerdata->device_token))
                 {
-                  $device_token[]=$notification_providerdata->device_token;
+                  $android_device_token[]=$notification_providerdata->device_token;
                 }                           
               } 
-              if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
-              {                     
-                 sendIphoneNotifications($notification_title,$notification_message,$device_token);
+              if(!empty($ios_device_token))
+              {
+                sendIphoneNotifications($notification_title,$notification_message,$ios_device_token);
               }
+              if(!empty($android_device_token))
+              {
+                sendAndroidNotifications($notification_title,$notification_message,$android_device_token);
+              } 
               }
               //end notification code  
 

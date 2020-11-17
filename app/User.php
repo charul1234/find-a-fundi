@@ -140,6 +140,26 @@ class User extends Authenticatable implements MustVerifyEmail, HasMedia
         return $this->hasMany(Review::class,'user_id');
     }
 
+    /**
+     * Route notifications for the Apn channel.
+     *
+     * @return string|array
+     */
+    public function routeNotificationForApn()
+    {
+        return $this->device_token;
+    }
+
+    /**
+     * Route notifications for the Fcm channel.
+     *
+     * @return string|array
+     */
+    public function routeNotificationForFcm()
+    {
+        return $this->device_token;
+    }
+
     
 
 }
