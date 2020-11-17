@@ -28,6 +28,7 @@ use App\Schedule;
 use App\ExperienceLevel;
 use App\HourlyCharge;
 use App\Notifications\SendOTP;
+//use App\Notifications\PushNotifications;
 
 
 class WebserviceController extends Controller
@@ -368,11 +369,14 @@ class WebserviceController extends Controller
                 //need to send request or notification to all providers user that are belong to Lat long address.
                 $response=array('status'=>true,'booking'=>$booking->id,'message'=>'Request Sent successfully');
                 //start notification code                
+                      $notification_title=config('constants.NOTIFICATION_NEW_BOOKING_HOURLY_SUBJECT');
+                      $notification_message=config('constants.NOTIFICATION_NEW_BOOKING_HOURLY_MESSAGE');
                       $notification_providerdata=User::where('id',$provider_id)->first();
+                      //$notificationData = ['title'=>$notification_title,'message'=>$notification_message];
+                      //$notification_providerdata->notify(new PushNotifications($notificationData));
                       if($notification_providerdata)
                       {
-                        $notification_title=config('constants.NOTIFICATION_NEW_BOOKING_HOURLY_SUBJECT');
-                        $notification_message=config('constants.NOTIFICATION_NEW_BOOKING_HOURLY_MESSAGE');
+                        
                         if($notification_providerdata->device_type==config('constants.DEVICE_TYPE_IOS'))
                         {
                           if(!empty($notification_providerdata->device_token))
@@ -444,6 +448,7 @@ class WebserviceController extends Controller
                             {
                                if($radius>=$Kilometer_distance)
                                 {
+
                                   // start notification code                
                                   $notification_providerdata=User::where('id',$provider->id)->first();
                                   if($notification_providerdata)
@@ -466,11 +471,10 @@ class WebserviceController extends Controller
                                     }   
                                     if(!empty($ios_device_token))
                                     {
-
                                       sendIphoneNotifications($notification_title,$notification_message,$ios_device_token);
                                     }
                                     if(!empty($android_device_token))
-                                    {
+                                    {                                      
                                       sendAndroidNotifications($notification_title,$notification_message,$android_device_token);
                                     }                                  
                                   }

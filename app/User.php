@@ -11,6 +11,7 @@ use App\Notifications\ResetPassword;
 use Laravel\Passport\HasApiTokens;
 use Spatie\MediaLibrary\HasMedia\HasMedia;
 use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
+use PushNotification;
 
 class User extends Authenticatable implements MustVerifyEmail, HasMedia
 {
@@ -140,15 +141,15 @@ class User extends Authenticatable implements MustVerifyEmail, HasMedia
         return $this->hasMany(Review::class,'user_id');
     }
 
-    /**
+     /**
      * Route notifications for the Apn channel.
      *
      * @return string|array
      */
-    public function routeNotificationForApn()
-    {
+    public function routeNotificationForApn(){
         return $this->device_token;
     }
+
 
     /**
      * Route notifications for the Fcm channel.
