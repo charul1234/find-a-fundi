@@ -4625,17 +4625,17 @@ class WebserviceController extends Controller
         return response()->json($response);
     }
 
-    function updateJob(Request $request)
+     function updateJob(Request $request)
     {
         $user = Auth::user(); 
         $data = $request->all();
         //$role_id =  config('constants.ROLE_TYPE_SEEKER_ID');
         $role_id=config('constants.ROLE_TYPE_PROVIDER_ID');
-        $seeker = User::with(['roles'])->whereHas('roles', function($query) use ($role_id){
+        $provider = User::with(['roles'])->whereHas('roles', function($query) use ($role_id){
               $query->where('id', $role_id);
         });
-        $seeker=$seeker->where(['id'=>$user->id])->first();  
-        if($seeker)
+        $provider=$provider->where(['id'=>$user->id])->first();  
+        if($provider)
         {
             $rules = [  
                 'booking_id'=>'required',
@@ -4674,7 +4674,7 @@ class WebserviceController extends Controller
                    {
                      foreach ($schedules as $key => $schedule) 
                      {
-                        $schedule_data=array('is_complete'=>1,'verified_by'=>$seeker->id);
+                        $schedule_data=array('is_complete'=>1,'verified_by'=>$provider->id);
                         $schedule->update($schedule_data);
                      }
                    } 
@@ -4695,12 +4695,13 @@ class WebserviceController extends Controller
                    {
                      foreach ($schedules as $key => $schedule) 
                      {
-                        $schedule_data=array('is_complete'=>1,'verified_by'=>$seeker->id);
+                        $schedule_data=array('is_complete'=>1,'verified_by'=>$provider->id);
                         $schedule->update($schedule_data);
                      }
                    } 
 
-                   $booking_user=BookingUser::where(array('booking_id'=>$request->booking_id,'user_id'=>$request->user_id,'status'=>config('constants.PAYMENT_STATUS_ACCEPTED')))->first();
+                   //$booking_user=BookingUser::where(array('booking_id'=>$request->booking_id,'user_id'=>$request->user_id,'status'=>config('constants.PAYMENT_STATUS_ACCEPTED')))->first();
+                   $booking_user=BookingUser::where(array('booking_id'=>$request->booking_id,'user_id'=>$provider->id,'status'=>config('constants.PAYMENT_STATUS_ACCEPTED')))->first();
                    $booking= Booking::where(array('id'=>$request->booking_id,'otp'=>$otp))->first();
                    if($booking)
                    {
