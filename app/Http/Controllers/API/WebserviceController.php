@@ -4650,7 +4650,9 @@ class WebserviceController extends Controller
             }
             $type=isset($request->type)?$request->type:'';
             $otp=$request->otp;
-            $check_transaction = Transaction::where(array('booking_id'=>$request->booking_id,'user_id'=>$request->user_id,'status'=>config('constants.PAYMENT_STATUS_SUCCESS')))->first();   
+            //$check_transaction = Transaction::where(array('booking_id'=>$request->booking_id,'user_id'=>$request->user_id,'status'=>config('constants.PAYMENT_STATUS_SUCCESS')))->first(); vivek20-11
+            $check_transaction = Transaction::where(array('booking_id'=>$request->booking_id,'payment_by'=>$request->user_id,'status'=>config('constants.PAYMENT_STATUS_SUCCESS')))->first();
+
             if($check_transaction)
             {
                 if($type=='is_package')
@@ -4687,7 +4689,7 @@ class WebserviceController extends Controller
                       $response=array('status'=>false,'message'=>'something went wrong!');
                    } 
                 }else if($type=='is_rfq')
-                {
+                { 
                    $schedules = Schedule::where(array('booking_id'=>$request->booking_id,'user_id'=>$request->user_id))->get();                 
                    if(count($schedules)>0)
                    {
