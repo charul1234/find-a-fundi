@@ -4628,7 +4628,7 @@ class WebserviceController extends Controller
      function updateJob(Request $request)
     {
         $user = Auth::user(); 
-        $data = $request->all();
+        $data = $request->all(); 
         //$role_id =  config('constants.ROLE_TYPE_SEEKER_ID');
         $role_id=config('constants.ROLE_TYPE_PROVIDER_ID');
         $provider = User::with(['roles'])->whereHas('roles', function($query) use ($role_id){
