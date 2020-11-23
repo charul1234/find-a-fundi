@@ -4651,7 +4651,9 @@ class WebserviceController extends Controller
             $type=isset($request->type)?$request->type:'';
             $otp=$request->otp;
             //$check_transaction = Transaction::where(array('booking_id'=>$request->booking_id,'user_id'=>$request->user_id,'status'=>config('constants.PAYMENT_STATUS_SUCCESS')))->first(); vivek20-11
-            $check_transaction = Transaction::where(array('booking_id'=>$request->booking_id,'payment_by'=>$request->user_id,'status'=>config('constants.PAYMENT_STATUS_SUCCESS')))->first();
+            $check_transaction = Transaction::where(array('booking_id'=>$request->booking_id,'user_id'=>$request->user_id,'status'=>config('constants.PAYMENT_STATUS_SUCCESS')))->first();
+            //$check_transaction = Transaction::where(array('booking_id'=>$request->booking_id,'payment_by'=>$request->user_id,'status'=>config('constants.PAYMENT_STATUS_SUCCESS')))->first();
+
 
             if($check_transaction)
             {
@@ -4669,7 +4671,7 @@ class WebserviceController extends Controller
                    } 
                 }else if($type=='is_hourly')
                 {
-                   $schedules = Schedule::where(array('booking_id'=>$request->booking_id,'user_id'=>$request->user_id))->get();                 
+                  /* $schedules = Schedule::where(array('booking_id'=>$request->booking_id,'user_id'=>$request->user_id))->get();                 
                    if(count($schedules)>0)
                    {
                      foreach ($schedules as $key => $schedule) 
@@ -4677,7 +4679,7 @@ class WebserviceController extends Controller
                         $schedule_data=array('is_complete'=>1,'verified_by'=>$provider->id);
                         $schedule->update($schedule_data);
                      }
-                   } 
+                   } */
                    $booking = Booking::where(array('id'=>$request->booking_id,'user_id'=>$request->user_id,'otp'=>$otp))->first(); 
                    if($booking)
                    {
