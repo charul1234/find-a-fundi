@@ -4902,7 +4902,14 @@ class WebserviceController extends Controller
                                'is_hourly'=>$provider->profile->is_hourly,
                                'packages'=>$packages,
                                'hourly'=>$hourly,
-                               'works_photo'=>$works_photo_Images
+                               'works_photo'=>$works_photo_Images,
+                               'address_line_1'=>isset($provider->profile->address_line_1)?$provider->profile->address_line_1:'',
+                               'is_academy_trained'=>isset($provider->profile->is_academy_trained)?$provider->profile->is_academy_trained:'',
+                               'reference_name1'=>isset($provider->profile->reference_name1)?$provider->profile->reference_name1:'',
+                               'reference_mobile_number1'=>isset($provider->profile->reference_mobile_number1)?$provider->profile->reference_mobile_number1:'',
+                               'reference_name2'=>isset($provider->profile->reference_name2)?$provider->profile->reference_name2:'',
+                               'reference_mobile_number2'=>isset($provider->profile->reference_mobile_number2)?$provider->profile->reference_mobile_number2:'',
+                               'year_experience'=>isset($provider->profile->year_experience)?$provider->profile->year_experience:'',
                                );          
          
           $response=array('status'=>true,'data'=>$provider_data,'message'=>'Record found');
