@@ -4791,6 +4791,7 @@ class WebserviceController extends Controller
           }
           $certificate_conduct='';
           $nca='';
+          $passport_image='';
           if(isset($provider) && $provider->getMedia('certificate_conduct')->count() > 0 && file_exists($provider->getFirstMedia('certificate_conduct')->getPath()))
           {           
             $certificate_conduct=$provider->getFirstMedia('certificate_conduct')->getFullUrl();
@@ -4798,6 +4799,10 @@ class WebserviceController extends Controller
           if(isset($provider) && $provider->getMedia('nca')->count() > 0 && file_exists($provider->getFirstMedia('nca')->getPath()))
           {           
             $nca=$provider->getFirstMedia('nca')->getFullUrl();
+          } 
+          if(isset($provider) && $provider->getMedia('passport_image')->count() > 0 && file_exists($provider->getFirstMedia('passport_image')->getPath()))
+          {           
+            $passport_image=$provider->getFirstMedia('passport_image')->getFullUrl();
           } 
           $rating=0.0;
           $provider['certification_data']=$certification_data;
@@ -4910,6 +4915,7 @@ class WebserviceController extends Controller
                                'reference_name2'=>isset($provider->profile->reference_name2)?$provider->profile->reference_name2:'',
                                'reference_mobile_number2'=>isset($provider->profile->reference_mobile_number2)?$provider->profile->reference_mobile_number2:'',
                                'year_experience'=>isset($provider->profile->year_experience)?$provider->profile->year_experience:'',
+                               'passport_image'=>$passport_image
                                );          
          
           $response=array('status'=>true,'data'=>$provider_data,'message'=>'Record found');
