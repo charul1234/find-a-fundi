@@ -704,7 +704,8 @@ class WebserviceController extends Controller
             if(!empty($hourlydata))
             {               
               foreach ($hourlydata as $key => $data) {             
-                $user->hourly_charge()->create(['user_id'=>$user_id,'hours'=>$data->duration,'price'=>$data->price,'type'=>$data->type]);  
+                $user->hourly_charge()->create(['hours'=>$data->duration,'price'=>floatval($data->price),'type'=>$data->type]);  
+                //HourlyCharge::create(['user_id'=>$user_id,'hours'=>$data->duration,'price'=>floatval($data->price),'type'=>$data->type]);
               }
             }
            }         
