@@ -393,7 +393,7 @@
                           <td> {{isset($value->title)?ucwords($value->title):''}}</td>
                           <td>{{isset($value->type)?ucwords($value->type):''}}</td>
                           <td>
-                           <?php if($value->type=='certification'){ ?>
+                          <?php if($value->type=='certification'){ ?>
                           @if(isset($value) && $value->getMedia('certification')->count() > 0 && file_exists($value->getFirstMedia('certification')->getPath()))                      
                                <a download href="{{ $value->getFirstMedia('certification')->getFullUrl() }}" target="_blank"><i class="fa fa-download" aria-hidden="true"></i></a>                    
                           @endif
