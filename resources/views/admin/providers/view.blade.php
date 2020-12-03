@@ -31,30 +31,37 @@
                     </div>  
 
               <div class="form-group">
-                <label class="col-form-label"><strong>Category - Subcategory:</strong>
-                  <?php
+                <label class="col-form-label"><strong>Category :</strong></label>
+                 <?php
+                   $main_category_name='';
+                   $main_subcategory_name[]='';
                       if(count($user->category_user)>0)
                         {
                           foreach ($user->category_user as $key => $providerdata) 
                           {
                             if($providerdata->category->parent_id==0)
                             {
-                              echo isset($providerdata->category->title)?$providerdata->category->title:'';
-                              echo " - "; 
+                               $main_category_name= isset($providerdata->category->title)?$providerdata->category->title:'';
                             }
                             if($providerdata->category->parent_id!=0)
                             {
                                if(isset($providerdata->category->title) && $providerdata->category->title!='')
                                {                              
-                                  echo $subcategory_name= $providerdata->category->title; echo ",";
+                                  $main_subcategory_name[]= $subcategory_name= $providerdata->category->title; 
                                }    
-                            }
-                           
-                         }  
-                         
+                            }                           
+                         }                           
                         }  
-                  ?>      
-               </div>                        
+                        echo $main_category_name;
+                  ?>    
+               </div>    
+                <div class="form-group">
+                <label class="col-form-label"><strong>Subcategory :</strong></label>
+                <?php 
+                      $main_subcategory_name = implode(', ', $main_subcategory_name);
+                      echo trim($main_subcategory_name,",");
+                  ?>        
+               </div>                     
               <div class="row">
                     <div class="col-md-12">
                        <div class="">
