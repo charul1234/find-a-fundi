@@ -316,7 +316,25 @@ Reviews
                         <label for="is_default">Payment Received </label>                        
                        
             </div> 
-        </div>
+             <div class="col-md-6 form-group">
+              <label class="col-md-3 control-label" for="passport_number">Passport Number </label>   
+                        <div class="col-md-9">
+                    {!! Form::text('passport_number',old('passport_number'), ['class' => 'form-control', 'placeholder' => 'Passport Number']) !!}
+                    @if($errors->has('passport_number'))
+                    <strong for="passport_number" class="help-block">{{ $errors->first('passport_number') }}</strong>
+                    @endif
+                </div>     
+            </div> 
+            <div class="col-md-6 form-group">
+              <label class="col-md-3 control-label" for="passport_image">Passport Image </label>   
+                 <div class="col-md-9">
+                    {{ Form::file('passport_image') }}
+                    @if($errors->has('passport_image'))
+                    <strong for="passport_image" class="help-block">{{ $errors->first('passport_image') }}</strong>
+                    @endif
+                  </div>     
+                 </div> 
+            </div>
         
 
         

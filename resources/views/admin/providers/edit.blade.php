@@ -443,6 +443,37 @@ Reviews
                         <label for="is_default">Payment Received </label>                        
                        
             </div> 
+             <div class="col-md-6 form-group">
+              <label class="col-md-3 control-label" for="passport_number">Passport Number </label>   
+                        <div class="col-md-9">
+                    {!! Form::text('passport_number',old('passport_number',isset($user->profile->passport_number)?$user->profile->passport_number:''), ['class' => 'form-control', 'placeholder' => 'Passport Number']) !!}
+                    @if($errors->has('passport_number'))
+                    <strong for="passport_number" class="help-block">{{ $errors->first('passport_number') }}</strong>
+                    @endif
+                </div>     
+            </div> 
+            <div class="col-md-6 form-group">
+              <label class="col-md-3 control-label" for="passport_image">Passport Image </label>   
+                 <div class="col-md-9">
+                    {{ Form::file('passport_image') }}
+                    @if($errors->has('passport_image'))
+                    <strong for="passport_image" class="help-block">{{ $errors->first('passport_image') }}</strong>
+                    @endif
+
+                    @php $company_logo_required = true; @endphp
+                    @if(isset($user) && $user->getMedia('passport_image')->count() > 0 && file_exists($user->getFirstMedia('passport_image')->getPath()))
+                        @php $company_logo_required = false; @endphp
+                        <div class="row mt-2 ml-2">                      
+                    <div class=" form-group">
+                        <a download href="{{ $user->getFirstMedia('passport_image')->getFullUrl() }}" target="_blank"><i class="fa fa-download" aria-hidden="true"></i></a>
+                    </div>
+                        </div>  
+                    @endif
+
+
+                  </div>     
+                 </div> 
+
         </div>
         
 

@@ -149,6 +149,7 @@ class ProvidersController extends Controller
             'longitude'         => 'nullable',
             'zip_code'          => 'nullable',
             'address_line_1'    => 'nullable',
+            'passport_number'   => 'nullable',
         ];
         if (isset($request->security_check) && $request->security_check==TRUE) {
             //  $rules1 = [
@@ -210,9 +211,10 @@ class ProvidersController extends Controller
             $security_check=isset($request->security_check)?$request->security_check:0;
             $zip_code=isset($request->zip_code)?$request->zip_code:'';
             $address_line_1=isset($request->address_line_1)?$request->address_line_1:'';
+            $passport_number=isset($request->passport_number)?$request->passport_number:'';
             if(intval($user_id) > 0)
             {
-                $profile_data=array('user_id'=>$user_id,'work_address'=>$request->address ,'latitude'=>$request->latitude,'longitude'=>$request->longitude,'experience_level_id'=>$request->experience_level,'facebook_url'=>$request->facebook_url,'twitter_url'=>$request->twitter_url,'instagram_url'=>$request->instagram_url,'fundi_is_middlemen'=>$fundi_is_middlemen,'fundi_have_tools'=>$fundi_have_tools,'fundi_have_smartphone'=>$fundi_have_smartphone,'security_check'=>$security_check,'zip_code'=>$zip_code,'address_line_1'=>$address_line_1);
+                $profile_data=array('user_id'=>$user_id,'work_address'=>$request->address ,'latitude'=>$request->latitude,'longitude'=>$request->longitude,'experience_level_id'=>$request->experience_level,'facebook_url'=>$request->facebook_url,'twitter_url'=>$request->twitter_url,'instagram_url'=>$request->instagram_url,'fundi_is_middlemen'=>$fundi_is_middlemen,'fundi_have_tools'=>$fundi_have_tools,'fundi_have_smartphone'=>$fundi_have_smartphone,'security_check'=>$security_check,'zip_code'=>$zip_code,'address_line_1'=>$address_line_1,'passport_number'=>$passport_number);
                 $user->profiles()->create($profile_data);
             }
 
@@ -296,6 +298,13 @@ class ProvidersController extends Controller
                        $i++;
                }
             }
+            if ($request->hasFile('passport_image')){
+                 $file = $request->file('passport_image');
+                 $customname = time() . '.' . $file->getClientOriginalExtension();
+                 $user->addMedia($request->file('passport_image'))
+                   ->usingFileName($customname)               
+                   ->toMediaCollection('passport_image');
+            } 
 
             $request->session()->flash('success',__('global.messages.add'));
             return redirect()->route('admin.providers.index');
@@ -363,7 +372,8 @@ class ProvidersController extends Controller
             'experience_level'  => 'required',
             'address'           => 'required',
             'latitude'          => 'nullable',
-            'longitude'         => 'nullable'            
+            'longitude'         => 'nullable',
+            'passport_number'   => 'nullable',            
         ];
         $company=Company::where(['user_id'=>$id])->first(); 
         $certification_img=Certification::where(['user_id'=>$id,'type'=>'certification'])->first();
@@ -456,9 +466,10 @@ class ProvidersController extends Controller
             $security_check=isset($request->security_check)?$request->security_check:0;
             $zip_code=isset($request->zip_code)?$request->zip_code:'';
             $address_line_1=isset($request->address_line_1)?$request->address_line_1:'';
+            $passport_number=isset($request->passport_number)?$request->passport_number:'';
             if(intval($user_id) > 0)
             {
-                $profile_data=array('work_address'=>$request->address ,'latitude'=>$request->latitude,'longitude'=>$request->longitude,'experience_level_id'=>$request->experience_level,'facebook_url'=>$request->facebook_url,'twitter_url'=>$request->twitter_url,'instagram_url'=>$request->instagram_url,'fundi_is_middlemen'=>$fundi_is_middlemen,'fundi_have_tools'=>$fundi_have_tools,'fundi_have_smartphone'=>$fundi_have_smartphone,'security_check'=>$security_check,'zip_code'=>$zip_code,'address_line_1'=>$address_line_1);
+                $profile_data=array('work_address'=>$request->address ,'latitude'=>$request->latitude,'longitude'=>$request->longitude,'experience_level_id'=>$request->experience_level,'facebook_url'=>$request->facebook_url,'twitter_url'=>$request->twitter_url,'instagram_url'=>$request->instagram_url,'fundi_is_middlemen'=>$fundi_is_middlemen,'fundi_have_tools'=>$fundi_have_tools,'fundi_have_smartphone'=>$fundi_have_smartphone,'security_check'=>$security_check,'zip_code'=>$zip_code,'address_line_1'=>$address_line_1,'passport_number'=>$passport_number);
                 $profile->update($profile_data);
             }
             //company data
@@ -573,6 +584,13 @@ class ProvidersController extends Controller
                        $i++;
                }
             }
+            if ($request->hasFile('passport_image')){
+                 $file = $request->file('passport_image');
+                 $customname = time() . '.' . $file->getClientOriginalExtension();
+                 $user->addMedia($request->file('passport_image'))
+                   ->usingFileName($customname)               
+                   ->toMediaCollection('passport_image');
+            } 
 
             $request->session()->flash('success',__('global.messages.update'));
             return redirect()->route('admin.providers.index');
