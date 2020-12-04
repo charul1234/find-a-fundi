@@ -25,6 +25,8 @@ use App\Schedule;
 use App\Booking;
 use Edujugon\PushNotification\PushNotification;
 use App\Notifications\PushNotifications;
+use App\Category;
+use App\CategoryUser;
 
 class ProvidersController extends Controller
 {
@@ -124,7 +126,10 @@ class ProvidersController extends Controller
         $experience_levels=ExperienceLevel::get()->pluck('title', 'id')->map(function($value, $key){
             return ucwords($value);
         });
-        return view('admin.providers.create', compact('roles','experience_levels'));
+        $categories = Category::where(array('is_active'=>TRUE,'parent_id'=>0))->orderBy('title','ASC')->get()->pluck('title','id')->map(function($value, $key){
+          return ucwords($value);
+        });
+        return view('admin.providers.create', compact('roles','experience_levels','categories'));
     }
 
     /**
@@ -150,6 +155,8 @@ class ProvidersController extends Controller
             'zip_code'          => 'nullable',
             'address_line_1'    => 'nullable',
             'passport_number'   => 'nullable',
+            'category_id'       => 'required', 
+            'subcategory_id'    => 'required',
         ];
         if (isset($request->security_check) && $request->security_check==TRUE) {
             //  $rules1 = [
@@ -305,6 +312,23 @@ class ProvidersController extends Controller
                    ->usingFileName($customname)               
                    ->toMediaCollection('passport_image');
             } 
+            $category_id=$request->category_id;
+            $subcategory_ids=$request->subcategory_id; 
+           
+            if(intval($category_id) > 0)
+            {
+               $user->category_user()->create(['user_id'=>$user_id,'category_id'=>$category_id]);
+            } 
+            if(count($subcategory_ids)>0)
+            {
+                foreach ($subcategory_ids as $key => $subcategory_id) 
+                {  
+                  if(intval($subcategory_id) > 0)
+                   {          
+                    $user->category_user()->create(['user_id'=>$user_id,'category_id'=>$subcategory_id]); 
+                   }  
+                }                              
+            }
 
             $request->session()->flash('success',__('global.messages.add'));
             return redirect()->route('admin.providers.index');
@@ -330,10 +354,14 @@ class ProvidersController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit($id){        
-        $user = User::with('profile','media')->findOrFail($id);
+        $user = User::with('profile','media','category_user')->findOrFail($id);
         $experience_levels=ExperienceLevel::get()->pluck('title', 'id')->map(function($value, $key){
             return ucwords($value);
         });
+        $categories = Category::where(array('is_active'=>TRUE,'parent_id'=>0))->orderBy('title','ASC')->get()->pluck('title','id')->map(function($value, $key){
+          return ucwords($value);
+        });
+
         $works_photo=$user->getMedia('works_photo');  
         $providerCompany=Company::query()->with('media')->where(['user_id'=>$id])->first();   
         $providerdegree=Certification::query()->with('media')->where(['user_id'=>$id,'type'=>'degree'])->first();  
@@ -341,6 +369,7 @@ class ProvidersController extends Controller
         $providercertification=Certification::query()->with('media')->where(['user_id'=>$id,'type'=>'certification'])->first(); 
         $provider_review=Review::with(['user'])->where(array('user_id'=>$id))->get();
         $rating='';
+       
         if(count($provider_review)>0)
         {
           $no_of_count=count($provider_review); 
@@ -348,8 +377,27 @@ class ProvidersController extends Controller
           $rating = $provider_rating / $no_of_count;
           $rating=(round($rating,2));
         }
+        $provider_subcategories=array();
+        $provider_categories='';
+       if(!empty($user->category_user))
+          {
+            foreach ($user->category_user as $key => $providerdata) 
+            {
+              if($providerdata->category->parent_id!=0)
+              {
+                $provider_subcategories[]=array('id'=>$providerdata->category->id,
+                                     'title'=>$providerdata->category->title);
+              }
+              if($providerdata->category->parent_id==0)
+              {
+                $provider_categories=$providerdata->category;
+              }
+           }  
+          }
+        /* print_r($provider_subcategories);
+         $provider_categories=$provider_categories;*/
 
-        return view('admin.providers.edit',compact('user','providerCompany','experience_levels','providerdegree','works_photo','providerdiploma','providercertification','rating','provider_review'));
+        return view('admin.providers.edit',compact('user','providerCompany','experience_levels','providerdegree','works_photo','providerdiploma','providercertification','rating','provider_review','provider_subcategories','provider_categories','categories'));
     }
 
     /**
@@ -373,7 +421,9 @@ class ProvidersController extends Controller
             'address'           => 'required',
             'latitude'          => 'nullable',
             'longitude'         => 'nullable',
-            'passport_number'   => 'nullable',            
+            'passport_number'   => 'nullable',    
+            'category_id'       => 'required', 
+            'subcategory_id'    => 'required',        
         ];
         $company=Company::where(['user_id'=>$id])->first(); 
         $certification_img=Certification::where(['user_id'=>$id,'type'=>'certification'])->first();
@@ -591,6 +641,24 @@ class ProvidersController extends Controller
                    ->usingFileName($customname)               
                    ->toMediaCollection('passport_image');
             } 
+            $category_id=$request->category_id;
+            if(intval($category_id) > 0)
+            {
+               CategoryUser::where('user_id',$user_id)->delete();
+               $user->category_user()->create(['user_id'=>$user_id,'category_id'=>$category_id]);
+            } 
+            $subcategory_ids=$request->subcategory_id;   
+           // $subcategory_ids=explode(',',$subcategory_ids);
+            if(count($subcategory_ids)>0)
+            {
+                  foreach ($subcategory_ids as $key => $subcategory_id) 
+                  {  
+                    if(intval($subcategory_id) > 0)
+                     {          
+                      $user->category_user()->create(['user_id'=>$user_id,'category_id'=>$subcategory_id]); 
+                      }  
+                  }                              
+            }
 
             $request->session()->flash('success',__('global.messages.update'));
             return redirect()->route('admin.providers.index');

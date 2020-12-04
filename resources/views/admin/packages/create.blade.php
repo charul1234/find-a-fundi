@@ -108,6 +108,7 @@
 @section('scripts')
 <script type="text/javascript" src="{{ asset('js/jquery-validation/dist/jquery.validate.min.js') }}"></script>
 <script type="text/javascript" src="{{ asset('js/jquery-validation/dist/additional-methods.min.js') }}"></script>
+<script type="text/javascript" src="{{ asset('admin-theme/vendor/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
 <script type="text/javascript">
 jQuery(document).ready(function(){
     jQuery('#frmPackage').validate({

@@ -578,6 +578,59 @@ Reviews
        </div>
        </div>
     </div>
+
+           <div class="card mt-3">
+    <div class="card-header">Categories of service</div>
+    <div class="card-body">
+       <div class="row">
+   <div class="col-md-6">
+         <div class="form-group {{$errors->has('category_id') ? ' has-error' : ''}}">
+                    <label class="col-md-3 control-label" for="destination_id">Category <span style="color:red">*</span></label>
+                    <div class="">
+                      {!! Form::select('category_id', $categories, old('category_id',isset($provider_categories->id)?$provider_categories->id:''), ['id'=>'category_id', 'class' => 'form-control', 'placeholder' => 'Select Category']) !!} 
+
+                   
+                       @if($errors->has('category_id'))
+                        <p class="help-block">
+                            <strong>{{ $errors->first('category_id') }}</strong>
+                        </p>
+                        @endif 
+                    </div>
+            </div>
+   </div>
+   <div class="col-md-6 ">
+      <div class="form-group {{$errors->has('subcategory_id') ? ' has-error' : ''}}">
+                    <label class="col-md-3 control-label" for="subcategory_id">Sub Category <span style="color:red">*</span></label>
+                    <div class="col-md-9">
+                      <!--   {!! Form::select('subcategory_id', [], old('subcategory_id'), ['id'=>'subcategory_id', 'class' => 'form-control', 'placeholder' => 'Select Sub Category','multiple'=>'multiple']) !!} -->
+                      <?php
+
+                    /*  if(isset($provider_subcategories) && !empty($provider_subcategories)) { 
+                        foreach ($provider_subcategories as $provider_subcategory) {
+                          if(isset($provider_subcategory)) 
+                          {
+                              $selected_subcategory.=($provider_subcategory).",";
+                          }                    
+                        }
+                        $selected_subcategory=rtrim($selected_subcategory,",");
+                      } */
+                    //  echo ($selected_subcategory);
+                  ?>
+                          {!! Form::select('subcategory_id[]', [], old('subcategory_id'), ['class' => 'form-control citys','id'=>'subcategory_id','title'=>'Choose one or more from the following...','data-actions-box'=>'true', 'data-live-search'=>'true','data-error-container'=>'#subcategory_id-errors','multiple'=>'multiple']) !!}  
+
+                        @if($errors->has('subcategory_id'))
+                        <p class="help-block">
+                            <strong>{{ $errors->first('subcategory_id') }}</strong>
+                        </p>
+                        @endif
+                    </div>
+            </div>
+  
+   </div>
+
+       </div>
+       </div>
+    </div>
       
            
          
@@ -602,11 +655,13 @@ Reviews
 }
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="{{ asset('admin-theme/vendor/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
 @endsection
 @section('scripts')
 <script type="text/javascript" src="{{ asset('js/jquery-validation/dist/jquery.validate.min.js') }}"></script>
 <script type="text/javascript" src="{{ asset('js/jquery-validation/dist/additional-methods.min.js') }}"></script>
 <!-- <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyC57llKODVp39WCmsq8xu-WLM9XjPXeLCs&libraries&libraries=places"></script> -->
+<script type="text/javascript" src="{{ asset('admin-theme/vendor/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
 <script type="text/javascript">
 //google.maps.event.addDomListener(window, 'load',initialize);
 /*function initialize() 
@@ -622,6 +677,16 @@ Reviews
 </script>
 <script type="text/javascript">
 jQuery(document).ready(function(){
+
+  $('select[name=category_id]').change(function() {
+        var category_id = $(this).val();
+        jQuery.post("{{ route('admin.packages.getSubCategories') }}",{'category_id':category_id},function(response){
+            $('#subcategory_id').html('');
+            $('#subcategory_id').html(response.subcategories);
+            //jQuery('[name="subcategory_id[]"]').html(''); 
+            jQuery('[name="subcategory_id[]"]').selectpicker('refresh');
+        })
+    }).trigger('change');
 
 var ratingValue = '<?php echo isset($rating)?$rating:'';?>',
   rounded = (ratingValue | 0),
@@ -739,6 +804,12 @@ for (var j = 0; j < 5; j++) {
                         return true;
                     }
                 }
+            },
+            category_id:{
+                required: true
+            },
+            "subcategory_id[]":{
+                required: true
             }
         }
     });
