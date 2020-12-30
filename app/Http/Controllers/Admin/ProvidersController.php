@@ -219,9 +219,10 @@ class ProvidersController extends Controller
             $zip_code=isset($request->zip_code)?$request->zip_code:'';
             $address_line_1=isset($request->address_line_1)?$request->address_line_1:'';
             $passport_number=isset($request->passport_number)?$request->passport_number:'';
+            $is_academy_trained=isset($request->is_academy_trained)?$request->is_academy_trained:0;
             if(intval($user_id) > 0)
             {
-                $profile_data=array('user_id'=>$user_id,'work_address'=>$request->address ,'latitude'=>$request->latitude,'longitude'=>$request->longitude,'experience_level_id'=>$request->experience_level,'facebook_url'=>$request->facebook_url,'twitter_url'=>$request->twitter_url,'instagram_url'=>$request->instagram_url,'fundi_is_middlemen'=>$fundi_is_middlemen,'fundi_have_tools'=>$fundi_have_tools,'fundi_have_smartphone'=>$fundi_have_smartphone,'security_check'=>$security_check,'zip_code'=>$zip_code,'address_line_1'=>$address_line_1,'passport_number'=>$passport_number);
+                $profile_data=array('user_id'=>$user_id,'work_address'=>$request->address ,'latitude'=>$request->latitude,'longitude'=>$request->longitude,'experience_level_id'=>$request->experience_level,'facebook_url'=>$request->facebook_url,'twitter_url'=>$request->twitter_url,'instagram_url'=>$request->instagram_url,'fundi_is_middlemen'=>$fundi_is_middlemen,'fundi_have_tools'=>$fundi_have_tools,'fundi_have_smartphone'=>$fundi_have_smartphone,'security_check'=>$security_check,'zip_code'=>$zip_code,'address_line_1'=>$address_line_1,'passport_number'=>$passport_number,'is_academy_trained'=>$is_academy_trained);
                 $user->profiles()->create($profile_data);
             }
 
@@ -379,8 +380,9 @@ class ProvidersController extends Controller
         }
         $provider_subcategories=array();
         $provider_categories='';
-       if(!empty($user->category_user))
-          {
+        $childcategories = CategoryUser::where(array('user_id'=>$id))->get()->pluck('category_id');
+        if(!empty($user->category_user))
+        {
             foreach ($user->category_user as $key => $providerdata) 
             {
               if($providerdata->category->parent_id!=0)
@@ -393,10 +395,7 @@ class ProvidersController extends Controller
                 $provider_categories=$providerdata->category;
               }
            }  
-          }
-        /* print_r($provider_subcategories);
-         $provider_categories=$provider_categories;*/
-
+        }   
         return view('admin.providers.edit',compact('user','providerCompany','experience_levels','providerdegree','works_photo','providerdiploma','providercertification','rating','provider_review','provider_subcategories','provider_categories','categories'));
     }
 
@@ -517,9 +516,10 @@ class ProvidersController extends Controller
             $zip_code=isset($request->zip_code)?$request->zip_code:'';
             $address_line_1=isset($request->address_line_1)?$request->address_line_1:'';
             $passport_number=isset($request->passport_number)?$request->passport_number:'';
+            $is_academy_trained=isset($request->is_academy_trained)?$request->is_academy_trained:0;
             if(intval($user_id) > 0)
             {
-                $profile_data=array('work_address'=>$request->address ,'latitude'=>$request->latitude,'longitude'=>$request->longitude,'experience_level_id'=>$request->experience_level,'facebook_url'=>$request->facebook_url,'twitter_url'=>$request->twitter_url,'instagram_url'=>$request->instagram_url,'fundi_is_middlemen'=>$fundi_is_middlemen,'fundi_have_tools'=>$fundi_have_tools,'fundi_have_smartphone'=>$fundi_have_smartphone,'security_check'=>$security_check,'zip_code'=>$zip_code,'address_line_1'=>$address_line_1,'passport_number'=>$passport_number);
+                $profile_data=array('work_address'=>$request->address ,'latitude'=>$request->latitude,'longitude'=>$request->longitude,'experience_level_id'=>$request->experience_level,'facebook_url'=>$request->facebook_url,'twitter_url'=>$request->twitter_url,'instagram_url'=>$request->instagram_url,'fundi_is_middlemen'=>$fundi_is_middlemen,'fundi_have_tools'=>$fundi_have_tools,'fundi_have_smartphone'=>$fundi_have_smartphone,'security_check'=>$security_check,'zip_code'=>$zip_code,'address_line_1'=>$address_line_1,'passport_number'=>$passport_number,'is_academy_trained'=>$is_academy_trained);
                 $profile->update($profile_data);
             }
             //company data
@@ -571,13 +571,7 @@ class ProvidersController extends Controller
               }else
               {
                  $diploma_img=Certification::create(array('title'=>$degree_title,'type'=>'diploma','user_id'=>$id));
-              }
-            
-            
-            //$degree_img->update($degree_data);
-            
-           // $diploma_img->update($diploma_data);
-
+              }          
 
             if ($request->hasFile('company_logo')){
                  $file = $request->file('company_logo');
@@ -644,19 +638,18 @@ class ProvidersController extends Controller
             $category_id=$request->category_id;
             if(intval($category_id) > 0)
             {
-               CategoryUser::where('user_id',$user_id)->delete();
-               $user->category_user()->create(['user_id'=>$user_id,'category_id'=>$category_id]);
+                   CategoryUser::where('user_id',$user_id)->delete();
+                   $user->category_user()->create(['user_id'=>$user_id,'category_id'=>$category_id]);
             } 
             $subcategory_ids=$request->subcategory_id;   
-           // $subcategory_ids=explode(',',$subcategory_ids);
             if(count($subcategory_ids)>0)
             {
                   foreach ($subcategory_ids as $key => $subcategory_id) 
                   {  
                     if(intval($subcategory_id) > 0)
                      {          
-                      $user->category_user()->create(['user_id'=>$user_id,'category_id'=>$subcategory_id]); 
-                      }  
+                        $user->category_user()->create(['user_id'=>$user_id,'category_id'=>$subcategory_id]); 
+                     }  
                   }                              
             }
 
@@ -728,7 +721,5 @@ class ProvidersController extends Controller
         $providerCompanies=Company::query()->with('media')->where(['user_id'=>$id])->get();
         $providerCertifications=Certification::query()->with('media')->where(['user_id'=>$id])->get();       
         return view('admin.providers.view',compact('user','id','providerCompanies','providerCertifications','works_photo'));
-    }
-
-    
+    }    
 }

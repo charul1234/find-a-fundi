@@ -19,8 +19,13 @@
                    
         </div>
           <div class="card">
-          <div class="card-header">Personal Information</div>
+           <div class="alert alert-secondary text-center" role="alert">Personal Information</div>
+          <!-- <div class="card-header  text-center">Personal Information</div> -->
             <div class="card-body"><!-- <h5 class="card-title ml-2">Personal Information</h5> -->
+
+<div class=""
+
+
             <div class="form-group {{$errors->has('name') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
                 <label class="col-md-3 control-label" for="name">Name <span style="color:red">*</span></label>
                  <div class="col-md-9">
@@ -78,33 +83,10 @@
                     </div>
                 </div>
             </div>
-            @if(isset($user) && $user->getMedia('certificate_conduct')->count() > 0 && file_exists($user->getFirstMedia('certificate_conduct')->getPath()))
-        @php $image_required = false; @endphp
-    <div class="col-md-1 form-group">
-        <img width="100%" src="{{ $user->getFirstMedia('certificate_conduct')->getFullUrl() }}" />
-    </div>
-    @endif
+      
 
-    <div class="form-group {{$errors->has('certificate_conduct') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-        <label class="col-md-3 control-label" for="title">Upload Certificate of conduct </label>
-        <div class="col-md-9">
-             {{ Form::file('certificate_conduct') }}
-            @if($errors->has('certificate_conduct'))
-            <strong for="profile_picture" class="help-block">{{ $errors->first('certificate_conduct') }}</strong>
-            @endif
-        </div>
-    </div>
-            <div class="form-group {{$errors->has('experience_level') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-9 control-label" for="section">Year of Experience <span style="color:red">*</span></label>
-                 <div class="col-md-9"> 
-                    {!! Form::select('experience_level', $experience_levels, old('experience_level',isset($user->profile->experience_level_id)?$user->profile->experience_level_id:''), ['id'=>'experience_level', 'class' => 'form-control', 'placeholder' => 'Year of Experience']) !!}
-                    @if($errors->has('experience_level'))
-                    <p class="help-block">
-                        <strong>{{ $errors->first('experience_level') }}</strong>
-                    </p>
-                    @endif
-                </div>
-            </div>
+ 
+           
             <div class="form-group {{$errors->has('address_line_1') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
                 <label class="col-md-3 control-label" for="address_line_1">Address line 1 </label>
                 <div class="col-md-9">
@@ -245,6 +227,7 @@ Reviews
 
  </div>
 </div>
+
    
                  <div class="col-md-9 mb-3">
 <div class="row">
@@ -330,7 +313,24 @@ Reviews
                 </div> 
             </div></div>
  </div>
+ <div class="form-group {{$errors->has('experience_level') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-9 control-label" for="section">Year of Experience <span style="color:red">*</span></label>
+                 <div class="col-md-9"> 
+                    {!! Form::select('experience_level', $experience_levels, old('experience_level',isset($user->profile->experience_level_id)?$user->profile->experience_level_id:''), ['id'=>'experience_level', 'class' => 'form-control', 'placeholder' => 'Year of Experience']) !!}
+                    @if($errors->has('experience_level'))
+                    <p class="help-block">
+                        <strong>{{ $errors->first('experience_level') }}</strong>
+                    </p>
+                    @endif
+                </div>
+            </div>
 
+              <div class="col-md-12 form-group">
+      <label for="is_academy_trained">{{ Form::checkbox('is_academy_trained', '1', old('is_academy_trained',isset($user->profile->is_academy_trained)?$user->profile->is_academy_trained:''),['id'=>'is_academy_trained']) }}</label>
+                        <label for="is_default">Academy Trained </label>
+                   
+                      
+            </div>
            
             
     </div>
@@ -484,9 +484,11 @@ Reviews
     </div>    
 
           <div class="card mt-3">
-    <div class="card-header">Certification</div>
+    <div class="card-header">Certificate</div>
     <div class="card-body">
        <div class="row">
+
+
    <div class="col-md-6">
       <div class="form-group {{$errors->has('degree_title') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
                 <label class="col-md-12 control-label" for="degree_title">Degree </label>
@@ -574,7 +576,31 @@ Reviews
                         </div>  
                     @endif
                     </div>
+
+
    </div>
+        <div class="col-md-6">
+                        <div class="form-group {{$errors->has('certificate_conduct') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+        <label class="col-md-9 control-label" for="title">Upload Certificate of conduct </label>
+        <div class="col-md-9">
+             {{ Form::file('certificate_conduct') }}
+            @if($errors->has('certificate_conduct'))
+            <strong for="profile_picture" class="help-block">{{ $errors->first('certificate_conduct') }}</strong>
+            @endif
+        </div>
+    
+    </div>
+             @if(isset($user) && $user->getMedia('certificate_conduct')->count() > 0 && file_exists($user->getFirstMedia('certificate_conduct')->getPath()))
+        @php $image_required = false; @endphp
+    <div class="col-md-2 form-group">
+        <img width="100%" src="{{ $user->getFirstMedia('certificate_conduct')->getFullUrl() }}" />
+    </div>
+    @endif
+
+
+                    </div>
+
+    
        </div>
        </div>
     </div>
@@ -614,7 +640,21 @@ Reviews
                         }
                         $selected_subcategory=rtrim($selected_subcategory,",");
                       } */
-                    //  echo ($selected_subcategory);
+                     // print_r($provider_subcategories);
+                      $selected_subcategory='';
+                       if(isset($provider_subcategories) && !empty($provider_subcategories)) { 
+                          foreach ($provider_subcategories as $provider_subcategory) {
+                            if(isset($provider_subcategory)) 
+                            {
+                              //print_r($provider_subcategory['id']);
+                                $selected_subcategory.=($provider_subcategory['id']).",";
+                            }                    
+                          }
+                           $selected_subcategory=rtrim($selected_subcategory,",");
+                        } 
+                        //echo ($selected_subcategory);
+                       // die;
+                
                   ?>
                           {!! Form::select('subcategory_id[]', [], old('subcategory_id'), ['class' => 'form-control citys','id'=>'subcategory_id','title'=>'Choose one or more from the following...','data-actions-box'=>'true', 'data-live-search'=>'true','data-error-container'=>'#subcategory_id-errors','multiple'=>'multiple']) !!}  
 
@@ -673,18 +713,20 @@ Reviews
         document.getElementById('latitude').value = place.geometry.location.lat();
         document.getElementById('longitude').value = place.geometry.location.lng();
     });
+
 }*/
 </script>
 <script type="text/javascript">
 jQuery(document).ready(function(){
-
   $('select[name=category_id]').change(function() {
         var category_id = $(this).val();
-        jQuery.post("{{ route('admin.packages.getSubCategories') }}",{'category_id':category_id},function(response){
-            $('#subcategory_id').html('');
-            $('#subcategory_id').html(response.subcategories);
-            //jQuery('[name="subcategory_id[]"]').html(''); 
-            jQuery('[name="subcategory_id[]"]').selectpicker('refresh');
+        var  provider_subcategories='<?php echo $selected_subcategory;?>';
+        var provider_subcategoriesval=[<?php echo $selected_subcategory;  ?>];   
+        jQuery.post("{{ route('admin.packages.getSubCategories') }}",{'category_id':category_id},function(response){        
+             jQuery('[name="subcategory_id[]"]').html('');
+             jQuery('[name="subcategory_id[]"]').append(response.subcategories);
+             jQuery('[name="subcategory_id[]"]').selectpicker('val', provider_subcategoriesval);
+             jQuery('[name="subcategory_id[]"]').selectpicker('refresh');                
         })
     }).trigger('change');
 

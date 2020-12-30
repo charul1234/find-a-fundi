@@ -282,7 +282,7 @@ class PackagesController extends Controller
                   return ucwords($value);
                 });        
             if($categories->count() > 0){
-                foreach ($categories as $id => $title) {
+                foreach ($categories as $id => $title) { 
                     $selected = ($subcategory_id==$id)?'selected':'';
                     $subcategorieshtml .= '<option value="'.$id.'" '.$selected.'>'.ucwords($title).'</option>';
                 }
