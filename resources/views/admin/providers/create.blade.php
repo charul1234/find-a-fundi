@@ -18,14 +18,17 @@
                   <label for="is_verify"> Verify Provider Account </label>
                    
         </div>
-          <div class="card">
-            <div class="alert alert-secondary text-center" role="alert">Personal Information
+          <div class="card card-information">
+            <div class="alert alert-secondary col-md-12" role="alert"><div class="row"><div class="col-md-6">      <label for="is_personal_verified">{{ Form::checkbox('is_personal_verified', '1', old('is_personal_verified'),['id'=>'is_personal_verified']) }}</label>
+                        <label for="is_default">Personal Information Verified </label></div><div class="col-md-6"> <div class="text-left font-weight-bold">Personal Information</div></div></div>
 </div>
          <!--  <div class="card-header text-center">Personal Information</div> -->
             <div class="card-body"><!-- <h5 class="card-title ml-2">Personal Information</h5> -->
-            <div class="form-group {{$errors->has('name') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-3 control-label" for="name">Name <span style="color:red">*</span></label>
-                 <div class="col-md-9">
+<div class="row">
+    <div class="col-md-5">
+ <div class="form-group {{$errors->has('name') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-10 control-label" for="name">Name <span style="color:red">*</span></label>
+                 <div class="col-md-10">
                     {!! Form::text('name', old('name'), ['class' => 'form-control', 'placeholder' => 'Name']) !!}
                     @if($errors->has('name'))
                     <strong for="name" class="help-block">{{ $errors->first('name') }}</strong>
@@ -33,8 +36,8 @@
                 </div>
             </div>
              <div class="form-group {{$errors->has('mobile_number') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-3 control-label" for="mobile_number">Mobile Number <span style="color:red">*</span></label>
-                <div class="col-md-9">
+                <label class="col-md-10 control-label" for="mobile_number">Mobile Number <span style="color:red">*</span></label>
+                <div class="col-md-10">
                     {!! Form::text('mobile_number',old('mobile_number'), ['class' => 'form-control', 'placeholder' => 'Mobile Number']) !!}
                     @if($errors->has('mobile_number'))
                     <strong for="mobile_number" class="help-block">{{ $errors->first('mobile_number') }}</strong>
@@ -42,8 +45,8 @@
                 </div>
             </div>
              <div class="form-group {{$errors->has('email') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-3 control-label" for="email">Email <!-- <span style="color:red">*</span> --></label>
-                <div class="col-md-9">
+                <label class="col-md-10 control-label" for="email">Email <!-- <span style="color:red">*</span> --></label>
+                <div class="col-md-10">
                     {!! Form::text('email',old('email'), ['class' => 'form-control autoFillOff', 'placeholder' => 'Email']) !!}
                     @if($errors->has('email'))
                     <strong for="email" class="help-block">{{ $errors->first('email') }}</strong>
@@ -62,8 +65,8 @@
 
             <div  id="password_container">
                 <div class="form-group {{$errors->has('password') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                    <label class="col-md-3 control-label" for="password">New Password <span style="color:red">*</span></label>
-                    <div class="col-md-9">
+                    <label class="col-md-10 control-label" for="password">New Password <span style="color:red">*</span></label>
+                    <div class="col-md-10">
                         {!! Form::password('password',['class' => 'form-control autoFillOff', 'placeholder' => 'New Password', 'id'=>'password']) !!}
                         @if($errors->has('password'))
                         <strong for="password" class="help-block">{{ $errors->first('password') }}</strong>
@@ -71,48 +74,89 @@
                     </div>
                 </div>
                 <div class="form-group {{$errors->has('password_confirmation') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                    <label class="col-md-3 control-label" for="password_confirmation">Confirm Password <span style="color:red">*</span></label>
-                    <div class="col-md-9">
+                    <label class="col-md-10 control-label" for="password_confirmation">Confirm Password <span style="color:red">*</span></label>
+                    <div class="col-md-10">
                         {!! Form::password('password_confirmation', ['class' => 'form-control autoFillOff', 'placeholder' => 'Confirm Password']) !!}
                         @if($errors->has('password_confirmation'))
                         <strong for="password_confirmation" class="help-block">{{ $errors->first('password_confirmation') }}</strong>
                         @endif
                     </div>
                 </div>
-            </div>
-      
 
-   
-          
-            <div class="form-group {{$errors->has('address_line_1') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-3 control-label" for="address_line_1">Address line 1 </label>
-                <div class="col-md-9">
+            </div>
+             <div class="form-group {{$errors->has('address_line_1') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-10 control-label" for="address_line_1">Address line 1 </label>
+                <div class="col-md-10">
                     {!! Form::textarea('address_line_1',old('address_line_1'), ['class' => 'form-control', 'placeholder' => 'Address line 1','rows'=>'1','id' =>'address_line_1' ]) !!}
                     @if($errors->has('address_line_1'))
                     <strong for="address_line_1" class="help-block">{{ $errors->first('address_line_1') }}</strong>
                     @endif
                 </div>
             </div>
+      
+
+   
+          
+    </div>   
+    <div class="col-md-7">
+        <div class="row">
+            <div class="col-md-7"> 
+
+            </div>
+            <div class="col-md-5">   <div class="form-group {{$errors->has('profile_picture') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-12 control-label" for="title">Profile Picture </label>
+                <div class="col-md-12">
+                     {{ Form::file('profile_picture') }}
+                    @if($errors->has('profile_picture'))
+                    <strong for="profile_picture" class="help-block">{{ $errors->first('profile_picture') }}</strong>
+                    @endif
+                </div>
+            </div>
+
+            </div>
+        </div> 
+    </div>  
+</div> 
+
+<div class="row">
+    <div class="col-md-5">
+
+           
             <div class="form-group {{$errors->has('address') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-3 control-label" for="address">Address <span style="color:red">*</span></label>
-                <div class="col-md-9">
+                <label class="col-md-10 control-label" for="address">Address <span style="color:red">*</span></label>
+                <div class="col-md-10">
                     {!! Form::textarea('address',old('address'), ['class' => 'form-control', 'placeholder' => 'Address','rows'=>'1','id' =>'address' ]) !!}
                     @if($errors->has('address'))
                     <strong for="address" class="help-block">{{ $errors->first('address') }}</strong>
                     @endif
                 </div>
             </div>
-             <div class="form-group {{$errors->has('zip_code') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-3 control-label" for="zip_code">Zipcode </label>
-                <div class="col-md-9">
+                       <div class="form-group {{$errors->has('zip_code') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-10 control-label" for="zip_code">Zipcode </label>
+                <div class="col-md-10">
                     {!! Form::text('zip_code', old('zip_code'), ['class' => 'form-control', 'placeholder' => 'Zip code']) !!}
                     @if($errors->has('zip_code'))
                     <strong for="zip_code" class="help-block">{{ $errors->first('zip_code') }}</strong>
                     @endif
                 </div>
             </div>
+              <div class="form-group {{$errors->has('personal_admin_remarks') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-10 control-label" for="personal_admin_remarks">Admin Remarks </label>
+                <div class="col-md-10">
+                    {!! Form::textarea('personal_admin_remarks',old('personal_admin_remarks'), ['class' => 'form-control', 'placeholder' => 'Admin Remarks','rows'=>'1','id' =>'personal_admin_remarks' ]) !!}
+                    @if($errors->has('personal_admin_remarks'))
+                    <strong for="personal_admin_remarks" class="help-block">{{ $errors->first('personal_admin_remarks') }}</strong>
+                    @endif
+                </div>
+            </div>
+
+    </div>   
+    <div class="col-md-7">
+        <div class="row">
+            <div class="col-md-7"> 
+
 <div class="row">
-<div class="col-md-4">
+<div class="col-md-12">
  <div class="form-group {{$errors->has('latitude') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
                 <label class="col-md-12 control-label" for="latitude">Latitude </label>
                 <div class="col-md-12">
@@ -123,7 +167,7 @@
                 </div>
             </div>
 </div>
-<div class="col-md-4">
+<div class="col-md-12">
  <div class="form-group {{$errors->has('longitude') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
                 <label class="col-md-12 control-label" for="longitude">Longitude </label>
                 <div class="col-md-12">
@@ -134,26 +178,54 @@
                 </div>
             </div>
 </div>
-</div>
-
-            
-            <div class="form-group {{$errors->has('profile_picture') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-3 control-label" for="title">Profile Picture </label>
-                <div class="col-md-9">
-                     {{ Form::file('profile_picture') }}
-                    @if($errors->has('profile_picture'))
-                    <strong for="profile_picture" class="help-block">{{ $errors->first('profile_picture') }}</strong>
+<div class="col-md-12">
+ <div class="form-group {{$errors->has('personal_admin_rating') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-12 control-label" for="personal_admin_rating">Admin Rating </label>
+                <div class="col-md-12">
+                  
+                    {!! Form::select('personal_admin_rating', $adminRating, old('personal_admin_rating'), ['id'=>'personal_admin_rating', 'class' => 'form-control', 'placeholder' => 'Admin Rating (1 to 5)']) !!}
+                    @if($errors->has('personal_admin_rating'))
+                    <strong for="personal_admin_rating" class="help-block">{{ $errors->first('personal_admin_rating') }}</strong>
                     @endif
                 </div>
             </div>
+</div>
+</div>
+
+            </div>
+            <div class="col-md-5"> 
+
+            </div>
+        </div> 
+    </div>  
+</div> 
+
+
+
+           
+ 
+
+            
+          
         </div> 
           </div>
             
-             <div class="card mt-3">  <div class="card-header">Evidence of Expertise</div>
-    <div class="card-body">
+             <div class="card mt-3 card-information-technical"> 
+
+      <div class="alert alert-secondary col-md-12" role="alert"><div class="row"><div class="col-md-6">      <label for="is_technical_verified">{{ Form::checkbox('is_technical_verified', '1', old('is_technical_verified',isset($user->profile->is_technical_verified)?$user->profile->is_technical_verified:0),['id'=>'is_technical_verified']) }}</label>
+                        <label for="is_default">Technical Information Verified </label></div><div class="col-md-6"> <div class="text-left font-weight-bold">Technical Information</div></div></div>
+</div>
+
+
+    <div class="card-body border mb-2 border-primary">
+
+<!--  -->
+
+
       <div class="row">
- <div class="form-group col-md-3  ">
-Reviews
+ <div class="form-group col-md-3 ml-3 ">
+    <h6 class="m-0 font-weight-bold text-primary">Evidence of Expertise</h6>
+
  </div>
   <div class="form-group col-md-6 row ">
 <div class="col-md-2 mr-2 mt-2 "><strong><?php //echo isset($rating)?$rating:'';?></strong></div>
@@ -207,11 +279,23 @@ Reviews
                     @endif
                 </div> 
             </div></div>
- </div>
 
-       <div class="form-group {{$errors->has('experience_level') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-9 control-label" for="section">Year of Experience <span style="color:red">*</span></label>
-                 <div class="col-md-9"> 
+
+
+ </div>
+<div class="row">
+<div class="col-md-3">
+        <div class="col-md-12 form-group">
+      <label for="is_academy_trained">{{ Form::checkbox('is_academy_trained', '1', old('is_academy_trained'),['id'=>'is_academy_trained']) }}</label>
+                        <label for="is_default">Academy Trained </label>
+                   
+                      
+            </div>
+</div>
+<div class="col-md-6">
+    <div class="form-group {{$errors->has('experience_level') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-6 control-label" for="section">Year of Experience <span style="color:red">*</span></label>
+                 <div class="col-md-6"> 
                     {!! Form::select('experience_level', $experience_levels, old('experience_level'), ['id'=>'experience_level', 'class' => 'form-control', 'placeholder' => 'Year of Experience']) !!}
                     @if($errors->has('experience_level'))
                     <p class="help-block">
@@ -219,20 +303,25 @@ Reviews
                     </p>
                     @endif
                 </div>
-            </div>      
 
-                   <div class="col-md-12 form-group">
-      <label for="is_academy_trained">{{ Form::checkbox('is_academy_trained', '1', old('is_academy_trained'),['id'=>'is_academy_trained']) }}</label>
-                        <label for="is_default">Academy Trained </label>
-                   
-                      
-            </div>
+
+            </div> 
+</div>
+</div>
+        
+
+           
             
     </div>
- </div>
-           
-  <div class="card mt-3">
-    <div class="card-header">Declaration</div>
+  <div class="card-body border border-primary">
+   
+      <div class="row">
+<div class="col-md-4">
+       <div class="form-group col-md-12 ml-3 ">
+             <h6 class="m-0 font-weight-bold text-primary">Declaration</h6>
+             </div>
+              <div class="">
+ 
     <div class="card-body">
   <div class="col-md-12 form-group">
       <label for="fundi_is_middlemen">{{ Form::checkbox('fundi_is_middlemen', '1', old('fundi_is_middlemen'),['id'=>'fundi_is_middlemen']) }}</label>
@@ -250,6 +339,105 @@ Reviews
             </div>
     </div>
   </div>
+</div>
+<div class="col-md-8">
+          <div class=" ">
+              <h6 class="ml-4 font-weight-bold text-primary">Certificate</h6>
+   <!--  <div class="card-header"></div> -->
+    <div class="card-body">
+       <div class="row">
+   <div class="col-md-6">
+      <div class="form-group {{$errors->has('degree_title') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-12 control-label" for="degree_title">Degree </label>
+                <div class="col-md-9">
+                    {!! Form::text('degree_title',old('degree_title'), ['class' => 'form-control', 'placeholder' => '']) !!}
+                    @if($errors->has('degree_title'))
+                    <strong for="document_number" class="help-block">{{ $errors->first('degree_title') }}</strong>
+                    @endif
+                </div>               
+            </div>
+   </div>
+   <div class="col-md-6 row">
+     <div class="col-md-8">
+           {{ Form::file('degree') }}
+</div>
+     <div class="col-md-4">
+                    @if($errors->has('degree'))
+                    <strong for="degree" class="help-block">{{ $errors->first('degree') }}</strong>
+                    @endif                  
+                  
+                    </div>
+   </div>
+ <div class="col-md-6">
+      <div class="form-group {{$errors->has('diploma_title') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-12 control-label" for="diploma_title">Diploma</label>
+                <div class="col-md-9">
+                    {!! Form::text('diploma_title',old('diploma_title'), ['class' => 'form-control', 'placeholder' => '']) !!}
+                    @if($errors->has('diploma_title'))
+                    <strong for="diploma_title" class="help-block">{{ $errors->first('diploma_title') }}</strong>
+                    @endif
+                </div>               
+            </div>
+   </div>
+    <div class="col-md-6 row">
+       <div class="col-md-8">
+           {{ Form::file('diploma') }}
+           </div>
+     <div class="col-md-4">
+                    @if($errors->has('diploma'))
+                    <strong for="diploma" class="help-block">{{ $errors->first('diploma') }}</strong>
+                    @endif  
+                    </div>
+   </div>
+    <div class="col-md-6">
+      <div class="form-group {{$errors->has('certification_title') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-12 control-label" for="certification_title">Certification</label>
+                <div class="col-md-9">
+                    {!! Form::text('certification_title',old('certification_title'), ['class' => 'form-control', 'placeholder' => '']) !!}
+                    @if($errors->has('certification_title'))
+                    <strong for="certification_title" class="help-block">{{ $errors->first('certification_title') }}</strong>
+                    @endif
+                </div>               
+            </div>
+   </div>
+      <div class="col-md-6 row">
+          <div class="col-md-8">
+           {{ Form::file('certification') }}
+           </div>
+     <div class="col-md-4">
+                    @if($errors->has('certification'))
+                    <strong for="diploma" class="help-block">{{ $errors->first('certification') }}</strong>
+                    @endif                  
+                  
+                    </div>
+   </div>
+
+      <div class="col-md-6">
+ <div class="form-group {{$errors->has('certificate_conduct') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+        <label class="col-md-9 control-label" for="title">Upload Certificate of conduct </label>
+        <div class="col-md-9">
+             {{ Form::file('certificate_conduct') }}
+            @if($errors->has('certificate_conduct'))
+            <strong for="profile_picture" class="help-block">{{ $errors->first('certificate_conduct') }}</strong>
+            @endif
+        </div>
+    </div>
+</div>
+
+       </div>
+       </div>
+    </div>
+</div>
+
+
+      
+      </div>
+    </div>  
+
+
+ </div>
+           
+ 
       <div class="card mt-3">
     <div class="card-header">  {{Form::checkbox('security_check',1,old('security_check'), ['id'=>'security_check'])}}
                         {{ __('Security check') }} </div>
@@ -341,91 +529,7 @@ Reviews
     </div>  
     </div>    
 
-          <div class="card mt-3">
-    <div class="card-header">Certificate</div>
-    <div class="card-body">
-       <div class="row">
-   <div class="col-md-6">
-      <div class="form-group {{$errors->has('degree_title') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-12 control-label" for="degree_title">Degree </label>
-                <div class="col-md-9">
-                    {!! Form::text('degree_title',old('degree_title'), ['class' => 'form-control', 'placeholder' => '']) !!}
-                    @if($errors->has('degree_title'))
-                    <strong for="document_number" class="help-block">{{ $errors->first('degree_title') }}</strong>
-                    @endif
-                </div>               
-            </div>
-   </div>
-   <div class="col-md-6 row">
-     <div class="col-md-6">
-           {{ Form::file('degree') }}
-</div>
-     <div class="col-md-6">
-                    @if($errors->has('degree'))
-                    <strong for="degree" class="help-block">{{ $errors->first('degree') }}</strong>
-                    @endif                  
-                  
-                    </div>
-   </div>
- <div class="col-md-6">
-      <div class="form-group {{$errors->has('diploma_title') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-12 control-label" for="diploma_title">Diploma</label>
-                <div class="col-md-9">
-                    {!! Form::text('diploma_title',old('diploma_title'), ['class' => 'form-control', 'placeholder' => '']) !!}
-                    @if($errors->has('diploma_title'))
-                    <strong for="diploma_title" class="help-block">{{ $errors->first('diploma_title') }}</strong>
-                    @endif
-                </div>               
-            </div>
-   </div>
-    <div class="col-md-6 row">
-       <div class="col-md-6">
-           {{ Form::file('diploma') }}
-           </div>
-     <div class="col-md-6">
-                    @if($errors->has('diploma'))
-                    <strong for="diploma" class="help-block">{{ $errors->first('diploma') }}</strong>
-                    @endif  
-                    </div>
-   </div>
-    <div class="col-md-6">
-      <div class="form-group {{$errors->has('certification_title') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-12 control-label" for="certification_title">Certification</label>
-                <div class="col-md-9">
-                    {!! Form::text('certification_title',old('certification_title'), ['class' => 'form-control', 'placeholder' => '']) !!}
-                    @if($errors->has('certification_title'))
-                    <strong for="certification_title" class="help-block">{{ $errors->first('certification_title') }}</strong>
-                    @endif
-                </div>               
-            </div>
-   </div>
-      <div class="col-md-6 row">
-          <div class="col-md-6">
-           {{ Form::file('certification') }}
-           </div>
-     <div class="col-md-6">
-                    @if($errors->has('certification'))
-                    <strong for="diploma" class="help-block">{{ $errors->first('certification') }}</strong>
-                    @endif                  
-                  
-                    </div>
-   </div>
 
-      <div class="col-md-6">
- <div class="form-group {{$errors->has('certificate_conduct') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-        <label class="col-md-9 control-label" for="title">Upload Certificate of conduct </label>
-        <div class="col-md-9">
-             {{ Form::file('certificate_conduct') }}
-            @if($errors->has('certificate_conduct'))
-            <strong for="profile_picture" class="help-block">{{ $errors->first('certificate_conduct') }}</strong>
-            @endif
-        </div>
-    </div>
-</div>
-
-       </div>
-       </div>
-    </div>
 
          <div class="card mt-3">
     <div class="card-header">Categories of service</div>
@@ -486,6 +590,9 @@ Reviews
 <style type="text/css">
 .checked {
   color: orange;
+}
+.greybg{
+background-color:#eee;
 }
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -605,6 +712,21 @@ $('select[name=category_id]').change(function() {
             jQuery('[name="subcategory_id[]"]').selectpicker('refresh');
         })
     }).trigger('change');
+$("input[name='is_personal_verified']").change(function(){
+    if($(this).is(":checked")){
+        $('.card-information').addClass("greybg"); 
+    }else{
+        $('.card-information').removeClass("greybg");  
+    }
+});
+$("input[name='is_technical_verified']").change(function(){
+    if($(this).is(":checked")){
+        $('.card-information-technical').addClass("greybg"); 
+    }else{
+        $('.card-information-technical').removeClass("greybg");  
+    }
+});
+
 });
 function securityChecked(){
     jQuery('#security_container').slideDown("slow");

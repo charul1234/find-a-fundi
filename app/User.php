@@ -161,6 +161,21 @@ class User extends Authenticatable implements MustVerifyEmail, HasMedia
         return $this->device_token;
     }
 
+    /**
+     * For get Rating number of provider
+     *
+     * @return \Illuminate\Http\Response
+    */   
+    public static function getAdminRating()
+    { 
+       $sections= array('1'=>'1', 
+                        '2'=>'2', 
+                        '3'=>'3', 
+                        '4'=>'4',
+                        '5'=>'5');
+        return $sections;        
+    }
+
     
 
 }

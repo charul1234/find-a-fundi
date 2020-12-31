@@ -129,7 +129,8 @@ class ProvidersController extends Controller
         $categories = Category::where(array('is_active'=>TRUE,'parent_id'=>0))->orderBy('title','ASC')->get()->pluck('title','id')->map(function($value, $key){
           return ucwords($value);
         });
-        return view('admin.providers.create', compact('roles','experience_levels','categories'));
+        $adminRating=User::getAdminRating();
+        return view('admin.providers.create', compact('roles','experience_levels','categories','adminRating'));
     }
 
     /**
@@ -220,9 +221,13 @@ class ProvidersController extends Controller
             $address_line_1=isset($request->address_line_1)?$request->address_line_1:'';
             $passport_number=isset($request->passport_number)?$request->passport_number:'';
             $is_academy_trained=isset($request->is_academy_trained)?$request->is_academy_trained:0;
+            $is_personal_verified=isset($request->is_personal_verified)?$request->is_personal_verified:0;
+            $personal_admin_remarks=isset($request->personal_admin_remarks)?$request->personal_admin_remarks:'';
+            $personal_admin_rating=isset($request->personal_admin_rating)?$request->personal_admin_rating:'';
+            $is_technical_verified=isset($request->is_technical_verified)?$request->is_technical_verified:0;
             if(intval($user_id) > 0)
             {
-                $profile_data=array('user_id'=>$user_id,'work_address'=>$request->address ,'latitude'=>$request->latitude,'longitude'=>$request->longitude,'experience_level_id'=>$request->experience_level,'facebook_url'=>$request->facebook_url,'twitter_url'=>$request->twitter_url,'instagram_url'=>$request->instagram_url,'fundi_is_middlemen'=>$fundi_is_middlemen,'fundi_have_tools'=>$fundi_have_tools,'fundi_have_smartphone'=>$fundi_have_smartphone,'security_check'=>$security_check,'zip_code'=>$zip_code,'address_line_1'=>$address_line_1,'passport_number'=>$passport_number,'is_academy_trained'=>$is_academy_trained);
+                $profile_data=array('user_id'=>$user_id,'work_address'=>$request->address ,'latitude'=>$request->latitude,'longitude'=>$request->longitude,'experience_level_id'=>$request->experience_level,'facebook_url'=>$request->facebook_url,'twitter_url'=>$request->twitter_url,'instagram_url'=>$request->instagram_url,'fundi_is_middlemen'=>$fundi_is_middlemen,'fundi_have_tools'=>$fundi_have_tools,'fundi_have_smartphone'=>$fundi_have_smartphone,'security_check'=>$security_check,'zip_code'=>$zip_code,'address_line_1'=>$address_line_1,'passport_number'=>$passport_number,'is_academy_trained'=>$is_academy_trained,'is_personal_verified'=>$is_personal_verified,'personal_admin_remarks'=>$personal_admin_remarks,'personal_admin_rating'=>$personal_admin_rating,'is_technical_verified'=>$is_technical_verified);
                 $user->profiles()->create($profile_data);
             }
 
@@ -396,7 +401,8 @@ class ProvidersController extends Controller
               }
            }  
         }   
-        return view('admin.providers.edit',compact('user','providerCompany','experience_levels','providerdegree','works_photo','providerdiploma','providercertification','rating','provider_review','provider_subcategories','provider_categories','categories'));
+        $adminRating=User::getAdminRating();
+        return view('admin.providers.edit',compact('user','providerCompany','experience_levels','providerdegree','works_photo','providerdiploma','providercertification','rating','provider_review','provider_subcategories','provider_categories','categories','adminRating'));
     }
 
     /**
@@ -517,9 +523,14 @@ class ProvidersController extends Controller
             $address_line_1=isset($request->address_line_1)?$request->address_line_1:'';
             $passport_number=isset($request->passport_number)?$request->passport_number:'';
             $is_academy_trained=isset($request->is_academy_trained)?$request->is_academy_trained:0;
+            $is_personal_verified=isset($request->is_personal_verified)?$request->is_personal_verified:0;
+            $personal_admin_remarks=isset($request->personal_admin_remarks)?$request->personal_admin_remarks:'';
+            $personal_admin_rating=isset($request->personal_admin_rating)?$request->personal_admin_rating:'';
+            $is_technical_verified=isset($request->is_technical_verified)?$request->is_technical_verified:0;
+            
             if(intval($user_id) > 0)
             {
-                $profile_data=array('work_address'=>$request->address ,'latitude'=>$request->latitude,'longitude'=>$request->longitude,'experience_level_id'=>$request->experience_level,'facebook_url'=>$request->facebook_url,'twitter_url'=>$request->twitter_url,'instagram_url'=>$request->instagram_url,'fundi_is_middlemen'=>$fundi_is_middlemen,'fundi_have_tools'=>$fundi_have_tools,'fundi_have_smartphone'=>$fundi_have_smartphone,'security_check'=>$security_check,'zip_code'=>$zip_code,'address_line_1'=>$address_line_1,'passport_number'=>$passport_number,'is_academy_trained'=>$is_academy_trained);
+                $profile_data=array('work_address'=>$request->address ,'latitude'=>$request->latitude,'longitude'=>$request->longitude,'experience_level_id'=>$request->experience_level,'facebook_url'=>$request->facebook_url,'twitter_url'=>$request->twitter_url,'instagram_url'=>$request->instagram_url,'fundi_is_middlemen'=>$fundi_is_middlemen,'fundi_have_tools'=>$fundi_have_tools,'fundi_have_smartphone'=>$fundi_have_smartphone,'security_check'=>$security_check,'zip_code'=>$zip_code,'address_line_1'=>$address_line_1,'passport_number'=>$passport_number,'is_academy_trained'=>$is_academy_trained,'is_personal_verified'=>$is_personal_verified,'personal_admin_remarks'=>$personal_admin_remarks,'personal_admin_rating'=>$personal_admin_rating,'is_technical_verified'=>$is_technical_verified);
                 $profile->update($profile_data);
             }
             //company data
