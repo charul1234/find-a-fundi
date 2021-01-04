@@ -225,9 +225,13 @@ class ProvidersController extends Controller
             $personal_admin_remarks=isset($request->personal_admin_remarks)?$request->personal_admin_remarks:'';
             $personal_admin_rating=isset($request->personal_admin_rating)?$request->personal_admin_rating:'';
             $is_technical_verified=isset($request->is_technical_verified)?$request->is_technical_verified:0;
+            $technical_admin_remarks=isset($request->technical_admin_remarks)?$request->technical_admin_remarks:'';
+            $technical_admin_rating=isset($request->technical_admin_rating)?$request->technical_admin_rating:'';
+
+
             if(intval($user_id) > 0)
             {
-                $profile_data=array('user_id'=>$user_id,'work_address'=>$request->address ,'latitude'=>$request->latitude,'longitude'=>$request->longitude,'experience_level_id'=>$request->experience_level,'facebook_url'=>$request->facebook_url,'twitter_url'=>$request->twitter_url,'instagram_url'=>$request->instagram_url,'fundi_is_middlemen'=>$fundi_is_middlemen,'fundi_have_tools'=>$fundi_have_tools,'fundi_have_smartphone'=>$fundi_have_smartphone,'security_check'=>$security_check,'zip_code'=>$zip_code,'address_line_1'=>$address_line_1,'passport_number'=>$passport_number,'is_academy_trained'=>$is_academy_trained,'is_personal_verified'=>$is_personal_verified,'personal_admin_remarks'=>$personal_admin_remarks,'personal_admin_rating'=>$personal_admin_rating,'is_technical_verified'=>$is_technical_verified);
+                $profile_data=array('user_id'=>$user_id,'work_address'=>$request->address ,'latitude'=>$request->latitude,'longitude'=>$request->longitude,'experience_level_id'=>$request->experience_level,'facebook_url'=>$request->facebook_url,'twitter_url'=>$request->twitter_url,'instagram_url'=>$request->instagram_url,'fundi_is_middlemen'=>$fundi_is_middlemen,'fundi_have_tools'=>$fundi_have_tools,'fundi_have_smartphone'=>$fundi_have_smartphone,'security_check'=>$security_check,'zip_code'=>$zip_code,'address_line_1'=>$address_line_1,'passport_number'=>$passport_number,'is_academy_trained'=>$is_academy_trained,'is_personal_verified'=>$is_personal_verified,'personal_admin_remarks'=>$personal_admin_remarks,'personal_admin_rating'=>$personal_admin_rating,'is_technical_verified'=>$is_technical_verified,'technical_admin_remarks'=>$technical_admin_remarks,'technical_admin_rating'=>$technical_admin_rating);
                 $user->profiles()->create($profile_data);
             }
 
@@ -527,10 +531,12 @@ class ProvidersController extends Controller
             $personal_admin_remarks=isset($request->personal_admin_remarks)?$request->personal_admin_remarks:'';
             $personal_admin_rating=isset($request->personal_admin_rating)?$request->personal_admin_rating:'';
             $is_technical_verified=isset($request->is_technical_verified)?$request->is_technical_verified:0;
+            $technical_admin_remarks=isset($request->technical_admin_remarks)?$request->technical_admin_remarks:'';
+            $technical_admin_rating=isset($request->technical_admin_rating)?$request->technical_admin_rating:'';
             
             if(intval($user_id) > 0)
             {
-                $profile_data=array('work_address'=>$request->address ,'latitude'=>$request->latitude,'longitude'=>$request->longitude,'experience_level_id'=>$request->experience_level,'facebook_url'=>$request->facebook_url,'twitter_url'=>$request->twitter_url,'instagram_url'=>$request->instagram_url,'fundi_is_middlemen'=>$fundi_is_middlemen,'fundi_have_tools'=>$fundi_have_tools,'fundi_have_smartphone'=>$fundi_have_smartphone,'security_check'=>$security_check,'zip_code'=>$zip_code,'address_line_1'=>$address_line_1,'passport_number'=>$passport_number,'is_academy_trained'=>$is_academy_trained,'is_personal_verified'=>$is_personal_verified,'personal_admin_remarks'=>$personal_admin_remarks,'personal_admin_rating'=>$personal_admin_rating,'is_technical_verified'=>$is_technical_verified);
+                $profile_data=array('work_address'=>$request->address ,'latitude'=>$request->latitude,'longitude'=>$request->longitude,'experience_level_id'=>$request->experience_level,'facebook_url'=>$request->facebook_url,'twitter_url'=>$request->twitter_url,'instagram_url'=>$request->instagram_url,'fundi_is_middlemen'=>$fundi_is_middlemen,'fundi_have_tools'=>$fundi_have_tools,'fundi_have_smartphone'=>$fundi_have_smartphone,'security_check'=>$security_check,'zip_code'=>$zip_code,'address_line_1'=>$address_line_1,'passport_number'=>$passport_number,'is_academy_trained'=>$is_academy_trained,'is_personal_verified'=>$is_personal_verified,'personal_admin_remarks'=>$personal_admin_remarks,'personal_admin_rating'=>$personal_admin_rating,'is_technical_verified'=>$is_technical_verified,'technical_admin_remarks'=>$technical_admin_remarks,'technical_admin_rating'=>$technical_admin_rating);
                 $profile->update($profile_data);
             }
             //company data

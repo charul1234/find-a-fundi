@@ -227,14 +227,14 @@
              <div class="card mt-3 card-information-technical">   <div class="alert alert-secondary col-md-12" role="alert"><div class="row"><div class="col-md-6">      <label for="is_technical_verified">{{ Form::checkbox('is_technical_verified', '1', old('is_technical_verified',isset($user->profile->is_technical_verified)?$user->profile->is_technical_verified:0),['id'=>'is_technical_verified']) }}</label>
                         <label for="is_technical_verified">Technical Information Verified </label></div><div class="col-md-6"> <div class="text-left font-weight-bold">Technical Information</div></div></div>
 </div>
-    <div class="card-body border mb-2 border-primary">
+    <div class="card-body border mb-2 border-primary  mt-2 mb-2 ml-4 mr-4">
    
       <div class="row">
  <div class="form-group col-md-3 ml-3 ">
  <h6 class="m-0 font-weight-bold text-primary">Evidence of Expertise</h6>
  </div>
   <div class="form-group col-md-6 row ">    
-<div class="col-md-2 mr-2 mt-2 "><strong> <div class="rating">
+<div class="col-md-4 mr-2 mt-2 "><strong> <div class="rating">
 </div></strong></div>
 <div class="col-md-3 mr-3"> <div type="button"  data-toggle="modal" data-target="#myModal-001">
        
@@ -333,8 +333,8 @@
   } ?>
 
 </div>  <div class="form-group {{$errors->has('image') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-3 control-label" for="image">Works photo </label>
-                <div class="col-md-9">
+                <label class="m-0 mt-3 control-label" for="image">Works photo </label>
+                <div class="m-0">
                   {{ Form::file('image[]', array('multiple'=>true,'accept'=>'image/*'))   }}
                     @if($errors->has('image'))
                     <p class="help-block">
@@ -407,15 +407,15 @@
             
     </div>
 
-  <div class="card-body border border-primary">
+  <div class="card-body border border-primary  mt-2 mb-2 ml-4 mr-4">
    
       <div class="row">
 <div class="col-md-4">
-         <div class="form-group col-md-12 ml-3 ">
+         <div class="form-group col-md-12 ">
              <h6 class="m-0 font-weight-bold text-primary">Declaration</h6>
              </div>
                <div class="">
-    <div class="card-body">
+    <div class="mt-4">
   <div class="col-md-12 form-group">
       <label for="fundi_is_middlemen">{{ Form::checkbox('fundi_is_middlemen', '1', old('fundi_is_middlemen',isset($user->profile->fundi_is_middlemen)?$user->profile->fundi_is_middlemen:''),['id'=>'fundi_is_middlemen']) }}</label>
                         <label for="is_default">I am not middlemen. </label>
@@ -549,11 +549,7 @@
         <img width="100%" src="{{ $user->getFirstMedia('certificate_conduct')->getFullUrl() }}" />
     </div>
     @endif
-
-
-                    </div>
-
-    
+                    </div>    
        </div>
        </div>
     </div>
@@ -565,22 +561,22 @@
       </div>
     </div>  
 
- </div>
-           
-
-      <div class="card mt-3">
-    <div class="card-header">  {{Form::checkbox('security_check',1,old('security_check',isset($user->profile->security_check)?$user->profile->security_check:0), ['id'=>'security_check'])}}
-                        {{ __('Security check') }} </div>
-    <div class="card-body">
-<div  id="security_container">
-<div class="form-group {{$errors->has('company_name') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+  <div class="card-body border border-primary  mt-2 mb-2 ml-4 mr-4">
+      <div class="form-group col-md-12">
+                <h6 class="m-0 font-weight-bold text-primary">    
+                    <div class="">  {{Form::checkbox('security_check',1,old('security_check',isset($user->profile->security_check)?$user->profile->security_check:0), ['id'=>'security_check'])}}
+                        {{ __('Security check') }} </div></h6>
+              </div>
+    <div class="row"  id="security_container">
+          <div class="col-md-4">
+           <div class="form-group {{$errors->has('company_name') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
                 <?php  $company_name=isset($providerCompany->name)?$providerCompany->name:''; 
                        $remarks=isset($providerCompany->remarks)?$providerCompany->remarks:'';
                        $document_number=isset($providerCompany->document_number)?$providerCompany->document_number:'';
                        $is_payment_received=isset($providerCompany->is_payment_received)?$providerCompany->is_payment_received:'';?>
                 
-                <label class="col-md-3 control-label" for="company_name">Company Name <span style="color:red">*</span></label>
-                <div class="col-md-9">
+                <label class="col-md-12 control-label" for="company_name">Company Name <span style="color:red">*</span></label>
+                <div class="col-md-12">
                     {!! Form::text('company_name',old('company_name',$company_name), ['class' => 'form-control', 'placeholder' => 'Company Name']) !!}
                     @if($errors->has('company_name'))
                     <strong for="company_name" class="help-block">{{ $errors->first('company_name') }}</strong>
@@ -588,8 +584,8 @@
                 </div>               
             </div>
 <div class="form-group {{$errors->has('company_logo') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-3 control-label" for="company_logo">Upload logo<span style="color:red">*</span></label>
-                <div class="col-md-9">
+                <label class="col-md-12 control-label" for="company_logo">Upload logo<span style="color:red">*</span></label>
+                <div class="col-md-12">
                     {{ Form::file('company_logo') }}
                     @if($errors->has('company_logo'))
                     <strong for="company_logo" class="help-block">{{ $errors->first('company_logo') }}</strong>
@@ -598,7 +594,7 @@
                     @if(isset($providerCompany) && $providerCompany->getMedia('company_logo')->count() > 0 && file_exists($providerCompany->getFirstMedia('company_logo')->getPath()))
                         @php $company_logo_required = false; @endphp
                         <div class="row mt-2">
-                            <div class="col-md-1 form-group">
+                            <div class="col-md-3 form-group">
                         <img width="100%" src="{{ $providerCompany->getFirstMedia('company_logo')->getFullUrl() }}" />
                           
                     </div>
@@ -610,8 +606,8 @@
                 </div>               
             </div>
  <div class="form-group {{$errors->has('document_image') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-3 control-label" for="document_image">Upload Document<span style="color:red">*</span></label>
-                <div class="col-md-9">
+                <label class="col-md-12 control-label" for="document_image">Upload Document<span style="color:red">*</span></label>
+                <div class="col-md-12">
                     {{ Form::file('document_image') }}
                     @if($errors->has('document_image'))
                     <strong for="document_image" class="help-block">{{ $errors->first('document_image') }}</strong>
@@ -631,34 +627,40 @@
                     @endif
                 </div>               
             </div>
+           </div>
+           <div class="col-md-4">
             <div class="form-group {{$errors->has('document_number') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-3 control-label" for="document_number">Document Number <span style="color:red">*</span></label>
-                <div class="col-md-9">
+                <label class="col-md-12 control-label" for="document_number">Document Number <span style="color:red">*</span></label>
+                <div class="col-md-12">
                     {!! Form::text('document_number',old('document_number',$document_number), ['class' => 'form-control', 'placeholder' => 'Document Number']) !!}
                     @if($errors->has('document_number'))
                     <strong for="document_number" class="help-block">{{ $errors->first('document_number') }}</strong>
                     @endif
                 </div>               
             </div>
-        <div class="row">
- <div class="form-group col-md-6  {{$errors->has('remarks') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
-                <label class="col-md-3 control-label" for="remarks">Remarks <span style="color:red">*</span></label>
-                <div class="col-md-9">
+            <div class="form-group {{$errors->has('remarks') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-12 control-label" for="remarks">Remarks <span style="color:red">*</span></label>
+                <div class="col-md-12">
                     {!! Form::textarea('remarks',old('remarks',$remarks), ['class' => 'form-control', 'placeholder' => 'Remarks','rows'=>'2']) !!}
                     @if($errors->has('remarks'))
                     <strong for="address" class="help-block">{{ $errors->first('remarks') }}</strong>
                     @endif
                 </div>
             </div>
-             <div class="col-md-6 form-group mt-5">
+             <div class="col-md-6 form-group">
               <label for="is_default"></label>   
                           <label for="is_payment_received">{{ Form::checkbox('is_payment_received', '1', old('is_payment_received',$is_payment_received),['id'=>'is_payment_received']) }}</label>
                         <label for="is_default">Payment Received </label>                        
                        
             </div> 
-             <div class="col-md-6 form-group">
-              <label class="col-md-3 control-label" for="passport_number">Passport Number </label>   
-                        <div class="col-md-9">
+
+
+
+           </div>
+           <div class="col-md-4">
+            <div class="col-md-12 form-group">
+              <label class="col-md-12 control-label" for="passport_number">Passport Number </label>   
+                        <div class="col-md-12">
                     {!! Form::text('passport_number',old('passport_number',isset($user->profile->passport_number)?$user->profile->passport_number:''), ['class' => 'form-control', 'placeholder' => 'Passport Number']) !!}
                     @if($errors->has('passport_number'))
                     <strong for="passport_number" class="help-block">{{ $errors->first('passport_number') }}</strong>
@@ -666,8 +668,8 @@
                 </div>     
             </div> 
             <div class="col-md-6 form-group">
-              <label class="col-md-3 control-label" for="passport_image">Passport Image </label>   
-                 <div class="col-md-9">
+              <label class="col-md-12 control-label" for="passport_image">Passport Image </label>   
+                 <div class="col-md-12">
                     {{ Form::file('passport_image') }}
                     @if($errors->has('passport_image'))
                     <strong for="passport_image" class="help-block">{{ $errors->first('passport_image') }}</strong>
@@ -686,25 +688,23 @@
 
                   </div>     
                  </div> 
+           </div>
+       </div>  
+  </div>
 
-        </div>
-        
-
-        
-                
-</div>
-    </div>  
-    </div>    
-
-
-           <div class="card mt-3">
-    <div class="card-header">Categories of service</div>
-    <div class="card-body">
-       <div class="row">
-   <div class="col-md-6">
-         <div class="form-group {{$errors->has('category_id') ? ' has-error' : ''}}">
-                    <label class="col-md-3 control-label" for="destination_id">Category <span style="color:red">*</span></label>
-                    <div class="">
+  <div class="card-body border border-primary   mt-2 mb-2 ml-4 mr-4">
+    <div class="form-group col-md-12">
+        <h6 class="m-0 font-weight-bold text-primary">    
+            <div class=""> 
+              Categories of service
+            </div>
+        </h6>
+    </div>
+    <div class="row">
+          <div class="col-md-6">           
+                <div class="form-group {{$errors->has('category_id') ? ' has-error' : ''}}">
+                    <label class="col-md-12 control-label" for="destination_id">Category <span style="color:red">*</span></label>
+                    <div class="col-md-12">
                       {!! Form::select('category_id', $categories, old('category_id',isset($provider_categories->id)?$provider_categories->id:''), ['id'=>'category_id', 'class' => 'form-control', 'placeholder' => 'Select Category']) !!} 
 
                    
@@ -715,11 +715,11 @@
                         @endif 
                     </div>
             </div>
-   </div>
-   <div class="col-md-6 ">
-      <div class="form-group {{$errors->has('subcategory_id') ? ' has-error' : ''}}">
-                    <label class="col-md-3 control-label" for="subcategory_id">Sub Category <span style="color:red">*</span></label>
-                    <div class="col-md-9">
+           </div>
+           <div class="col-md-6">
+             <div class="form-group {{$errors->has('subcategory_id') ? ' has-error' : ''}}">
+                    <label class="col-md-12 control-label" for="subcategory_id">Sub Category <span style="color:red">*</span></label>
+                    <div class="col-md-12">
                       <!--   {!! Form::select('subcategory_id', [], old('subcategory_id'), ['id'=>'subcategory_id', 'class' => 'form-control', 'placeholder' => 'Select Sub Category','multiple'=>'multiple']) !!} -->
                       <?php
 
@@ -757,17 +757,39 @@
                         @endif
                     </div>
             </div>
-  
-   </div>
+           </div>
+       </div>  
+  </div>
 
-       </div>
-       </div>
+<div class="card-body">
+   <div class="row  mt-2 mb-2 ml-3 mr-4">
+          <div class="col-md-6"> <div class="form-group {{$errors->has('technical_admin_remarks') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-12 control-label" for="technical_admin_remarks">Admin Remarks </label>
+                <div class="col-md-12">
+                    {!! Form::textarea('technical_admin_remarks',old('technical_admin_remarks',isset($user->profile->technical_admin_remarks)?$user->profile->technical_admin_remarks:''), ['class' => 'form-control', 'placeholder' => 'Admin Remarks','rows'=>'1','id' =>'technical_admin_remarks' ]) !!}
+                    @if($errors->has('technical_admin_remarks'))
+                    <strong for="technical_admin_remarks" class="help-block">{{ $errors->first('technical_admin_remarks') }}</strong>
+                    @endif
+                </div>
+            </div>
+
+          </div>
+          <div class="col-md-6">  <div class="form-group {{$errors->has('technical_admin_rating') ? config('constants.ERROR_FORM_GROUP_CLASS') : ''}}">
+                <label class="col-md-12 control-label" for="technical_admin_rating">Admin Rating </label>
+                <div class="col-md-12">                  
+                  {!! Form::select('technical_admin_rating', $adminRating, old('technical_admin_rating',isset($user->profile->technical_admin_rating)?$user->profile->technical_admin_rating:''), ['id'=>'technical_admin_rating', 'class' => 'form-control', 'placeholder' => 'Admin Rating (1 to 5)']) !!}
+                    @if($errors->has('technical_admin_rating'))
+                    <strong for="technical_admin_rating" class="help-block">{{ $errors->first('technical_admin_rating') }}</strong>
+                    @endif
+                </div>
+            </div>
+
+          </div>
     </div>
-      
-           
-         
-      
+</div>
 
+
+ </div>
         </div> 
         <div class="card-footer">
             <button type="submit" class="btn btn-responsive btn-primary btn-sm">{{ __('Submit') }}</button>
