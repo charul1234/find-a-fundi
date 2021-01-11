@@ -17,51 +17,237 @@
                     <h6 class="m-0 font-weight-bold text-primary">Provider Details</h6>
                 </div>
                 <div class="card-body">
-
-                <div class="row">
-                      <div class="col-md-6">
-                         <div class="form-group">
+ <div class="card card-information mb-3">
+     <div class="alert alert-secondary col-md-12" role="alert"><div class="row"><div class="col-md-5">    
+                   </div><div class="col-md-7"> <div class="text-left font-weight-bold">Personal Information</div></div></div>
+</div>
+  <div class="row ml-3">
+      <div class="col-md-5">
+                    <div class="form-group">
                         <label class="col-form-label"><strong>Full Name : </strong>{{ isset($user->name)?$user->name:'' }}</label>
                     </div>
-                     <div class="form-group">
+                    <div class="form-group">
                         <label class="col-form-label"><strong>Mobile Number :</strong> {{ isset($user->mobile_number)?$user->mobile_number:'' }}</label>
                     </div>
                     <div class="form-group">
                         <label class="col-form-label"><strong>Email :</strong> {{ isset($user->email)?$user->email:'' }}</label>
-                    </div>  
+                    </div> 
+                     <div class="form-group">
+                      <label class="col-form-label"><strong>Category :</strong></label>
+                       <?php
+                         $main_category_name='';
+                         $main_subcategory_name[]='';
+                            if(count($user->category_user)>0)
+                              {
+                                foreach ($user->category_user as $key => $providerdata) 
+                                {
+                                  if($providerdata->category->parent_id==0)
+                                  {
+                                     $main_category_name= isset($providerdata->category->title)?$providerdata->category->title:'';
+                                  }
+                                  if($providerdata->category->parent_id!=0)
+                                  {
+                                     if(isset($providerdata->category->title) && $providerdata->category->title!='')
+                                     {                              
+                                        $main_subcategory_name[]= $subcategory_name= $providerdata->category->title; 
+                                     }    
+                                  }                           
+                               }                           
+                              }  
+                              echo $main_category_name;
+                        ?>    
+                     </div>    
+                      <div class="form-group">
+                      <label class="col-form-label"><strong>Subcategory :</strong></label>
+                      <?php 
+                            $main_subcategory_name = implode(', ', $main_subcategory_name);
+                            echo trim($main_subcategory_name,",");
+                        ?>        
+                     </div> 
+                        <div class="form-group">
+                 <label class="col-form-label"><strong>Service Type : </strong></label>
+        <?php 
+                       if($user->profile->is_rfq == TRUE ){
+                         ?>
+                        <label class="col-form-label">Request for Quote 
+                       <i class="fa badge-success fa-check" aria-hidden="true"></i>
+                        </label> <?php
+                       }
+                       if($user->profile->is_package == TRUE ){
+                         ?>
+                        <label class="col-form-label">Package 
+                       <i class="fa badge-success fa-check" aria-hidden="true"></i>
+                        </label> <?php
+                       }
+                        ?>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-form-label"><strong>Address line 1 :</strong> <?php echo isset($user->profile->address_line_1)?ucwords($user->profile->address_line_1):'';?>   </label>
+                    </div> 
+                    <div class="form-group">
+                        <label class="col-form-label"><strong>Address :</strong> <?php echo isset($user->profile->work_address)?ucwords($user->profile->work_address):'';?>   </label>
+                    </div> 
+                  <!--   <div class="form-group">
+                        <label class="col-form-label"><strong>Zipcode :</strong> <?php echo isset($user->profile->zip_code)?ucwords($user->profile->zip_code):'';?>   </label>
+                    </div>  -->
+                    
 
+
+
+
+      </div>
+      <div class="col-md-7">
+
+        <div class="row">
+            <div class="col-md-7">   
               <div class="form-group">
-                <label class="col-form-label"><strong>Category :</strong></label>
-                 <?php
-                   $main_category_name='';
-                   $main_subcategory_name[]='';
-                      if(count($user->category_user)>0)
-                        {
-                          foreach ($user->category_user as $key => $providerdata) 
+                        <label class="col-form-label"><strong>Latitude : </strong> <?php echo isset($user->profile->latitude)?ucwords($user->profile->latitude):'';?>   </label>
+                    </div>
+                     <div class="form-group">
+                        <label class="col-form-label"><strong>Longitude : </strong> <?php echo isset($user->profile->longitude)?ucwords($user->profile->longitude):'';?>   </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-form-label"><strong>Radius : </strong> <?php echo isset($user->profile->radius)?ucwords($user->profile->radius):'';?>   </label>
+                    </div> 
+                    <div class="form-group">
+                        <label class="col-form-label"><strong>DOB : </strong>{{ isset($user->profile->dob)?date(config('constants.DATE_FORMAT'),strtotime($user->profile->dob)):'' }} </label>
+                    </div>
+                       <div class="form-group">               
+                       <label class="col-form-label"><strong>Year experience :  </strong>{{ isset($user->profile->experience_level->title)?ucwords($user->profile->experience_level->title):'' }} </label> 
+                    </div>  
+                    <div class="form-group">
+                        <label class="col-form-label"><strong>Passport Number :  </strong><?php echo isset($user->profile->passport_number)?ucwords($user->profile->passport_number):'';?>   </label>
+                    </div> 
+                     <div class="form-group">
+                        <label class="col-form-label"><strong>Registered Date Time :  </strong>{{ date(config('constants.DATETIME_FORMAT'),strtotime($user->created_at)) }} </label>
+                    </div>
+
+            </div>
+            <div class="col-md-5"> @if(isset($user) && $user->getMedia('profile_picture')->count() > 0 && file_exists($user->getFirstMedia('profile_picture')->getPath()))
+                    @php $image_required = false; @endphp
+                <div class="col-md-5 form-group">
+                    <img width="100%" src="{{ $user->getFirstMedia('profile_picture')->getFullUrl() }}" />
+                </div>
+                @endif
+
+            </div>
+        </div>
+
+      </div>
+  </div>
+
+ </div>
+
+<div class="card card-information">
+     <div class="alert alert-secondary col-md-12" role="alert"><div class="row"><div class="col-md-5">    
+                   </div><div class="col-md-7"> <div class="text-left font-weight-bold">Technical Information</div></div></div>
+
+</div>
+<div class="row">
+<div class="col-md-5">
+
+   <div class="form-group col-md-12 ml-3 ">
+    <h6 class="m-0 font-weight-bold text-primary">Evidence of Expertise</h6>
+ </div>
+  <div class="form-group col-md-12 ml-3 ">
+    <h6 class="m-0 font-weight-bold text-primary">Works photo</h6>
+  </div>
+<div class="row  ml-3  ">
+  <?php if(isset($works_photo) && !empty($works_photo))
+  {
+    $i = 1;
+    foreach ($works_photo as $key => $photo) {
+      ?>
+     <div class="col-md-2 mb-4">
+      <div type="button"  data-toggle="modal" data-target="#myModal-<?php echo $i; // Displaying the increment ?>">
+          <img width="70" height="70" src="{{ $photo->getFullUrl() }}" />
+      </div>
+     </div>
+
+  
+
+<!-- The Modal -->
+<div class="modal" id="myModal-<?php echo $i; // Displaying the increment ?>">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">×</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <img width="100%" height="100%" src="{{ $photo->getFullUrl() }}" />
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+    <?php $i++; }
+  } ?>
+  
+</div>   
+
+</div>
+<div class="col-md-7">
+<div class="row">
+  <h6 class=" col-md-12 ml-3 font-weight-bold text-primary">Social Url</h6>
+  <div class="col-md-12  ml-4">
+                       <div class="form-group">
+                          <label class="col-form-label"><strong>Facebook :  </strong><?php 
+                          if(isset($user->profile->facebook_url))
                           {
-                            if($providerdata->category->parent_id==0)
-                            {
-                               $main_category_name= isset($providerdata->category->title)?$providerdata->category->title:'';
-                            }
-                            if($providerdata->category->parent_id!=0)
-                            {
-                               if(isset($providerdata->category->title) && $providerdata->category->title!='')
-                               {                              
-                                  $main_subcategory_name[]= $subcategory_name= $providerdata->category->title; 
-                               }    
-                            }                           
-                         }                           
-                        }  
-                        echo $main_category_name;
-                  ?>    
-               </div>    
-                <div class="form-group">
-                <label class="col-form-label"><strong>Subcategory :</strong></label>
-                <?php 
-                      $main_subcategory_name = implode(', ', $main_subcategory_name);
-                      echo trim($main_subcategory_name,",");
-                  ?>        
-               </div>                     
+                             echo "<a href=".$user->profile->facebook_url." target='_blank'>".$user->profile->facebook_url."</a>";
+                          }
+                          ?></label>
+                       </div>
+                       <div class="form-group">
+                          <label class="col-form-label"><strong>Instagram :  </strong><?php 
+                          if(isset($user->profile->instagram_url))
+                          {
+                             echo "<a href=".$user->profile->instagram_url." target='_blank'>".$user->profile->instagram_url."</a>";
+                          }
+                          ?></label>
+                       </div>
+                       <div class="form-group">
+                          <label class="col-form-label"><strong>Twitter :  </strong><?php 
+                          if(isset($user->profile->twitter_url))
+                          {
+                             echo "<a href=".$user->profile->twitter_url." target='_blank'>".$user->profile->twitter_url."</a>";
+                          }
+
+
+                          ?></label>
+                       </div>
+                            </div>
+ </div>
+</div>
+
+
+
+
+</div>
+
+
+<!-- </div> -->
+
+ </div>
+
+
+
+
+
+                <div class="row">
+                      <div class="col-md-6">
+                  
+
+                                 
               <div class="row">
                     <div class="col-md-12">
                        <div class="">
@@ -97,94 +283,15 @@
                         ?> </label>
                     </div>
 
-                     <div class="form-group">
-                 <label class="col-form-label"><strong>Service Type : </strong></label>
-        <?php 
-                       if($user->profile->is_rfq == TRUE ){
-                         ?>
-                        <label class="col-form-label">Request for Quote 
-                       <i class="fa badge-success fa-check" aria-hidden="true"></i>
-                        </label> <?php
-                       }
-                       if($user->profile->is_package == TRUE ){
-                         ?>
-                        <label class="col-form-label">Package 
-                       <i class="fa badge-success fa-check" aria-hidden="true"></i>
-                        </label> <?php
-                       }
-                        ?>
-                    </div>
+                  
 </div>
                    
                  </div>                          
                     
                       </div>
                       <div class="col-md-6">
-                         <div class="form-group">
-                        <label class="col-form-label"><strong>Address :</strong> <?php echo isset($user->profile->work_address)?ucwords($user->profile->work_address):'';?>   </label>
-                    </div>  
-                    <div class="form-group">
-                        <label class="col-form-label"><strong>Radius : </strong> <?php echo isset($user->profile->radius)?ucwords($user->profile->radius):'';?>   </label>
-                    </div> 
-                    <div class="form-group">
-                        <label class="col-form-label"><strong>DOB : </strong>{{ isset($user->profile->dob)?date(config('constants.DATE_FORMAT'),strtotime($user->profile->dob)):'' }} </label>
-                    </div>
-                       <div class="form-group">
-                      <!--   <label class="col-form-label"><strong>Experience Level :  </strong>{{ isset($user->profile->experience_level->title)?ucwords($user->profile->experience_level->title):'' }} </label> -->
-                       <label class="col-form-label"><strong>Year experience :  </strong>{{ isset($user->profile->experience_level->title)?ucwords($user->profile->experience_level->title):'' }} </label> 
-                    </div> 
-                    <!--  <div class="form-group">
-                        <label class="col-form-label"><strong>Payment Option : </strong> {{ isset($user->profile->payment_option->title)?ucwords($user->profile->payment_option->title):'' }} </label>
-                    </div>  -->
-                   <!--  <div class="form-group">
-                        <label class="col-form-label">Additional Work : 
-                       <?php 
-                     /*  if($user->profile->additional_work == TRUE ){
-                        echo 'Yes';
-                       }else
-                       {
-                        echo 'No';
-                       }*/
-                        ?> </label>
-                    </div> --> 
-
-                    <!-- <div class="form-group">
-                        <label class="col-form-label">Price : {{isset($user->profile->price)?config('constants.DEFAULT_CURRENCY_SYMBOL').ucwords($user->profile->price):''}} </label>
-                    </div>  -->
-                     
-                    <div class="form-group">
-                        <label class="col-form-label"><strong>Passport Number :  </strong><?php echo isset($user->profile->passport_number)?ucwords($user->profile->passport_number):'';?>   </label>
-                    </div> 
-                     <div class="form-group">
-                        <label class="col-form-label"><strong>Registered Date Time :  </strong>{{ date(config('constants.DATETIME_FORMAT'),strtotime($user->created_at)) }} </label>
-                    </div>
-                      <h6 class="ml-0 font-weight-bold text-primary">Social Url</h6>
-                       <div class="form-group">
-                          <label class="col-form-label"><strong>Facebook :  </strong><?php 
-                          if(isset($user->profile->facebook_url))
-                          {
-                             echo "<a href=".$user->profile->facebook_url." target='_blank'>".$user->profile->facebook_url."</a>";
-                          }
-                          ?></label>
-                       </div>
-                       <div class="form-group">
-                          <label class="col-form-label"><strong>Instagram :  </strong><?php 
-                          if(isset($user->profile->instagram_url))
-                          {
-                             echo "<a href=".$user->profile->instagram_url." target='_blank'>".$user->profile->instagram_url."</a>";
-                          }
-                          ?></label>
-                       </div>
-                       <div class="form-group">
-                          <label class="col-form-label"><strong>Twitter :  </strong><?php 
-                          if(isset($user->profile->twitter_url))
-                          {
-                             echo "<a href=".$user->profile->twitter_url." target='_blank'>".$user->profile->twitter_url."</a>";
-                          }
-
-
-                          ?></label>
-                       </div>
+                 
+                    
                    </div>
 
                  </div>      
@@ -286,48 +393,7 @@
  </div>   
               </div>
 
-<h6 class="ml-0 font-weight-bold text-primary">Works photo</h6>
-<div class="row">
-  <?php if(isset($works_photo) && !empty($works_photo))
-  {
-    $i = 1;
-    foreach ($works_photo as $key => $photo) {
-      ?>
-     <div class="col-md-2 mb-4">
-      <div type="button"  data-toggle="modal" data-target="#myModal-<?php echo $i; // Displaying the increment ?>">
-          <img width="70" height="70" src="{{ $photo->getFullUrl() }}" />
-      </div>
-     </div>
 
-  
-
-<!-- The Modal -->
-<div class="modal" id="myModal-<?php echo $i; // Displaying the increment ?>">
-  <div class="modal-dialog">
-    <div class="modal-content">
-
-      <!-- Modal Header -->
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">×</button>
-      </div>
-
-      <!-- Modal body -->
-      <div class="modal-body">
-        <img width="100%" height="100%" src="{{ $photo->getFullUrl() }}" />
-      </div>
-
-      <!-- Modal footer -->
-      <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-      </div>
-
-    </div>
-  </div>
-</div>
-    <?php $i++; }
-  } ?>
-  
-</div>
 
                </div><div class="col-md-6">                     
 
