@@ -15,6 +15,20 @@ Auth::routes(['verify' => false,'register' => false]);
 Route::get('isEmailVerify/{id?}', 'HomeController@isEmailVerify')->name('home.isEmailVerify');
 Route::get('/{url?}', 'HomeController@index')->where(['url' => '|home'])->name('home');
 
+/*Route::group(['prefix' => '/webhooks'], function () {
+    //PESAPAL
+    Route::get('donepayment', ['as' => 'paymentsuccess', 'uses'=>'PaymentsController@paymentsuccess']);
+    Route::get('paymentconfirmation', 'PaymentsController@paymentconfirmation');
+    Route::get('payment', 'PaymentsController@payment');
+});*/
+/*Route::middleware('auth:api')->get('/user', function (Request $request) {
+    return $request->user();
+});*/
+Route::get('generateAccessToken', 'PaymentsController@generateAccessToken');
+Route::get('customerMpesaSTKPush', 'PaymentsController@customerMpesaSTKPush');
+Route::get('mpesaValidation', 'PaymentsController@mpesaValidation');
+Route::get('mpesaConfirmation', 'PaymentsController@mpesaConfirmation');
+
 Route::group(['middleware' => ['auth']], function(){
 	Route::get('access-denied', function(){
 		return view('access-denied');
