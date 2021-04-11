@@ -62,6 +62,8 @@
         'NOTIFICATION_NEW_BOOKING_REQUEST_SUBJECT'=>'New job',
         'NOTIFICATION_NEW_BOOKING_REQUEST_MESSAGE'=>'New request job available.',
 
+        'DISTANCE_KM'=>'kM',
+
     
         
 	];

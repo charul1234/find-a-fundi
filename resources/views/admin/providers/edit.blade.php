@@ -675,9 +675,9 @@
                     <strong for="passport_image" class="help-block">{{ $errors->first('passport_image') }}</strong>
                     @endif
 
-                    @php $company_logo_required = true; @endphp
+                    @php $passport_image_required = true; @endphp
                     @if(isset($user) && $user->getMedia('passport_image')->count() > 0 && file_exists($user->getFirstMedia('passport_image')->getPath()))
-                        @php $company_logo_required = false; @endphp
+                        @php $passport_image_required = false; @endphp
                         <div class="row mt-2 ml-2">                      
                     <div class=" form-group">
                         <a download href="{{ $user->getFirstMedia('passport_image')->getFullUrl() }}" target="_blank"><i class="fa fa-download" aria-hidden="true"></i></a>

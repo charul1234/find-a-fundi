@@ -24,7 +24,7 @@
   <div class="row ml-3">
       <div class="col-md-5">
                     <div class="form-group">
-                        <label class="col-form-label"><strong>Full Name : </strong>{{ isset($user->name)?$user->name:'' }}</label>
+                        <label class="col-form-label"><strong>Full Name : </strong>{{ isset($user->name)?ucwords($user->name):'' }}</label>
                     </div>
                     <div class="form-group">
                         <label class="col-form-label"><strong>Mobile Number :</strong> {{ isset($user->mobile_number)?$user->mobile_number:'' }}</label>
@@ -66,18 +66,40 @@
                      </div> 
                         <div class="form-group">
                  <label class="col-form-label"><strong>Service Type : </strong></label>
+                  <label class="col-form-label">Request for Quote </label>
         <?php 
                        if($user->profile->is_rfq == TRUE ){
                          ?>
-                        <label class="col-form-label">Request for Quote 
-                       <i class="fa badge-success fa-check" aria-hidden="true"></i>
-                        </label> <?php
+                       
+                       <i class="fa badge-primary fa-check" aria-hidden="true"></i>
+                         <?php
+                       }else
+                       {
+                        ?><i class="fa badge-primary fa-times" aria-hidden="true"></i>
+                        <?php
                        }
-                       if($user->profile->is_package == TRUE ){
+                       ?> <label class="col-form-label">Package  </label> 
+                      <?php if($user->profile->is_package == TRUE ){
                          ?>
-                        <label class="col-form-label">Package 
-                       <i class="fa badge-success fa-check" aria-hidden="true"></i>
-                        </label> <?php
+                       
+                       <i class="fa badge-primary fa-check" aria-hidden="true"></i>
+                       <?php
+                       }else
+                       {
+                        ?><i class="fa badge-primary fa-times" aria-hidden="true"></i>
+                        <?php
+                       }?>
+                         <label class="col-form-label">Hourly  </label>
+
+                      <?php if($user->profile->is_hourly  == TRUE ){
+                         ?>
+                      
+                       <i class="fa badge-primary fa-check" aria-hidden="true"></i>
+                        <?php
+                       }else
+                       {
+                        ?><i class="fa badge-primary fa-times" aria-hidden="true"></i>
+                        <?php
                        }
                         ?>
                     </div>
@@ -107,7 +129,7 @@
                         <label class="col-form-label"><strong>Longitude : </strong> <?php echo isset($user->profile->longitude)?ucwords($user->profile->longitude):'';?>   </label>
                     </div>
                     <div class="form-group">
-                        <label class="col-form-label"><strong>Radius : </strong> <?php echo isset($user->profile->radius)?ucwords($user->profile->radius):'';?>   </label>
+                        <label class="col-form-label"><strong>Radius : </strong> <?php echo isset($user->profile->radius)?ucwords($user->profile->radius).config('constants.DISTANCE_KM'):'';?> </label>
                     </div> 
                     <div class="form-group">
                         <label class="col-form-label"><strong>DOB : </strong>{{ isset($user->profile->dob)?date(config('constants.DATE_FORMAT'),strtotime($user->profile->dob)):'' }} </label>
@@ -143,16 +165,18 @@
                    </div><div class="col-md-7"> <div class="text-left font-weight-bold">Technical Information</div></div></div>
 
 </div>
+<div class="card-body border mb-2 border-primary  mt-2 mb-2 ml-4 mr-4">
+
 <div class="row">
 <div class="col-md-5">
 
-   <div class="form-group col-md-12 ml-3 ">
+   <div class="form-group col-md-12 ">
     <h6 class="m-0 font-weight-bold text-primary">Evidence of Expertise</h6>
  </div>
-  <div class="form-group col-md-12 ml-3 ">
-    <h6 class="m-0 font-weight-bold text-primary">Works photo</h6>
+  <div class="form-group col-md-12 ml-2 ">
+    <strong class="m-0 font-weight-bold">Works photo</strong>
   </div>
-<div class="row  ml-3  ">
+<div class="row  ml-4  ">
   <?php if(isset($works_photo) && !empty($works_photo))
   {
     $i = 1;
@@ -193,6 +217,22 @@
   } ?>
   
 </div>   
+ <div class="col-md-12  ml-2   form-group">
+    <label class="col-form-label"><strong>Academy Trained :  </strong>
+ <?php  if($user->profile->is_academy_trained == TRUE )
+ {
+  ?><i class="fa badge-primary fa-check" aria-hidden="true"></i>
+  <?php 
+ }else
+ {
+  ?><i class="fa badge-primary fa-times" aria-hidden="true"></i>
+  <?php
+ }
+     ?>
+                   
+                      
+            </div>
+
 
 </div>
 <div class="col-md-7">
@@ -225,6 +265,10 @@
 
                           ?></label>
                        </div>
+
+
+
+
                             </div>
  </div>
 </div>
@@ -237,30 +281,35 @@
 
 <!-- </div> -->
 
- </div>
 
 
 
 
 
-                <div class="row">
-                      <div class="col-md-6">
+
+                <div class="row  ml-1">
+                      <div class="col-md-5">
                   
 
                                  
               <div class="row">
                     <div class="col-md-12">
-                       <div class="">
-        <h6 class="ml-0 font-weight-bold text-primary">Declarations</h6>
+                      <div class="">
+    <h6 class="m-0 font-weight-bold text-primary">Declarations</h6>
+ </div>
+                      
         </div>
-        </div>
-          <div class="col-md-12">
+          <div class="col-md-12  ml-2">
          <div class="form-group">
                         <label class="col-form-label"><strong>I am not middlemen :  </strong>
                        <?php 
                        if($user->profile->fundi_is_middlemen == TRUE ){
-                        ?><i class="fa badge-success fa-check" aria-hidden="true"></i>
+                        ?><i class="fa badge-primary fa-check" aria-hidden="true"></i>
                         <?php 
+                       }else
+                       {
+                        ?><i class="fa badge-primary fa-times" aria-hidden="true"></i>
+                        <?php
                        }
                         ?> </label>
                     </div> 
@@ -268,8 +317,12 @@
                         <label class="col-form-label"><strong>I have all the required tools to do their job : </strong>
                        <?php 
                        if($user->profile->fundi_have_tools == TRUE ){
-                        ?><i class="fa badge-success fa-check" aria-hidden="true"></i>
+                        ?><i class="fa badge-primary fa-check" aria-hidden="true"></i>
                         <?php 
+                       }else
+                       {
+                        ?><i class="fa badge-primary fa-times" aria-hidden="true"></i>
+                        <?php
                        }
                         ?> </label>
                     </div>
@@ -277,9 +330,13 @@
                         <label class="col-form-label"><strong>I have a smartphone : </strong>
                        <?php 
                        if($user->profile->fundi_have_smartphone == TRUE ){
-                      ?><i class="fa badge-success fa-check" aria-hidden="true"></i>
+                      ?><i class="fa badge-primary fa-check" aria-hidden="true"></i>
                       <?php
-                       }
+                       }else
+                         {
+                          ?><i class="fa badge-primary fa-times" aria-hidden="true"></i>
+                          <?php
+                         }
                         ?> </label>
                     </div>
 
@@ -289,22 +346,172 @@
                  </div>                          
                     
                       </div>
-                      <div class="col-md-6">
-                 
+                      <div class="col-md-7">
+                  <h6 class="ml-0 font-weight-bold text-primary">Certificate</h6>
+
+                  <div class="row">
+                   <div class="col-md-4">
+                      <label class="col-md-12 control-label" for="degree_title">Degree </label>
+                      <label class="col-md-12 control-label" for="degree_title"><strong><?php echo isset($providerdegree->title)?$providerdegree->title:'';?></strong></label>
+                      @if(isset($providerdegree) && $providerdegree->getMedia('degree')->count() > 0 && file_exists($providerdegree->getFirstMedia('degree')->getPath()))  
+                    <div class="row  col-md-6">                     
+                    <div class="col-md-1  form-group">
+                        <a download href="{{ $providerdegree->getFirstMedia('degree')->getFullUrl() }}" target="_blank"><i class="fa fa-download" aria-hidden="true"></i></a>
+                    </div>
+                        </div>  
+                    @endif
+                   </div>
+                   <div class="col-md-4">
+                      <label class="col-md-12 control-label" for="diploma_title">Diploma</label>
+                      <label class="col-md-12 control-label" for="diploma_title"><strong><?php echo isset($providerdiploma->title)?$providerdiploma->title:'';?></strong></label>
+                       @if(isset($providerdiploma) && $providerdiploma->getMedia('diploma')->count() > 0 && file_exists($providerdiploma->getFirstMedia('diploma')->getPath()))              
+                     
+                        <div class="row  col-md-6">
+                          
+                    <div class="col-md-1  form-group">
+                        <a download href="{{ $providerdiploma->getFirstMedia('diploma')->getFullUrl() }}" target="_blank"><i class="fa fa-download" aria-hidden="true"></i></a>
+                    </div>
+                        </div>  
+                    @endif
+                   </div>
+                   <div class="col-md-4">
+                      <label class="col-md-12 control-label" for="certification_title">Certification</label>
+                       <label class="col-md-12 control-label" for="certification_title"><strong><?php echo isset($providercertification->title)?$providercertification->title:'';?></strong></label>
+                       @if(isset($providercertification) && $providercertification->getMedia('certification')->count() > 0 && file_exists($providercertification->getFirstMedia('certification')->getPath()))              
+                     
+                      <div class="row  col-md-6">  
+                           
+                    <div class="col-md-1 form-group">
+                        <a download href="{{ $providercertification->getFirstMedia('certification')->getFullUrl() }}" target="_blank"><i class="fa fa-download" aria-hidden="true"></i></a>
+                    </div>
+                        </div>  
+                    @endif
+                   </div>
+
+                    <div class="col-md-12">
+                        <label class="col-md-9 control-label" for="title">Upload Certificate of conduct </label>
+                       @if(isset($user) && $user->getMedia('certificate_conduct')->count() > 0 && file_exists($user->getFirstMedia('certificate_conduct')->getPath()))
+                        @php $image_required = false; @endphp
+                    <div class="col-md-2 form-group">
+                      
+                         <a download href="{{ $user->getFirstMedia('certificate_conduct')->getFullUrl() }}" target="_blank"><i class="fa fa-download" aria-hidden="true"></i></a>
+                    </div>
+                    @endif
+
+                    </div>
+  
+                  </div>
                     
                    </div>
 
                  </div>      
                 
+ </div>
+<div class="card-body border mb-2 border-primary  mt-2 mb-2 ml-4 mr-4">
+
+    <div class="row"  id="security_container">
+          <div class="col-md-4">
+           <div class="form-group">
+                <?php  $company_name=isset($providerCompany->name)?$providerCompany->name:''; 
+                       $remarks=isset($providerCompany->remarks)?$providerCompany->remarks:'';
+                       $document_number=isset($providerCompany->document_number)?$providerCompany->document_number:'';
+                       $is_payment_received=isset($providerCompany->is_payment_received)?$providerCompany->is_payment_received:'';?>
+                
+                <label class="col-md-12 control-label" for="company_name"> <strong>Company Name : </strong> <?php echo isset($company_name)?$company_name:'';?></label>
+                           
+            </div>
+<div class="form-group">
+                <label class="col-md-12 control-label" for="company_logo"><strong>Company logo : </strong></label>
+                <div class="col-md-12">              
+                    @php $company_logo_required = true; @endphp
+                    @if(isset($providerCompany) && $providerCompany->getMedia('company_logo')->count() > 0 && file_exists($providerCompany->getFirstMedia('company_logo')->getPath()))
+                        @php $company_logo_required = false; @endphp
+                        <div class="row ">                        
+                    <div class="col-md-1 form-group">
+                        <a download href="{{ $providerCompany->getFirstMedia('company_logo')->getFullUrl() }}" target="_blank"><i class="fa fa-download" aria-hidden="true"></i></a>
+                    </div>
+                        </div>  
+                    @endif
+                </div>               
+            </div>
+ <div class="form-group">
+                <label class="col-md-12 control-label" for="document_image"><strong>Upload Document :</strong></label>
+                <div class="col-md-12">
+                    
+                    @php $document_image_required = true; @endphp
+                    @if(isset($providerCompany) && $providerCompany->getMedia('document_image')->count() > 0 && file_exists($providerCompany->getFirstMedia('document_image')->getPath()))
+                        @php $document_image_required = false; @endphp
+                        <div class="row ">                  
+                    <div class="col-md-1 form-group">
+                        <a download href="{{ $providerCompany->getFirstMedia('document_image')->getFullUrl() }}" target="_blank"><i class="fa fa-download" aria-hidden="true"></i></a>
+                    </div>
+                        </div>  
+                    @endif
+                </div>               
+            </div>
+           </div>
+           <div class="col-md-4">
+            <div class="form-group">
+                <label class="col-md-12 control-label" for="document_number"><strong>Document Number : </strong><?php echo isset($document_number)?$document_number:'';?></label> 
+                <div class="col-md-12">                  
+                    
+                   
+                </div>               
+            </div>
+            <div class="form-group">
+                <label class="col-md-12 control-label" for="remarks"><strong>Remarks :</strong> <?php echo isset($remarks)?$remarks:'';?></label>                
+            </div>
+             <div class="col-md-6 form-group">
+                     <?php  if($is_payment_received == TRUE ){
+                      ?><i class="fa badge-primary fa-check" aria-hidden="true"></i>
+                      <?php
+                       }else
+                         {
+                          ?><i class="fa badge-primary fa-times" aria-hidden="true"></i>
+                          <?php
+                         } ?>
+                        <label for="is_default">Payment Received </label>                        
+                       
+            </div> 
+
+
+
+           </div>
+           <div class="col-md-4">
+            <div class="col-md-12 form-group">
+              <label class="col-md-12 control-label" for="passport_number"><strong>Passport Number : </strong><?php echo isset($user->profile->passport_number)?$user->profile->passport_number:''; ?></label>      
+            </div> 
+            <div class="col-md-6 form-group">
+              <label class="col-md-12 control-label" for="passport_image"><strong>Passport Image : </strong></label>   
+                 <div class="col-md-12">     
+                    @php $passport_image_required = true; @endphp
+                    @if(isset($user) && $user->getMedia('passport_image')->count() > 0 && file_exists($user->getFirstMedia('passport_image')->getPath()))
+                        @php $passport_image_required = false; @endphp
+                        <div class="row ml-2">                      
+                    <div class=" form-group">
+                        <a download href="{{ $user->getFirstMedia('passport_image')->getFullUrl() }}" target="_blank"><i class="fa fa-download" aria-hidden="true"></i></a>
+                    </div>
+                        </div>  
+                    @endif
+
+
+                  </div>     
+                 </div> 
+           </div>
+       </div> 
+
+
+
+
 
                   <div class="row">
                       <div class="col-md-6">
 
                     <div class="form-group">
-                <div class="ml-0">
+             <!--    <div class="ml-0">
         <h6 class="ml-0 font-weight-bold text-primary">Company</h6>
-        </div>
-                  <div class="table-responsive">
+        </div> -->
+                  <!-- <div class="table-responsive">
                      <table class="table table-striped table-bordered table-hover" id="company_table">
                       <thead>
                         <tr>
@@ -332,7 +539,7 @@
                     @endif</td>
 
                           <td>@if(isset($value) && $value->getMedia('document_image')->count() > 0 && file_exists($value->getFirstMedia('document_image')->getPath()))  
-                     <!--   <img width="50" src="{{ $value->getFirstMedia('document_image')->getFullUrl() }}" /> -->
+                   
                        <a download href="{{ $value->getFirstMedia('document_image')->getFullUrl() }}" target="_blank"><i class="fa fa-download" aria-hidden="true"></i></a>
                     </div>
                     @endif</td>
@@ -353,14 +560,14 @@
                  }   ?><?php 
                 }   ?></tbody>
                   </table>                 
-              </div>  
+              </div>  --> 
               </div>
              
             <div class="form-group">
-                <div class="ml-0">
-        <h6 class="ml-0 font-weight-bold text-primary">Packages</h6>
+                <div class="ml-2">
+        <h6 class="ml-2 font-weight-bold text-primary">Packages</h6>
         </div>
-         <div class="table-responsive">
+         <div class="ml-2 table-responsive">
                   <table class="table table-striped table-bordered table-hover" id="packages_table">
                     <thead>
                         <tr>                
@@ -395,14 +602,12 @@
 
 
 
-               </div><div class="col-md-6">                     
-
-         
-            <div class="form-group">
+              </div><div class="col-md-6">
+               <div class="form-group">
                 <div class="ml-0">
-        <h6 class="ml-0 font-weight-bold text-primary">Hourly Charges</h6>
+        <h6 class="ml-2 font-weight-bold text-primary">Hourly Charges</h6>
         </div>
-                  <div class="table-responsive">
+                <div class="ml-2 table-responsive">
                   <table class="table table-striped table-bordered table-hover" id="hourly_table">
                       <thead>
                         <tr>
@@ -436,10 +641,10 @@
         
 
              <div class="form-group">
-                <div class="ml-0">
+             <!--    <div class="ml-0">
         <h6 class="ml-0 font-weight-bold text-primary">Certifications</h6>
-        </div>
-                  <div class="table-responsive">
+        </div> -->
+                 <!--  <div class="table-responsive">
                      <table class="table table-striped table-bordered table-hover" id="certification_table">
                       <thead>
                         <tr>
@@ -482,10 +687,10 @@
                  }   ?><?php 
                 }   ?></tbody>
                   </table>                 
-              </div>  
+              </div>  --> 
               </div></div>
                      
-                  </div>
+                  </div> </div> 
                   </div>        
     </div>
 </div>

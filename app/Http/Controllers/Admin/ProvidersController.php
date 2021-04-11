@@ -450,12 +450,7 @@ class ProvidersController extends Controller
                         'image',
                         'mimes:jpeg,jpg,png',
                         'max:'.$media_max_size,
-                     ];
-            $rules['company_logo']=[
-                        'image',
-                        'mimes:jpeg,jpg,png',
-                        'max:'.$media_max_size,
-                     ];
+                     ];          
             $rules['remarks']        = 'required';
             $rules['document_image'] =[
                         'image',
@@ -736,7 +731,11 @@ class ProvidersController extends Controller
         $user = User::with('profile','profile.experience_level','profile.payment_option','package_user','hourly_charge','company')->findOrFail($id); 
         $works_photo=$user->getMedia('works_photo');  
         $providerCompanies=Company::query()->with('media')->where(['user_id'=>$id])->get();
-        $providerCertifications=Certification::query()->with('media')->where(['user_id'=>$id])->get();       
-        return view('admin.providers.view',compact('user','id','providerCompanies','providerCertifications','works_photo'));
+        $providerCompany=Company::query()->with('media')->where(['user_id'=>$id])->first();   
+        
+        $providerdegree=Certification::query()->with('media')->where(['user_id'=>$id,'type'=>'degree'])->first();  
+        $providerdiploma=Certification::query()->with('media')->where(['user_id'=>$id,'type'=>'diploma'])->first(); 
+        $providercertification=Certification::query()->with('media')->where(['user_id'=>$id,'type'=>'certification'])->first();        
+        return view('admin.providers.view',compact('user','id','providerCompanies','providerCertifications','works_photo','providerdegree','providerdiploma','providerCompany'));
     }    
 }
