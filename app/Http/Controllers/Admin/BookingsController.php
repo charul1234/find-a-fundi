@@ -39,6 +39,17 @@ class BookingsController extends Controller
 
         $job_type = $request->input('job_type');
         $job_status = $request->input('job_status');
+        $date_range = $request->input('date_range');
+        $start_date=$end_date='';
+        if($date_range!=''){
+            $date_range= explode('-', $date_range);
+            $start_date=isset($date_range[0])?$date_range[0]:'';
+            $start_date = str_replace('/', '-', $start_date);
+            $end_date=isset($date_range[1])?$date_range[1]:'';
+            $end_date = str_replace('/', '-', $end_date);
+            $start_date = date('Y-m-d', strtotime($start_date));
+            $end_date = date('Y-m-d', strtotime($end_date));
+        }
         if($job_type=='is_rfq')
         {
             $bookings=$bookings->where('is_rfq', true);
@@ -52,7 +63,10 @@ class BookingsController extends Controller
         if($job_status!='')
         {
             $bookings=$bookings->where('status', $job_status);
-        }     
+        }    
+        if (isset($start_date) && $start_date!='' && isset($end_date) && $end_date!='') {
+            $bookings->whereRaw("datetime BETWEEN '$start_date' and '$end_date'");
+        } 
             
         return DataTables::of($bookings)
             //->orderColumn('image', '-title $1')
@@ -101,6 +115,9 @@ class BookingsController extends Controller
             })
             ->editColumn('estimated_hours', function ($booking) {               
                 return isset($booking->estimated_hours)?$booking->estimated_hours:'';                
+            })
+            ->editColumn('job_status', function ($booking) {                
+                return isset($booking->status)?ucwords($booking->status):'';                  
             })
             ->editColumn('is_quoted', function ($booking) {
                 $is_quoted='No';

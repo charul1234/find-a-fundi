@@ -165,6 +165,7 @@
                    </div><div class="col-md-7"> <div class="text-left font-weight-bold">Technical Information</div></div></div>
 
 </div>
+
 <div class="card-body border mb-2 border-primary  mt-2 mb-2 ml-4 mr-4">
 
 <div class="row">
@@ -408,7 +409,9 @@
                 
  </div>
 <div class="card-body border mb-2 border-primary  mt-2 mb-2 ml-4 mr-4">
-
+ <div class="form-group col-md-12 ">
+    <h6 class="m-0 font-weight-bold text-primary">Company Information</h6>
+ </div>
     <div class="row"  id="security_container">
           <div class="col-md-4">
            <div class="form-group">

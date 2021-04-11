@@ -22,6 +22,9 @@
                   <?php $job_status=array('requested'=>'Requested','accepted'=>'Accepted','quoted'=>'Quoted','declined'=>'Declined','completed'=>'Completed'); ?>
                     {!! Form::select('job_status',$job_status, old('job_status'), ['class' => 'form-control','placeholder'=> __('Select Status')]) !!}                    
                 </div>  
+                 <div class="form-group mr-sm-2 mb-2">
+                    {!! Form::text('date_range', old('date_range'), ['class' => 'form-control col-12','placeholder'=> __('DD/MM/YYYY - DD/MM/YYYY'), 'autocomplete'=>'off']) !!}                    
+                </div> 
 
                 <button type="submit" class="btn btn-responsive btn-primary mr-sm-2 mb-2">{{ __('Filter') }}</button>
                 <a href="javascript:;" onclick="resetFilter();" class="btn btn-responsive btn-danger mb-2">{{ __('Reset') }}</a>
@@ -36,10 +39,10 @@
                           <th>Datetime</th>
                           <th>Location</th>   
                           <th>Type</th>  
+                          <th>Status</th>
                           <th>RFQ Budget</th> 
                           <th>Hourly Budget</th>
                           <th>Estimated hour</th>
-                          <th>Quoted</th>
                           <th>Seeker</th>
                           <th>Action</th>
                         </tr>
@@ -51,10 +54,10 @@
                           <th>Datetime</th>
                           <th>Location</th>   
                           <th>Type</th>  
+                          <th>Status</th>
                           <th>RFQ Budget</th> 
                           <th>Hourly Budget</th>
                           <th>Estimated hour</th>
-                          <th>Quoted</th>
                           <th>Seeker</th>
                           <th>Action</th>
                         </tr>
@@ -70,14 +73,30 @@
 @section('styles')
 <!-- Custom styles for this page -->
 <link href="{{ asset('admin-theme/vendor/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
+<link href="{{ asset('admin-theme/vendor/daterangepicker/daterangepicker.css') }}" rel="stylesheet">
 @endsection
 
 @section('scripts')
 <!-- Page level plugins -->
 <script src="{{ asset('admin-theme/vendor/datatables/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('admin-theme/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
+<script src="{{ asset('admin-theme/vendor/moment/js/moment.min.js') }}"></script>
+<script src="{{ asset('admin-theme/vendor/daterangepicker/daterangepicker.js') }}"></script>
 <script type="text/javascript">
 jQuery(document).ready(function(){
+
+  $('[name=date_range]').daterangepicker({
+        autoUpdateInput: false,
+        locale: {
+            cancelLabel: 'Clear'
+        }
+    }); 
+    jQuery('[name=date_range]').on('apply.daterangepicker', function(ev, picker) {
+      $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY'));
+    });
+    jQuery('[name=date_range]').on('cancel.daterangepicker', function(ev, picker) {
+      $(this).val('');
+    });
     getBookings();
     jQuery('#frmFilter').submit(function(){
         getBookings();
@@ -92,6 +111,7 @@ function resetFilter(){
 function getBookings(){
     var job_type = jQuery('#frmFilter [name=job_type]').val();
     var job_status = jQuery('#frmFilter [name=job_status]').val();
+    var date_range = jQuery('#frmFilter [name=date_range]').val();
     jQuery('#bookings').dataTable().fnDestroy(); 
     jQuery('#bookings tbody').empty();
     jQuery('#bookings').DataTable({
@@ -102,7 +122,8 @@ function getBookings(){
             method: 'POST',
             data : {
               job_type : job_type,
-              job_status : job_status
+              job_status : job_status,
+              date_range: date_range
             }
         },
         lengthMenu: [
@@ -114,11 +135,11 @@ function getBookings(){
             {data: 'title', name: 'title'},  
             {data: 'datetime', name: 'datetime'},
             {data: 'location', name: 'location'},
-            {data: 'type', name: 'type'},            
+            {data: 'type', name: 'type'},    
+            {data: 'job_status', name: 'job_status'},         
             {data: 'request_for_quote_budget', name: 'request_for_quote_budget'},
             {data: 'hourly_budget', name: 'hourly_budget'},
             {data: 'estimated_hours', name: 'estimated_hours'},
-            {data: 'is_quoted', name: 'is_quoted'},
             {data: 'requested_id', name: 'requested_id'},
             {data: 'action', name: 'action', orderable: false, searchable: false, "width": "5%"},
         ],

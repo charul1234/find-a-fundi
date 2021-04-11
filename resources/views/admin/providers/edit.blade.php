@@ -19,7 +19,7 @@
                    
         </div>
           <div class="card card-information">
-             <div class="alert alert-secondary col-md-12" role="alert"><div class="row"><div class="col-md-6">      <label for="fundi_is_middlemen">{{ Form::checkbox('is_personal_verified', '1', old('is_personal_verified',isset($user->profile->is_personal_verified)?$user->profile->is_personal_verified:0),['id'=>'is_personal_verified']) }}</label>
+             <div class="alert alert-secondary col-md-12" role="alert"><div class="row"><div class="col-md-5">      <label for="fundi_is_middlemen">{{ Form::checkbox('is_personal_verified', '1', old('is_personal_verified',isset($user->profile->is_personal_verified)?$user->profile->is_personal_verified:0),['id'=>'is_personal_verified']) }}</label>
                         <label for="is_default">Personal Information Verified </label></div><div class="col-md-6"> <div class="text-left font-weight-bold">Personal Information</div></div></div>
 </div>
           <!-- <div class="card-header  text-center">Personal Information</div> -->
@@ -224,7 +224,7 @@
         </div> 
           </div>
             
-             <div class="card mt-3 card-information-technical">   <div class="alert alert-secondary col-md-12" role="alert"><div class="row"><div class="col-md-6">      <label for="is_technical_verified">{{ Form::checkbox('is_technical_verified', '1', old('is_technical_verified',isset($user->profile->is_technical_verified)?$user->profile->is_technical_verified:0),['id'=>'is_technical_verified']) }}</label>
+             <div class="card mt-3 card-information-technical">   <div class="alert alert-secondary col-md-12" role="alert"><div class="row"><div class="col-md-5">      <label for="is_technical_verified">{{ Form::checkbox('is_technical_verified', '1', old('is_technical_verified',isset($user->profile->is_technical_verified)?$user->profile->is_technical_verified:0),['id'=>'is_technical_verified']) }}</label>
                         <label for="is_technical_verified">Technical Information Verified </label></div><div class="col-md-6"> <div class="text-left font-weight-bold">Technical Information</div></div></div>
 </div>
     <div class="card-body border mb-2 border-primary  mt-2 mb-2 ml-4 mr-4">
